@@ -1,0 +1,179 @@
+﻿<phone:PhoneApplicationPage
+    x:Class="PanoramaApp2.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+    xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
+    mc:Ignorable="d"
+    FontFamily="{StaticResource PhoneFontFamilyNormal}"
+    FontSize="{StaticResource PhoneFontSizeNormal}"
+    Foreground="{StaticResource PhoneForegroundBrush}"
+    SupportedOrientations="Portrait"  Orientation="Portrait"
+    toolkit:TiltEffect.IsTiltEnabled="True"
+    >
+
+    <!--LayoutRoot is the root grid where all page content is placed-->
+    <Grid x:Name="LayoutRoot" Background="#2B4F81">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!--Logo and search button-->
+        <Grid HorizontalAlignment="Center" Height="auto" Margin="0, 0, 0, 0"  VerticalAlignment="Center" Width="440" Grid.Row="0" Background="#2B4F81">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="200"/>
+                <ColumnDefinition Width="200"/>
+            </Grid.ColumnDefinitions>
+            <!--<Image Source="/DoubanMovie;component/Assets/logo.png" Height="120" Width="200" HorizontalAlignment="Left" Grid.Column="0"/>-->
+            <TextBlock x:Name="title" Text="{Binding Path=LocalizedResources.ApplicationTitle, Source={StaticResource LocalizedStrings}}" Height="auto" Width="auto" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="30" Grid.Column="0" Foreground="White"/>
+            <Image Source="/DoubanMovie;component/Assets/search.png" Height="60" Width="60" Grid.Column="1" Tap="Image_Tap" HorizontalAlignment="Right"/>
+        </Grid>
+        
+        <!--Pivot control-->
+        <phone:Pivot Margin="0,0,0,0" Grid.RowSpan="1" Background="#2B4F81" Grid.Row="1" HeaderTemplate="{StaticResource MyPivotItemHeaderTemplate}" SelectionChanged="Pivot_SelectionChanged">
+            <!--pivot item one-->
+            <phone:PivotItem x:Name="hotPivotItem" Header="{Binding Path=LocalizedResources.HotPivot, Source={StaticResource LocalizedStrings}}" Foreground="White" Margin="24, 24, 24, 24">
+                <!--Single line list with text wrapping-->
+                <phone:LongListSelector Margin="0,0,0,0" Name="hotLongListSelector" SelectionChanged="hotLongListSelector_SelectionChanged">
+                    <phone:LongListSelector.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Margin="0,10,0,10" Orientation="Horizontal" Height="auto" Width="auto">
+                                <Image Source="{Binding posterUrl, Mode=OneTime}" Height="150" Width="100" Stretch="UniformToFill"/>
+                                <StackPanel Orientation="Vertical" VerticalAlignment="Top" Height="auto" Width="auto" HorizontalAlignment="Left" Margin="12, 0, 0, 0">
+                                    <TextBlock Text="{Binding title, Mode=OneTime}" Margin="0, 0, 0, 0" TextWrapping="Wrap" Foreground="White" FontSize="30" VerticalAlignment="Center" Width="300" HorizontalAlignment="Left"/>
+                                    <StackPanel Orientation="Horizontal" Margin="0, -12, 0, 0">
+                                        <Image Source="{Binding star, Mode=OneTime}" Width="130" Height="80" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="-6, 0, 0, 0"/>
+                                        <TextBlock Text="{Binding rating, Mode=OneTime}" Foreground="White" Style="{StaticResource PhoneTextSmallStyle}" Margin="0, 0, 0, 5" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                                    </StackPanel>
+                                    <TextBlock Text="{Binding actors_list, Mode=OneTime}" Style="{StaticResource PhoneTextSmallStyle}" TextWrapping="Wrap" Width="300" Margin="0, -12, 0, 0" HorizontalAlignment="Left" Foreground="White"/>
+                                </StackPanel>
+                            </StackPanel>
+                    </DataTemplate>
+                    </phone:LongListSelector.ItemTemplate>
+                </phone:LongListSelector>
+            </phone:PivotItem>
+            
+            <!--pivot item two-->
+            <phone:PivotItem x:Name="UpcompingPivotItem" Header="{Binding Path=LocalizedResources.ComingPivot, Source={StaticResource LocalizedStrings}}" Foreground="White" Margin="24, 24, 24, 24">
+                <Grid Background="#2B4F81" Margin="0,0,0,0">
+                    <ProgressBar x:Name="UpcomingProgressBar" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Width="383"/>
+                    <!--Single line list with text wrapping-->
+                    <phone:LongListSelector  Name="latestListSelector" SelectionChanged="latestListSelector_SelectionChanged">
+                        <phone:LongListSelector.ItemTemplate>
+                            <DataTemplate>
+                                    <StackPanel Margin="0,10,0,10" Orientation="Horizontal" Height="auto" Width="auto">
+                                    <Image Source="{Binding posterUrl, Mode=OneTime}" Height="150" Width="100" Stretch="UniformToFill"/>
+                                        <StackPanel Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="12, 0, 0, 0">
+                                        <TextBlock Text="{Binding title, Mode=OneTime}" Margin="0, 0, 0, 0" TextWrapping="Wrap" Foreground="White" FontSize="30" VerticalAlignment="Center" Width="300"/>
+                                        <TextBlock Text="{Binding releaseDate, Mode=OneTime}" Foreground="White" Style="{StaticResource PhoneTextSmallStyle}" TextWrapping="Wrap" Width="300" Margin="0, 6, 0, 0" HorizontalAlignment="Left"/>
+                                        <TextBlock Text="{Binding genre, Mode=OneTime}" Foreground="White" Style="{StaticResource PhoneTextSmallStyle}" TextWrapping="Wrap" Width="300" Margin="0, 6, 0, 0" HorizontalAlignment="Left"/>
+                                        <TextBlock Text="{Binding region, Mode=OneTime}" Foreground="White" Style="{StaticResource PhoneTextSmallStyle}" TextWrapping="Wrap" Width="300" Margin="0, 6, 0, 0" HorizontalAlignment="Left"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                            </DataTemplate>
+                        </phone:LongListSelector.ItemTemplate>
+                    </phone:LongListSelector>
+                </Grid>
+            </phone:PivotItem>
+            
+            <!--pivot item three-->
+            <phone:PivotItem x:Name="topPivotItem" Header="{Binding Path=LocalizedResources.TopPivot, Source={StaticResource LocalizedStrings}}" Foreground="White" Margin="24, 24, 24, 0">
+                <Grid Margin="0, 0, 0, 0" Background="#2B4F81">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+                    <ProgressBar x:Name="TopProgressBar" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Width="383" Grid.Row="0"/>
+                    <!--Double line list with image placeholder and text wrapping using a floating header that scrolls with the content-->
+                    <phone:LongListSelector Margin="0,0,0,0" Name="top250LongListSelector" SelectionChanged="top250LongListSelector_SelectionChanged" Grid.Row="0">
+                        <phone:LongListSelector.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Margin="0,10,0,10" Orientation="Horizontal" Height="auto" Width="auto">
+                                    <Image Source="{Binding posterUrl, Mode=OneTime}" Height="180" Width="120" Stretch="UniformToFill"/>
+                                    <StackPanel Orientation="Vertical" VerticalAlignment="Top" Margin="12, 0, 0, 0">
+                                        <TextBlock Text="{Binding title, Mode=OneTime}" Margin="0, 0, 0, 0" TextWrapping="Wrap" Foreground="White" FontSize="30" VerticalAlignment="Center" Width="255"/>
+                                        <StackPanel Orientation="Horizontal" Margin="0, -12, 0, 0">
+                                            <Image Source="{Binding star, Mode=OneTime}" Width="130" Height="80" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="-6, 0, 0, 0"/>
+                                            <TextBlock Text="{Binding rating, Mode=OneTime}" Foreground="White" Style="{StaticResource PhoneTextSmallStyle}" Margin="0, 0, 0, 5" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                                        </StackPanel>
+                                        <TextBlock Text="{Binding quote, Mode=OneTime}" Foreground="White" Style="{StaticResource PhoneTextSmallStyle}" TextWrapping="Wrap" Width="255" Margin="0, -12, 0, 0" HorizontalAlignment="Left"/>
+                                    </StackPanel>
+                                    </StackPanel>
+                            </DataTemplate>
+                        </phone:LongListSelector.ItemTemplate>
+                    </phone:LongListSelector>
+                    <Button x:Name="loadMoreButton" Grid.Row="1" HorizontalAlignment="Center" Click="loadMoreButton_Click">
+                        <TextBlock x:Name="loadText" Text="{Binding Path=LocalizedResources.LoadMore, Source={StaticResource LocalizedStrings}}" Style="{StaticResource PhoneTextSmallStyle}" Foreground="White" HorizontalAlignment="Center"/>
+                    </Button>
+                </Grid>
+            </phone:PivotItem>
+            
+            <!--pivot item four-->
+            <phone:PivotItem x:Name="boxPivotItem" Header="{Binding Path=LocalizedResources.USPivot, Source={StaticResource LocalizedStrings}}" Foreground="White" Margin="24, 24, 24, 24">
+                <Grid Background="#2B4F81">
+                    <ProgressBar x:Name="USBoxProgressBar" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Width="383"/>
+                    <!--Single line list with text wrapping-->
+                    <phone:LongListSelector Margin="0,0,0,0" Name="usboxLongListSelector" SelectionChanged="usboxLongListSelector_SelectionChanged">
+                        <phone:LongListSelector.ItemTemplate>
+                            <DataTemplate>
+                                    <StackPanel Margin="0,10,0,10" Orientation="Horizontal" Height="auto" Width="auto">
+                                    <Image Source="{Binding posterUrl, Mode=OneTime}" Height="150" Width="100" Stretch="UniformToFill"/>
+                                        <StackPanel Orientation="Vertical" VerticalAlignment="Top" Margin="12, 0, 0, 0">
+                                            <TextBlock Text="{Binding title, Mode=OneTime}" Margin="0, 0, 0, 0" TextWrapping="Wrap" Foreground="White" FontSize="30" VerticalAlignment="Center" Width="300"/>
+                                            <StackPanel Orientation="Horizontal" Margin="0, -12, 0, 0">
+                                                <Image Source="{Binding star, Mode=OneTime}" Width="130" Height="80" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="-6, 0, 0, 0"/>
+                                                <TextBlock Text="{Binding rating, Mode=OneTime}" Foreground="White" Style="{StaticResource PhoneTextSmallStyle}" Margin="0, 0, 0, 5" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="-10, 0, 0, 0">
+                                                <TextBlock Text="票房" Style="{StaticResource PhoneTextSmallStyle}" Foreground="White" HorizontalAlignment="Left" />
+                                                <TextBlock Text="{Binding money, Mode=OneTime}" Foreground="White" Style="{StaticResource PhoneTextSmallStyle}" TextWrapping="Wrap"  Margin="0, 0, 0, 0" HorizontalAlignment="Left"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </StackPanel>
+                            </DataTemplate>
+                        </phone:LongListSelector.ItemTemplate>
+                    </phone:LongListSelector>
+                </Grid>
+            </phone:PivotItem>
+
+            <!--pivot item five-->
+            <phone:PivotItem x:Name="reviewPivotItem" Header="{Binding Path=LocalizedResources.HotReviewPivot, Source={StaticResource LocalizedStrings}}" Foreground="White" Margin="24, 24, 24, 0">
+                <Grid Margin="0, 0, 0, 0" Background="#2B4F81">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+                    <ProgressBar x:Name="HotReviewProgressBar" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Width="383" Grid.Row="0"/>
+                    <!--Single line list with text wrapping-->
+                    <phone:LongListSelector Margin="0,0,0,0" Name="hotReviewLongListSelector" SelectionChanged="hotReviewLongListSelector_SelectionChanged" Grid.Row="0">
+                        <phone:LongListSelector.ItemTemplate>
+                            <DataTemplate>
+                                    <StackPanel Margin="0,24,0,24" Orientation="Vertical" Height="auto" Width="auto">
+                                        <Border Background="#3063A5">
+                                            <TextBlock Text="{Binding title, Mode=OneTime}" Margin="0, 0, 0, 0" TextWrapping="Wrap" Foreground="White" FontSize="{StaticResource PhoneFontSizeMedium}" VerticalAlignment="Top" Width="auto" HorizontalAlignment="Left"/>
+                                        </Border>
+                                        <StackPanel Orientation="Horizontal" Margin="0, 0, 0, 0">
+                                            <TextBlock Text="{Binding reviewer, Mode=OneTime}" Foreground="White" Style="{StaticResource PhoneTextSmallStyle}" Margin="0, 0, 0, 5" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                                            <Image Source="{Binding star, Mode=OneTime}" Width="130" Height="auto" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0, 0, 0, 0"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="-12, -6, 0, 12">
+                                            <TextBlock Text="电影: " Style="{StaticResource PhoneTextSmallStyle}" Foreground="White" HorizontalAlignment="Left" />
+                                            <TextBlock Text="{Binding movieName, Mode=OneTime}" Foreground="White" Style="{StaticResource PhoneTextSmallStyle}" TextWrapping="Wrap"  Margin="0, 0, 0, 0" HorizontalAlignment="Left"/>
+                                        </StackPanel>
+                                        <TextBlock Text="{Binding reviewShort, Mode=OneTime}" TextWrapping="Wrap" Width="auto" Foreground="White"/>
+                                    </StackPanel>
+                            </DataTemplate>
+                        </phone:LongListSelector.ItemTemplate>
+                    </phone:LongListSelector>
+                    <Button x:Name="loadMoreReviewButton" Grid.Row="1" HorizontalAlignment="Center" Click="loadReviewMoreButton_Click">
+                        <TextBlock x:Name="loadReviewText" Text="{Binding Path=LocalizedResources.LoadMore, Source={StaticResource LocalizedStrings}}" Style="{StaticResource PhoneTextSmallStyle}" Foreground="White" HorizontalAlignment="Center"/>
+                    </Button>
+                </Grid>
+            </phone:PivotItem>
+        </phone:Pivot>
+    </Grid>
+</phone:PhoneApplicationPage>

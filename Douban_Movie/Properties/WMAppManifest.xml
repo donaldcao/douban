@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Deployment xmlns="http://schemas.microsoft.com/windowsphone/2012/deployment" AppPlatformVersion="8.0">
+  <DefaultLanguage xmlns="" code="zh-CN" />
+  <Languages xmlns="">
+    <Language code="zh-Hans" />
+    <Language code="zh-CN" />
+    <Language code="zh" />
+    <Language code="zh-CHS" />
+    <Language code="zh-SG" />
+    <Language code="zh-Hant" />
+    <Language code="zh-CHT" />
+    <Language code="zh-HK" />
+    <Language code="zh-MO" />
+    <Language code="zh-TW" />
+    <Language code="en-US" />
+  </Languages>
+  <App xmlns="" ProductID="{b679641e-e530-42e8-92e5-eb249306e8b1}" Title="豆瓣电影" RuntimeType="Silverlight" Version="1.1.0.0" Genre="apps.normal" Author="DTP Group" Description="Douban Movie is a third-party client for movie.douban.com. It provides movie searching, information, review and images browsing. You can also browse directors and movie stars information, their movies and their images." Publisher="DTP Group" PublisherID="{074c54bc-8cc2-4c17-b28d-0aa89f960aa7}">
+    <IconPath IsRelative="true" IsResource="false">Assets\ApplicationIcon.png</IconPath>
+    <Capabilities>
+      <Capability Name="ID_CAP_NETWORKING" />
+      <Capability Name="ID_CAP_MEDIALIB_AUDIO" />
+      <Capability Name="ID_CAP_MEDIALIB_PLAYBACK" />
+      <Capability Name="ID_CAP_SENSORS" />
+      <Capability Name="ID_CAP_WEBBROWSERCOMPONENT" />
+      <Capability Name="ID_CAP_MEDIALIB_PHOTO" />
+    </Capabilities>
+    <Tasks>
+      <DefaultTask Name="_default" NavigationPage="MainPage.xaml" ActivationPolicy="Resume" />
+    </Tasks>
+    <Tokens>
+      <PrimaryToken TokenID="PanoramaApp2Token" TaskName="_default">
+        <TemplateIconic>
+          <SmallImageURI IsRelative="true" IsResource="false">Assets\Tiles\IconTileSmall.png</SmallImageURI>
+          <Count>0</Count>
+          <IconImageURI IsRelative="true" IsResource="false">Assets\Tiles\IconTileMediumLarge.png</IconImageURI>
+          <Title>豆瓣电影</Title>
+          <Message>
+          </Message>
+          <BackgroundColor>
+          </BackgroundColor>
+          <HasLarge>True</HasLarge>
+          <LargeContent1>
+          </LargeContent1>
+          <LargeContent2>
+          </LargeContent2>
+          <LargeContent3>
+          </LargeContent3>
+          <DeviceLockImageURI IsRelative="true" IsResource="false">
+          </DeviceLockImageURI>
+        </TemplateIconic>
+      </PrimaryToken>
+    </Tokens>
+    <ScreenResolutions>
+      <ScreenResolution Name="ID_RESOLUTION_WVGA" />
+      <ScreenResolution Name="ID_RESOLUTION_WXGA" />
+      <ScreenResolution Name="ID_RESOLUTION_HD720P" />
+    </ScreenResolutions>
+  </App>
+</Deployment>
