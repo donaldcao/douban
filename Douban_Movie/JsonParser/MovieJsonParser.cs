@@ -69,6 +69,7 @@ namespace PanoramaApp2
                 if (e.Error == null && !e.Cancelled)
                 {
                     string data = e.Result;
+                    System.Diagnostics.Debug.WriteLine("download data is " + data);
                     JObject obj = JObject.Parse(data);
                     movie.summary = JsonParsers.getValue(obj, "summary");
                     if (movie.genre == "" || movie.genre == null)
@@ -92,10 +93,11 @@ namespace PanoramaApp2
                     {
                         movie.rateNumber = JsonParsers.getValue(obj, "ratings_count");
                     }
-                    if (movie.posterUrl == "" || movie.posterUrl == null)
-                    {
-                        movie.posterUrl = JsonParsers.getDouble(obj, "images", "small");
-                    }
+                    //if (movie.posterUrl == "" || movie.posterUrl == null)
+                    //{
+                        movie.posterUrl = JsonParsers.getDouble(obj, "images", "large");
+                        System.Diagnostics.Debug.WriteLine("image url is " + movie.posterUrl);
+                    //}
                     object[] countries = obj["countries"].ToArray();
                     if (movie.region == "" || movie.region == null)
                     {

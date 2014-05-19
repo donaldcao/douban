@@ -174,7 +174,18 @@ namespace PanoramaApp2.HtmlParser
             movie.year = year;
             movie.region = Util.replaceSpecialChar(region);
             movie.rateNumber = rateNumber;
-            movie.id = link.Substring(Movie.movieLinkHeader.Length, link.Length - 1 - Movie.movieLinkHeader.Length);
+            movie.id = "";
+            for (int i = Movie.movieLinkHeader.Length; i < link.Length; i++)
+            {
+                if (link[i] >= '0' && link[i] <= '9')
+                {
+                    movie.id += link[i];
+                }
+                else
+                {
+                    break;
+                }
+            }
             movie.star = Util.getStarPath(movie.rating);
             return movie;
         }

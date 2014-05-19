@@ -107,17 +107,16 @@ namespace PanoramaApp2.HtmlParser
 
         private static Movie getTopMovie(HtmlNode node)
         {
-            string id = "";
             string title = "";
             string posterUrl = "";
             string rating = "";
             string quote = "";
+            string link = "";
 
             try
             {
                 HtmlNode linkNode = node.SelectNodes("div[@class='pic']")[0].SelectNodes("a")[0];
-                string link = linkNode.Attributes["href"].Value.Trim();
-                id = link.Substring(Movie.movieLinkHeader.Length, link.Length - 1 - Movie.movieLinkHeader.Length);
+                link = linkNode.Attributes["href"].Value.Trim();
                 HtmlNode imgNode = linkNode.SelectNodes("img")[0];
                 posterUrl = imgNode.Attributes["src"].Value.Trim();
                 title = imgNode.Attributes["alt"].Value.Trim();
@@ -140,7 +139,18 @@ namespace PanoramaApp2.HtmlParser
             }
 
             Movie movie = new Movie();
-            movie.id = id;
+            movie.id = "";
+            for (int i = Movie.movieLinkHeader.Length; i < link.Length; i++)
+            {
+                if (link[i] >= '0' && link[i] <= '9')
+                {
+                    movie.id += link[i];
+                }
+                else
+                {
+                    break;
+                }
+            }
             movie.title = Util.replaceSpecialChar(title);
             movie.rating = rating;
             movie.star = Util.getStarPath(rating);

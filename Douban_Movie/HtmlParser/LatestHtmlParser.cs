@@ -107,17 +107,16 @@ namespace PanoramaApp2.HtmlParser
 
         public static Movie getLatestMovie(HtmlNode node)
         {
-            string id = "";
             string title = "";
             string region = "";
             string genre = "";
             string releaseDate = "";
             string posterUrl = "";
+            string link = "";
             try
             {
-                string link = node.SelectNodes("a[@class='thumb']")[0].Attributes["href"].Value;
+                link = node.SelectNodes("a[@class='thumb']")[0].Attributes["href"].Value;
                 posterUrl = node.SelectNodes("a[@class='thumb']")[0].SelectNodes("img")[0].Attributes["src"].Value;
-                id = link.Substring(Movie.movieLinkHeader.Length, link.Length - 1 - Movie.movieLinkHeader.Length);
                 HtmlNode introNode = node.SelectNodes("div[@class='intro']")[0];
                 title = introNode.SelectNodes("h3")[0].SelectNodes("a")[0].InnerText;
                 HtmlNode ulNode = introNode.SelectNodes("ul")[0];
@@ -131,7 +130,18 @@ namespace PanoramaApp2.HtmlParser
                 throw;
             }
             Movie movie = new Movie();
-            movie.id = id;
+            movie.id = "";
+            for (int i = Movie.movieLinkHeader.Length; i < link.Length; i++)
+            {
+                if (link[i] >= '0' && link[i] <= '9')
+                {
+                    movie.id += link[i];
+                }
+                else
+                {
+                    break;
+                }
+            }
             movie.genre = genre;
             movie.region = region;
             movie.posterUrl = posterUrl;

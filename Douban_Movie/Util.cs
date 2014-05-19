@@ -10,6 +10,11 @@ namespace PanoramaApp2
 {
     class Util
     {
+        public static string download(string url)
+        {
+            return "abcd";
+        }
+
         /// <summary>
         /// Get star image path from rating
         /// </summary>
