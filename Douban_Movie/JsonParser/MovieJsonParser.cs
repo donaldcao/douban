@@ -20,6 +20,8 @@ namespace PanoramaApp2
     class MovieJsonParser
     {
         private Movie movie;
+
+        public Grid grid { get; set; }
         public Image posterImage { get; set; }
         public Image starImage { get; set; }
         public TextBlock title { get; set; }
@@ -186,6 +188,7 @@ namespace PanoramaApp2
 
         private void setUI()
         {
+            /*
             title.Text = movie.title;
             posterImage.Source = new BitmapImage(new Uri(movie.posterUrl));
             starImage.Source = new BitmapImage(new Uri(movie.star, UriKind.Relative));
@@ -196,6 +199,8 @@ namespace PanoramaApp2
             region.Text = movie.region;
             genre.Text = movie.genre;
             summary.Text = movie.summary;
+             */
+            grid.DataContext = movie;
             trailer.Content = "预告片";
             trailer.NavigateUri = new Uri(Movie.movieLinkHeader + movie.id + "/trailer", UriKind.Absolute);
             theater.Content = "选座购票";

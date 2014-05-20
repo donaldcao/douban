@@ -41,12 +41,13 @@ namespace PanoramaApp2
                     movie = result;
                 }
                 movieParser = new MovieJsonParser(movie);
+                movieParser.grid = movieGrid;
                 movieParser.progressBar = MovieProgressBar;
                 movieParser.title = title;
                 movieParser.posterImage = posterUrl;
                 movieParser.rating = rating;
                 movieParser.rateNumber = rateNumber;
-                movieParser.year_duration = year_duration;
+                movieParser.year_duration = year;
                 movieParser.starImage = ratingUrl;
                 movieParser.name = fixedName;
                 movieParser.region = region;

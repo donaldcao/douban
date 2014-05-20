@@ -38,32 +38,40 @@
             <!--Panorama item one-->
             <phone:PivotItem Header="{Binding Path=LocalizedResources.MovieInfo, Source={StaticResource LocalizedStrings}}" Margin="24, 24, 24, 24">
                 <ScrollViewer VerticalScrollBarVisibility="Auto"  HorizontalScrollBarVisibility="Disabled">
-                    <Grid Margin="0, 0, 0, 0">
+                    <Grid x:Name="movieGrid" Margin="0, 0, 0, 0">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="auto"/>
                              <RowDefinition Height="auto"/>
                         </Grid.RowDefinitions>
-                            <ProgressBar x:Name="MovieProgressBar" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Width="383" Grid.Row="1"/>
-                            <StackPanel Orientation="Horizontal" Margin="0, 0, 0, 0" HorizontalAlignment="Left" Grid.Row="0">
-                            <Image x:Name="posterUrl" Width="140" Height="240" HorizontalAlignment="Left" Stretch="UniformToFill"/>
+                        <!-- First grid -->
+                        <ProgressBar x:Name="MovieProgressBar" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Width="383" Grid.Row="1"/>
+                        <StackPanel Orientation="Horizontal" Margin="0, 0, 0, 0" HorizontalAlignment="Left" Grid.Row="0">
+                            <Image x:Name="posterUrl" Source="{Binding posterUrl, Mode=OneTime}" Width="140" Height="240" HorizontalAlignment="Left" Stretch="UniformToFill"/>
                             <StackPanel Orientation="Vertical" Margin="12, 0, 0, 0" HorizontalAlignment="Left" VerticalAlignment="Top">
-                                <TextBlock x:Name="title" FontSize="30" HorizontalAlignment="Left" TextWrapping="Wrap" Width="280" Foreground="White"/>
+                                <TextBlock x:Name="title" Text="{Binding title, Mode=OneTime}" FontSize="30" HorizontalAlignment="Left" TextWrapping="Wrap" Width="280" Foreground="White"/>
                                 <StackPanel Orientation="Horizontal" Margin="-6, 0, 0, 0" >
-                                    <Image x:Name="ratingUrl" Width="100" Height="65" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                                    <TextBlock x:Name="rating" Style="{StaticResource PhoneTextSmallStyle}" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="-3, 0, 0, 0"/>
-                                    <TextBlock x:Name="rateNumber" Style="{StaticResource PhoneTextSmallStyle}" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                    <Image x:Name="ratingUrl" Source="{Binding star, Mode=OneTime}" Width="100" Height="65" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="rating" Text="{Binding rating, Mode=OneTime}" Style="{StaticResource PhoneTextSmallStyle}" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="-3, 0, 0, 0"/>
+                                    <TextBlock x:Name="rateNumber" Text="{Binding rateNumber, Mode=OneTime}" Style="{StaticResource PhoneTextSmallStyle}" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                                     <TextBlock x:Name="fixedName" Style="{StaticResource PhoneTextSmallStyle}" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="-10, 0, 0, 0"/>
                                 </StackPanel>
-                                <TextBlock x:Name="year_duration" Foreground="White" Style="{StaticResource PhoneTextSmallStyle}" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="2,-12, 0, 0"  Width="250" TextWrapping="Wrap"/>
-                                <TextBlock x:Name="region" Foreground="White" Style="{StaticResource PhoneTextSmallStyle}" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="2, 2, 0, 0"  Width="250" TextWrapping="Wrap"/>
-                                <TextBlock x:Name="genre" Foreground="White" Style="{StaticResource PhoneTextSmallStyle}" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="2, 2, 0, 0"  Width="250" TextWrapping="Wrap"/>
+                                <StackPanel Orientation="Horizontal" Margin="0, 0, 0, 0">
+                                    <TextBlock x:Name="year" Text="{Binding year, Mode=OneTime}" Foreground="White" Style="{StaticResource PhoneTextSmallStyle}" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0, 0, 0, 0"/>
+                                    <TextBlock x:Name="slash" Foreground="White" Style="{StaticResource PhoneTextSmallStyle}" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0, 0, 0, 0"/>
+                                    <TextBlock x:Name="length" Text="{Binding length, Mode=OneTime}" Foreground="White" Style="{StaticResource PhoneTextSmallStyle}" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0, 0, 0, 0"/>
+                                </StackPanel>
+                                <TextBlock x:Name="region" Text="{Binding region, Mode=OneTime}" Foreground="White" Style="{StaticResource PhoneTextSmallStyle}" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0, 2, 0, 0"  Width="250" TextWrapping="Wrap"/>
+                                <TextBlock x:Name="genre" Text="{Binding genre, Mode=OneTime}" Foreground="White" Style="{StaticResource PhoneTextSmallStyle}" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0, 2, 0, 0"  Width="250" TextWrapping="Wrap"/>
                                 <StackPanel Orientation="Horizontal" Margin="-12, 0, 0, 0">
                                     <HyperlinkButton x:Name="trailer" Foreground="White" TargetName="_blank"/>
                                     <HyperlinkButton x:Name="theater" Foreground="White" TargetName="_blank"/>
                                 </StackPanel>
                             </StackPanel>
                         </StackPanel>
-                        <my:ScrollableTextBlock x:Name="summary" Margin="0, 24, 0, 0" Grid.Row="1" Foreground="White" Width="auto" Height="auto"/>
+                        
+                        <!-- Second grid -->
+                        <my:ScrollableTextBlock x:Name="summary" Text="{Binding summary, Mode=OneTime}" Margin="0, 24, 0, 0" Grid.Row="1" Foreground="White" Width="auto" Height="auto"/>
+                        
                     </Grid>
                 </ScrollViewer>
             </phone:PivotItem>
