@@ -14,6 +14,7 @@ using System.Windows;
 using PanoramaApp2.JsonParser;
 using PanoramaApp2.Resources;
 using Phone.Controls;
+using System.Net.Http;
 
 namespace PanoramaApp2
 {
@@ -37,13 +38,14 @@ namespace PanoramaApp2
         public LongListSelector peopleList { get; set; }
         public ProgressBar progressBar { get; set; }
         public WebClient client;
+        private HttpClient httpClient;
 
         public MovieJsonParser(Movie m)
         {
             movie = m;
         }
 
-        public void getMovieByID()
+        public async Task<Movie> getMovieByID()
         {
             Movie result = Cache.getMovie(movie.id);
             if (result != null)
@@ -61,7 +63,10 @@ namespace PanoramaApp2
                 client = new WebClient();
                 client.DownloadStringCompleted += downloadJsonCompleted;
                 client.DownloadStringAsync(new Uri(Movie.apiMovieHeader + movie.id + "?apikey=" + App.apikey));
+                httpClient = new HttpClient();
+                String downloadString = await httpClient.GetStringAsync(Movie.apiMovieHeader + movie.id + "?apikey=" + App.apikey);
             }
+            return movie;
         }
 
         private void downloadJsonCompleted(object sender, DownloadStringCompletedEventArgs e)
@@ -71,7 +76,6 @@ namespace PanoramaApp2
                 if (e.Error == null && !e.Cancelled)
                 {
                     string data = e.Result;
-                    System.Diagnostics.Debug.WriteLine("download data is " + data);
                     JObject obj = JObject.Parse(data);
                     movie.summary = JsonParsers.getValue(obj, "summary");
                     if (movie.genre == "" || movie.genre == null)
@@ -98,7 +102,6 @@ namespace PanoramaApp2
                     //if (movie.posterUrl == "" || movie.posterUrl == null)
                     //{
                         movie.posterUrl = JsonParsers.getDouble(obj, "images", "large");
-                        System.Diagnostics.Debug.WriteLine("image url is " + movie.posterUrl);
                     //}
                     object[] countries = obj["countries"].ToArray();
                     if (movie.region == "" || movie.region == null)

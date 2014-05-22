@@ -55,7 +55,7 @@
                                     <TextBlock x:Name="rateNumber" Text="{Binding rateNumber, Mode=OneTime}" Style="{StaticResource PhoneTextSmallStyle}" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                                     <TextBlock x:Name="fixedName" Style="{StaticResource PhoneTextSmallStyle}" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="-10, 0, 0, 0"/>
                                 </StackPanel>
-                                <StackPanel Orientation="Horizontal" Margin="0, 0, 0, 0">
+                                <StackPanel Orientation="Horizontal" Margin="0, -12, 0, 0">
                                     <TextBlock x:Name="year" Text="{Binding year, Mode=OneTime}" Foreground="White" Style="{StaticResource PhoneTextSmallStyle}" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0, 0, 0, 0"/>
                                     <TextBlock x:Name="slash" Foreground="White" Style="{StaticResource PhoneTextSmallStyle}" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0, 0, 0, 0"/>
                                     <TextBlock x:Name="length" Text="{Binding length, Mode=OneTime}" Foreground="White" Style="{StaticResource PhoneTextSmallStyle}" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0, 0, 0, 0"/>
