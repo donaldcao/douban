@@ -10,6 +10,9 @@ using Microsoft.Phone.Shell;
 using System.Windows.Media.Imaging;
 using System.Windows.Controls.Primitives;
 using PanoramaApp2.HtmlParser;
+using PanoramaApp2.Utility;
+using System.Threading.Tasks;
+using PanoramaApp2.Resources;
 
 namespace PanoramaApp2
 {
@@ -41,25 +44,10 @@ namespace PanoramaApp2
                     movie = result;
                 }
                 movieParser = new MovieJsonParser(movie);
-                movieParser.grid = movieGrid;
-                movieParser.progressBar = MovieProgressBar;
-                movieParser.title = title;
-                movieParser.posterImage = posterUrl;
-                movieParser.rating = rating;
-                movieParser.rateNumber = rateNumber;
-                movieParser.year_duration = year;
-                movieParser.starImage = ratingUrl;
-                movieParser.name = fixedName;
-                movieParser.region = region;
-                movieParser.genre = genre;
-                movieParser.trailer = trailer;
-                movieParser.theater = theater;
-                movieParser.summary = summary;
-                movieParser.peopleList = peopleSelector;
             }
         }
 
-        protected override void OnNavigatedTo(NavigationEventArgs e)
+        protected async override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
             if (App.fromTombStone)
@@ -70,11 +58,34 @@ namespace PanoramaApp2
             {
                 if (e.NavigationMode == NavigationMode.New)
                 {
-                    if (movieParser != null)
+                    MovieProgressBar.IsIndeterminate = true;
+                    MovieProgressBar.Visibility = System.Windows.Visibility.Visible;
+                    try
                     {
-                        MovieProgressBar.IsIndeterminate = true;
-                        MovieProgressBar.Visibility = System.Windows.Visibility.Visible;
-                        movieParser.getMovieByID();
+                        Tuple<Movie, List<People>> tuple = await movieParser.getMovieByID();
+                        movie = tuple.Item1;
+                        List<People> peoples = tuple.Item2;
+                        movieGrid.DataContext = movie;
+                        slash.Text = " / ";
+                        fixedName.Text = "人评分";
+                        peopleSelector.ItemsSource = peoples;
+                        MovieProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                    }
+                    catch (TaskCanceledException)
+                    {
+                        if (movieParser.isCanceled())
+                        {
+                            System.Diagnostics.Debug.WriteLine("Canceled by users");
+                        }
+                        else
+                        {
+                            System.Diagnostics.Debug.WriteLine("Timeout!");
+                            MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
                     }
                 }
             }

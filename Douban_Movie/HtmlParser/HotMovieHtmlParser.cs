@@ -9,6 +9,7 @@ using HtmlAgilityPack;
 using System.Windows.Controls.Primitives;
 using System.Windows;
 using PanoramaApp2.Resources;
+using PanoramaApp2.Utility;
 
 namespace PanoramaApp2.HtmlParser
 {

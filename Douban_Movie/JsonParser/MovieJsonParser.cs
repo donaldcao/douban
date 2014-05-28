@@ -15,38 +15,25 @@ using PanoramaApp2.JsonParser;
 using PanoramaApp2.Resources;
 using Phone.Controls;
 using System.Net.Http;
+using PanoramaApp2.Utility;
 
 namespace PanoramaApp2
 {
     class MovieJsonParser
     {
         private Movie movie;
-
-        public Grid grid { get; set; }
-        public Image posterImage { get; set; }
-        public Image starImage { get; set; }
-        public TextBlock title { get; set; }
-        public TextBlock rating { get; set; }
-        public TextBlock rateNumber { get; set; }
-        public TextBlock year_duration { get; set; }
-        public TextBlock name { get; set; }
-        public TextBlock region { get; set; }
-        public TextBlock genre { get; set; }
-        public HyperlinkButton trailer { get; set; }
-        public HyperlinkButton theater { get; set; }
-        public ScrollableTextBlock summary { get; set; }
-        public LongListSelector peopleList { get; set; }
-        public ProgressBar progressBar { get; set; }
-        public WebClient client;
-        private HttpClient httpClient;
+        private Downloader downloader;
 
         public MovieJsonParser(Movie m)
         {
             movie = m;
+            downloader = new Downloader(Movie.apiMovieHeader + movie.id + "?apikey=" + App.apikey);
         }
 
-        public async Task<Movie> getMovieByID()
+        public async Task<Tuple<Movie, List<People>>> getMovieByID()
         {
+            // Don't use cache now
+            /*
             Movie result = Cache.getMovie(movie.id);
             if (result != null)
             {
@@ -60,162 +47,107 @@ namespace PanoramaApp2
             }
             else
             {
-                client = new WebClient();
-                client.DownloadStringCompleted += downloadJsonCompleted;
-                client.DownloadStringAsync(new Uri(Movie.apiMovieHeader + movie.id + "?apikey=" + App.apikey));
-                httpClient = new HttpClient();
-                String downloadString = await httpClient.GetStringAsync(Movie.apiMovieHeader + movie.id + "?apikey=" + App.apikey);
-            }
-            return movie;
-        }
-
-        private void downloadJsonCompleted(object sender, DownloadStringCompletedEventArgs e)
-        {
-            try
-            {
-                if (e.Error == null && !e.Cancelled)
-                {
-                    string data = e.Result;
-                    JObject obj = JObject.Parse(data);
-                    movie.summary = JsonParsers.getValue(obj, "summary");
-                    if (movie.genre == "" || movie.genre == null)
-                    {
-                        movie.genre = JsonParsers.getArray(obj, "genres");
-                    }
-                    if (movie.title == "" || movie.title == null)
-                    {
-                        movie.title = JsonParsers.getValue(obj, "title");
-                    }
-                    if (movie.year == "" || movie.year == null)
-                    {
-                        movie.year = JsonParsers.getValue(obj, "year");
-                    }
-                    if (movie.rating == "" || movie.rating == null)
-                    {
-                        movie.rating = JsonParsers.getDouble(obj, "rating", "average");
-                    }
-                    movie.star = Util.getStarPath(movie.rating);
-                    if (movie.rateNumber == "" || movie.rateNumber == null)
-                    {
-                        movie.rateNumber = JsonParsers.getValue(obj, "ratings_count");
-                    }
-                    //if (movie.posterUrl == "" || movie.posterUrl == null)
-                    //{
-                        movie.posterUrl = JsonParsers.getDouble(obj, "images", "large");
-                    //}
-                    object[] countries = obj["countries"].ToArray();
-                    if (movie.region == "" || movie.region == null)
-                    {
-                        movie.region = JsonParsers.getArray(obj, "countries");
-                    }
-
-                    if (movie.posterUrl == "")
-                    {
-                        movie.posterUrl = App.imagePath + "default.png";
-                    }
-                    setUI();
-
-                    List<People> peoples = new List<People>();
-                    JArray array = (JArray)obj["directors"];
-                    for (int i = 0; i < array.Count; i++)
-                    {
-                        People people = new People();
-                        people.posterUrl = JsonParsers.getDouble(array[i], "avatars", "small");
-                        if (people.posterUrl == "")
-                        {
-                            people.posterUrl = App.imagePath + "default.png";
-                        }
-                        people.id = JsonParsers.getValue(array[i], "id");
-                        people.name = JsonParsers.getValue(array[i], "name");
-                        people.positionName = "导演";
-                        people.position = People.DIRECTOR;
-                        peoples.Add(people);
-                    }
-                    array = (JArray)obj["casts"];
-                    for (int i = 0; i < array.Count; i++)
-                    {
-                        People people = new People();
-                        people.posterUrl = JsonParsers.getDouble(array[i], "avatars", "small");
-                        if (people.posterUrl == "")
-                        {
-                            people.posterUrl = App.imagePath + "default.png";
-                        }
-                        people.id = JsonParsers.getValue(array[i], "id");
-                        people.name = JsonParsers.getValue(array[i], "name");
-                        people.positionName = "";
-                        people.position = People.ACTOR;
-                        peoples.Add(people);
-                    }
-                    movie.peopleList = peoples;
-                    peopleList.ItemsSource = peoples;
-                    // Insert movie into cache
-                    Cache.insertMovie(movie);
-                    if (progressBar != null)
-                    {
-                        progressBar.Visibility = Visibility.Collapsed;
-                    }
-                }
-                else
-                {
-                    var wEx = e.Error as WebException;
-                    if (wEx.Status == WebExceptionStatus.RequestCanceled)
-                    {
-                        if (App.isFromDormant)
-                        {
-                            App.isFromDormant = false;
-                            getMovieByID();
-                        }
-                    }
-                    if (progressBar != null)
-                    {
-                        progressBar.Visibility = Visibility.Collapsed;
-                    }
-                }
-            }
-            catch (WebException)
-            {
-                if (progressBar != null)
-                {
-                    progressBar.Visibility = Visibility.Collapsed;
-                }
-                MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
-            }
-            catch (Exception)
-            {
-                if (progressBar != null)
-                {
-                    progressBar.Visibility = Visibility.Collapsed;
-                }
-            }
-        }
-
-        private void setUI()
-        {
-            /*
-            title.Text = movie.title;
-            posterImage.Source = new BitmapImage(new Uri(movie.posterUrl));
-            starImage.Source = new BitmapImage(new Uri(movie.star, UriKind.Relative));
-            rating.Text = movie.rating;
-            rateNumber.Text = movie.rateNumber;
-            year_duration.Text = movie.year + " / " + movie.length;
-            name.Text = "人评分";
-            region.Text = movie.region;
-            genre.Text = movie.genre;
-            summary.Text = movie.summary;
              */
-            grid.DataContext = movie;
-            trailer.Content = "预告片";
-            trailer.NavigateUri = new Uri(Movie.movieLinkHeader + movie.id + "/trailer", UriKind.Absolute);
-            theater.Content = "选座购票";
-            theater.NavigateUri = new Uri(Movie.movieLinkHeader + movie.id + "/cinema", UriKind.Absolute);
+            String movieJson = await downloader.downloadString();
+
+            return parseMovieJson(movieJson);
         }
 
+        /// <summary>
+        /// Parse movie JSON
+        /// </summary>
+        /// <param name="movieJson">Movie JSON String</param>
+        private Tuple<Movie, List<People>> parseMovieJson(String movieJson)
+        {
+            JObject obj = JObject.Parse(movieJson);
+            movie.summary = JsonParsers.getValue(obj, "summary");
+            if (movie.genre == "" || movie.genre == null)
+            {
+                movie.genre = JsonParsers.getArray(obj, "genres");
+            }
+            if (movie.title == "" || movie.title == null)
+            {
+                movie.title = JsonParsers.getValue(obj, "title");
+            }
+            if (movie.year == "" || movie.year == null)
+            {
+                movie.year = JsonParsers.getValue(obj, "year");
+            }
+            if (movie.rating == "" || movie.rating == null)
+            {
+                movie.rating = JsonParsers.getDouble(obj, "rating", "average");
+            }
+            movie.star = Util.getStarPath(movie.rating);
+            if (movie.rateNumber == "" || movie.rateNumber == null)
+            {
+                movie.rateNumber = JsonParsers.getValue(obj, "ratings_count");
+            }
+            if (movie.posterUrl == "" || movie.posterUrl == null)
+            {
+            movie.posterUrl = JsonParsers.getDouble(obj, "images", "large");
+            }
+            object[] countries = obj["countries"].ToArray();
+            if (movie.region == "" || movie.region == null)
+            {
+                movie.region = JsonParsers.getArray(obj, "countries");
+            }
+
+            if (movie.posterUrl == "")
+            {
+                movie.posterUrl = App.imagePath + "default.png";
+            }
+
+            List<People> peoples = new List<People>();
+            JArray array = (JArray)obj["directors"];
+            for (int i = 0; i < array.Count; i++)
+            {
+                People people = new People();
+                people.posterUrl = JsonParsers.getDouble(array[i], "avatars", "small");
+                if (people.posterUrl == "")
+                {
+                    people.posterUrl = App.imagePath + "default.png";
+                }
+                people.id = JsonParsers.getValue(array[i], "id");
+                people.name = JsonParsers.getValue(array[i], "name");
+                people.positionName = "导演";
+                people.position = People.DIRECTOR;
+                peoples.Add(people);
+            }
+            array = (JArray)obj["casts"];
+            for (int i = 0; i < array.Count; i++)
+            {
+                People people = new People();
+                people.posterUrl = JsonParsers.getDouble(array[i], "avatars", "small");
+                if (people.posterUrl == "")
+                {
+                    people.posterUrl = App.imagePath + "default.png";
+                }
+                people.id = JsonParsers.getValue(array[i], "id");
+                people.name = JsonParsers.getValue(array[i], "name");
+                people.positionName = "";
+                people.position = People.ACTOR;
+                peoples.Add(people);
+            }
+
+            return Tuple.Create(movie, peoples);
+        }
+
+        /// <summary>
+        /// Cancel download
+        /// </summary>
         public void cancelDownload()
         {
-            if (client != null)
-            {
-                client.CancelAsync();
-            }
+            downloader.cancelDownload();
         }
+
+        /// <summary>
+        /// If the download is canceled
+        /// </summary>
+        /// <returns>If download is canceled</returns>
+        public bool isCanceled()
+        {
+            return downloader.isCanceled();
+        }
+        
     }
 }

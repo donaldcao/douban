@@ -12,6 +12,7 @@ using System.Collections.ObjectModel;
 using Microsoft.Phone.Shell;
 using System.Windows;
 using PanoramaApp2.Resources;
+using PanoramaApp2.Utility;
 
 namespace PanoramaApp2.HtmlParser
 {

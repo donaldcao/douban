@@ -6,20 +6,16 @@ using System.Threading.Tasks;
 using HtmlAgilityPack;
 using System.Net;
 
-namespace PanoramaApp2
+namespace PanoramaApp2.Utility
 {
     class Util
     {
-        public static string download(string url)
-        {
-            return "abcd";
-        }
 
         /// <summary>
         /// Get star image path from rating
         /// </summary>
-        /// <param name="rate"></param>
-        /// <returns></returns>
+        /// <param name="rate">Movie rating</param>
+        /// <returns>Path to corresponding rating picture</returns>
         public static string getStarPath(string rate)
         {
             double rating = 0;
@@ -52,6 +48,11 @@ namespace PanoramaApp2
             return starPath;
         }
 
+        /// <summary>
+        /// Format short review
+        /// </summary>
+        /// <param name="review">Short review</param>
+        /// <returns>Formatted short review</returns>
         public static string formatShortReview(string review)
         {
             string newReview = removeNewLine(review.Trim());
@@ -59,6 +60,11 @@ namespace PanoramaApp2
             return newReview;
         }
 
+        /// <summary>
+        /// Format review
+        /// </summary>
+        /// <param name="review">Review</param>
+        /// <returns>Formatted review</returns>
         public static string formatReview(string review)
         {
             string newReview = removeNewLine(review);
@@ -66,6 +72,11 @@ namespace PanoramaApp2
             return replaceTags(newReview);
         }
 
+        /// <summary>
+        /// Replace html tags with corresponding characters
+        /// </summary>
+        /// <param name="text">Text</param>
+        /// <returns>Formatted text</returns>
         public static string replaceTags(string text)
         {
             text = text.Replace("<br/>", Environment.NewLine);
@@ -74,6 +85,11 @@ namespace PanoramaApp2
             return text.Replace("<wbr>", string.Empty);
         }
 
+        /// <summary>
+        /// Remove newline characters
+        /// </summary>
+        /// <param name="text">Text</param>
+        /// <returns>Text without newline</returns>
         public static string removeNewLine(string text)
         {
             text = text.Replace("\r\n", string.Empty);
@@ -82,6 +98,11 @@ namespace PanoramaApp2
             return text;
         }
 
+        /// <summary>
+        /// Decode html
+        /// </summary>
+        /// <param name="text">Html text</param>
+        /// <returns>Decoded html text</returns>
         public static string replaceSpecialChar(string text)
         {
             return HttpUtility.HtmlDecode(text);
