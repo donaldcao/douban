@@ -18,174 +18,101 @@ namespace PanoramaApp2.HtmlParser
 {
     class ShortReviewHtmlParser
     {
-        public ObservableCollection<ShortReview> shortReviewCollection = new ObservableCollection<ShortReview>();
-        public Button button { get; set; }
-        public TextBlock text { get; set; }
-        public ProgressBar progressBar { get; set; }
+        private ObservableCollection<ShortReview> shortReviewCollection;
+        private bool moreReview;
         private Movie movie { get; set; }
-        private WebClient client;
-        private bool isFromLoadMore = false;
+        private Downloader downloader;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="m">Movie</param>
         public ShortReviewHtmlParser(Movie m)
         {
             movie = m;
+            shortReviewCollection = new ObservableCollection<ShortReview>();
+            moreReview = false;
+            movie.nextShortReviewLink = Movie.movieLinkHeader + movie.id + "/comments";
+            downloader = new Downloader(movie.nextShortReviewLink);
         }
 
-        public void parseShortReview()
+        /// <summary>
+        /// Get short review
+        /// </summary>
+        /// <returns>short review and if there's more</returns>
+        public async Task<Tuple<ObservableCollection<ShortReview>, bool>> getShortReview()
         {
-            // Movie not in cache or no short review previously loaded
-            if (movie.shortReviewLoaded == false)
+            String shortReviewHtml = await downloader.downloadString();
+            parseShortReviewHtml(shortReviewHtml);
+            return Tuple.Create(shortReviewCollection, moreReview);
+        }
+
+        private void parseShortReviewHtml(String shortReviewHtml)
+        {
+            HtmlDocument doc = new HtmlDocument();
+            doc.LoadHtml(shortReviewHtml);
+            HtmlNodeCollection nodeCollection = doc.DocumentNode.SelectNodes("//div[@class='comment']");
+            
+            // Short review doesn't exist
+            if (nodeCollection == null)
             {
-                movie.nextShortReviewLink = Movie.movieLinkHeader + movie.id + "/comments";
-                client = new WebClient();
-                client.DownloadStringCompleted += downloadShortReviewCompleted;
-                client.DownloadStringAsync(new Uri(movie.nextShortReviewLink));
+                moreReview = false;
             }
             else
             {
-                foreach (ShortReview sr in movie.shortReviewSet)
+                foreach (HtmlNode node in nodeCollection)
                 {
+                    ShortReview sr;
+                    try
+                    {
+                        sr = getShortReview(node);
+                    }
+                    catch (Exception)
+                    {
+                        continue;
+                    }
                     shortReviewCollection.Add(sr);
                 }
-                if (progressBar != null)
+                nodeCollection = doc.DocumentNode.SelectNodes("//div[@id='paginator']");
+                if (nodeCollection == null)
                 {
-                    progressBar.Visibility = Visibility.Collapsed;
-                }
-                if (movie.hasMoreShortReview == false)
-                {
-                    button.IsEnabled = false;
-                    text.Text = AppResources.Finish;
+                    moreReview = false;
                 }
                 else
                 {
-                    button.IsEnabled = true;
-                }
-            }
-
-        }
-
-        public void loadMore()
-        {
-            isFromLoadMore = true;
-            client = new WebClient();
-            client.DownloadStringCompleted += downloadShortReviewCompleted;
-            client.DownloadStringAsync(new Uri(movie.nextShortReviewLink));
-        }
-
-
-        public void downloadShortReviewCompleted(object sender, DownloadStringCompletedEventArgs e)
-        {
-            try
-            {
-                if (e.Error == null && !e.Cancelled)
-                {
-                    string page = e.Result;
-                    HtmlDocument doc = new HtmlDocument();
-                    doc.LoadHtml(page);
-                    HtmlNodeCollection nodeCollection = doc.DocumentNode.SelectNodes("//div[@class='comment']");
-                    if (nodeCollection == null)
+                    HtmlNodeCollection nc = nodeCollection[0].SelectNodes("a[@class='next']");
+                    if (nc == null)
                     {
-                        if (progressBar != null)
-                        {
-                            progressBar.Visibility = Visibility.Collapsed;
-                        }
-                        movie.hasMoreShortReview = false;
-                        button.IsEnabled = false;
-                        text.Text = AppResources.Finish;
+                        moreReview = false;
                     }
                     else
                     {
-                        foreach (HtmlNode node in nodeCollection)
-                        {
-                            ShortReview sr;
-                            try
-                            {
-                                sr = getShortReview(node);
-                            }
-                            catch (Exception)
-                            {
-                                continue;
-                            }
-                            shortReviewCollection.Add(sr);
-                            movie.shortReviewSet.Add(sr);
-                        }
-                        if (progressBar != null)
-                        {
-                            progressBar.Visibility = Visibility.Collapsed;
-                        }
-                        nodeCollection = doc.DocumentNode.SelectNodes("//div[@id='paginator']");
-                        if (nodeCollection == null)
-                        {
-                            movie.hasMoreShortReview = false;
-                            button.IsEnabled = false;
-                            text.Text = AppResources.Finish;
-                        }
-                        else
-                        {
-                            HtmlNodeCollection nc = nodeCollection[0].SelectNodes("a[@class='next']");
-                            if (nc == null)
-                            {
-                                movie.hasMoreShortReview = false;
-                                button.IsEnabled = false;
-                                text.Text = AppResources.Finish;
-                            }
-                            else
-                            {
-                                movie.hasMoreShortReview = true;
-                                string link = nc[0].Attributes["href"].Value;
-                                link = link.Replace("&amp;", "&");
-                                movie.nextShortReviewLink = Movie.movieLinkHeader + movie.id + "/comments" + link;
-                                button.IsEnabled = true;
-                            }
-                        }
+                        moreReview = true;
+                        string link = nc[0].Attributes["href"].Value;
+                        link = link.Replace("&amp;", "&");
+                        movie.nextShortReviewLink = Movie.movieLinkHeader + movie.id + "/comments" + link;
                     }
-                    movie.shortReviewLoaded = true;
-                }
-                else
-                {
-                    var wEx = e.Error as WebException;
-                    if (wEx.Status == WebExceptionStatus.RequestCanceled)
-                    {
-                        if (App.isFromDormant)
-                        {
-                            App.isFromDormant = false;
-                            if (isFromLoadMore)
-                            {
-                                isFromLoadMore = false;
-                                loadMore();
-                            }
-                            else
-                            {
-                                parseShortReview();
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (progressBar != null)
-                        {
-                            progressBar.Visibility = Visibility.Collapsed;
-                        }
-                    }
-                }
-            }
-            catch (WebException)
-            {
-                if (progressBar != null)
-                {
-                    progressBar.Visibility = Visibility.Collapsed;
-                }
-                MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
-            }
-            catch (Exception)
-            {
-                if (progressBar != null)
-                {
-                    progressBar.Visibility = Visibility.Collapsed;
                 }
             }
         }
 
+        /// <summary>
+        /// Load more review
+        /// </summary>
+        /// <returns></returns>
+        public async Task<bool> loadMore()
+        {
+            downloader = new Downloader(movie.nextShortReviewLink);
+            String shortReviewHtml = await downloader.downloadString();
+            parseShortReviewHtml(shortReviewHtml);
+            return moreReview;
+        }
+
+        /// <summary>
+        /// Get short review from node
+        /// </summary>
+        /// <param name="node">HtmlNode</param>
+        /// <returns>ShortReview</returns>
         private ShortReview getShortReview(HtmlNode node)
         {
             string name = "";
@@ -220,12 +147,21 @@ namespace PanoramaApp2.HtmlParser
             return sr;
         }
 
+        /// <summary>
+        /// Cancel download
+        /// </summary>
         public void cancelDownload()
         {
-            if (client != null)
-            {
-                client.CancelAsync();
-            }
+            downloader.cancelDownload();
+        }
+
+        /// <summary>
+        /// If download is canceled
+        /// </summary>
+        /// <returns>If download is canceled</returns>
+        public bool isCanceled()
+        {
+            return downloader.isCanceled();
         }
     }
 }

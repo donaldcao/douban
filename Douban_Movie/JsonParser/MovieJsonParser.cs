@@ -14,7 +14,6 @@ using System.Windows;
 using PanoramaApp2.JsonParser;
 using PanoramaApp2.Resources;
 using Phone.Controls;
-using System.Net.Http;
 using PanoramaApp2.Utility;
 
 namespace PanoramaApp2

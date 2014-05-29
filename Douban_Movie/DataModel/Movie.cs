@@ -270,6 +270,7 @@ namespace PanoramaApp2
                 _hasMoreImage = value;
             }
         }
+        /*
         private List<People> _peopleList = null;
         public List<People> peopleList
         {
@@ -306,6 +307,8 @@ namespace PanoramaApp2
                 _shortReviewLoaded = value;
             }
         }
+        */
+
         private HashSet<Review> _reviewSet = new HashSet<Review>();
         public HashSet<Review> reviewSet
         {

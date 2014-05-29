@@ -13,6 +13,7 @@ using PanoramaApp2.HtmlParser;
 using PanoramaApp2.Utility;
 using System.Threading.Tasks;
 using PanoramaApp2.Resources;
+using System.Collections.ObjectModel;
 
 namespace PanoramaApp2
 {
@@ -35,14 +36,13 @@ namespace PanoramaApp2
             shortReviewLoaded = false;
             reviewLoaded = false;
             imageLoaded = false;
+            var shortReviewPullDector = new WP8PullToRefreshDetector();
+            shortReviewPullDector.Bind(shortReviewSelector);
+            shortReviewPullDector.Compression += shortReviewDector_Compress;
+
             movie = App.moviePassed;
             if (movie != null)
-            {
-                Movie result = Cache.getMovie(movie.id);
-                if (result != null)
-                {
-                    movie = result;
-                }
+            { 
                 movieParser = new MovieJsonParser(movie);
             }
         }
@@ -58,35 +58,7 @@ namespace PanoramaApp2
             {
                 if (e.NavigationMode == NavigationMode.New)
                 {
-                    MovieProgressBar.IsIndeterminate = true;
-                    MovieProgressBar.Visibility = System.Windows.Visibility.Visible;
-                    try
-                    {
-                        Tuple<Movie, List<People>> tuple = await movieParser.getMovieByID();
-                        movie = tuple.Item1;
-                        List<People> peoples = tuple.Item2;
-                        movieGrid.DataContext = movie;
-                        slash.Text = " / ";
-                        fixedName.Text = "人评分";
-                        peopleSelector.ItemsSource = peoples;
-                        MovieProgressBar.Visibility = System.Windows.Visibility.Collapsed;
-                    }
-                    catch (TaskCanceledException)
-                    {
-                        if (movieParser.isCanceled())
-                        {
-                            System.Diagnostics.Debug.WriteLine("Canceled by users");
-                        }
-                        else
-                        {
-                            System.Diagnostics.Debug.WriteLine("Timeout!");
-                            MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
-                        }
-                    }
-                    catch (Exception)
-                    {
-                        MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
-                    }
+                    await loadMovie();
                 }
             }
         }
@@ -128,21 +100,131 @@ namespace PanoramaApp2
             base.OnNavigatedFrom(e);
         }
 
-        private void loadShortReview() 
+        ///////////////////////////////////////////////////////// Pull to refresh event handler///////////////////////////////////////////////
+        /// <summary>
+        /// Short review pull to refresh handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void shortReviewDector_Compress(object sender, CompressionEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("Pull event detected");
+        }
+
+        ///////////////////////////////////////////////////////// Loading functions for tab /////////////////////////////////////////////////
+        /// <summary>
+        /// Load movie information page
+        /// </summary>
+        private async Task loadMovie()
+        {
+            bool fromDormant = false;
+            MovieProgressBar.IsIndeterminate = true;
+            MovieProgressBar.Visibility = System.Windows.Visibility.Visible;
+            try
+            {
+                Tuple<Movie, List<People>> tuple = await movieParser.getMovieByID();
+                movie = tuple.Item1;
+                List<People> peoples = tuple.Item2;
+                movieGrid.DataContext = movie;
+                trailer.Content = "预告片";
+                trailer.NavigateUri = new Uri(Movie.movieLinkHeader + movie.id + "/trailer", UriKind.Absolute);
+                theater.Content = "选座购票";
+                theater.NavigateUri = new Uri(Movie.movieLinkHeader + movie.id + "/cinema", UriKind.Absolute);
+                slash.Text = " / ";
+                fixedName.Text = "人评分";
+                peopleSelector.ItemsSource = peoples;
+                MovieProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+            }
+            catch (TaskCanceledException)
+            {
+                if (App.isFromDormant)
+                {
+                    fromDormant = true;
+                }
+                else
+                {
+                    MovieProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                    // Not canceled by user, must be a network issue
+                    if (!movieParser.isCanceled())
+                    {
+                        MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                MovieProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+            }
+
+            // From dormant state, reload
+            if (fromDormant)
+            {
+                App.isFromDormant = false;
+                await loadMovie();
+            }
+        }
+
+        /// <summary>
+        /// Load short review
+        /// </summary>
+        /// <returns></returns>
+        private async Task loadShortReview() 
         {
             if (movie != null)
             {
+                bool fromDormant = false;
                 loadMoreButton.IsEnabled = false;
                 shortReviewParser = new ShortReviewHtmlParser(movie);
-                shortReviewParser.progressBar = ShortReviewProgressBar;
                 ShortReviewProgressBar.IsIndeterminate = true;
                 ShortReviewProgressBar.Visibility = System.Windows.Visibility.Visible;
-                shortReviewParser.button = loadMoreButton;
-                shortReviewParser.text = loadText;
-                shortReviewSelector.ItemsSource = shortReviewParser.shortReviewCollection;
-                shortReviewParser.parseShortReview();
+                loadMoreButton.IsEnabled = false;
+                try
+                {
+                    Tuple<ObservableCollection<ShortReview>, bool> tuple = await shortReviewParser.getShortReview();
+                    shortReviewSelector.ItemsSource = tuple.Item1;
+                    bool hasMoreReview = tuple.Item2;
+                    if (hasMoreReview)
+                    {
+                        loadMoreButton.IsEnabled = true;
+                    }
+                    else
+                    {
+                        loadText.Text = AppResources.Finish;
+                    }
+                    ShortReviewProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                } 
+                catch (TaskCanceledException) 
+                {
+                    if (App.isFromDormant)
+                    {
+                        fromDormant = true;
+                    }
+                    else
+                    {
+                        ShortReviewProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                        loadMoreButton.IsEnabled = true;
+                        if (!shortReviewParser.isCanceled())
+                        {
+                            MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    ShortReviewProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                    loadMoreButton.IsEnabled = true;
+                    MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                }
+
+                if (fromDormant)
+                {
+                    App.isFromDormant = false;
+                    await loadShortReview();
+                }
             }
         }
+
 
         private void loadReview()
         {
@@ -159,8 +241,71 @@ namespace PanoramaApp2
                 reviewParser.parseReview();
             }
         }
+        private void loadImage()
+        {
+            if (movie != null)
+            {
+                loadMoreImageButton.IsEnabled = false;
+                imageParser = new ImageHtmlParser(movie);
+                imageParser.progressBar = ImageProgressBar;
+                ImageProgressBar.IsIndeterminate = true;
+                ImageProgressBar.Visibility = System.Windows.Visibility.Visible;
+                imageParser.button = loadMoreImageButton;
+                imageParser.text = loadImageText;
+                imageListBox.ItemsSource = imageParser.imageCollection;
+                imageParser.parseImage();
+            }
+        }
 
-        private void Pivot_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private async Task loadMoreShortReview()
+        {
+            bool fromDormant = false;
+            loadMoreButton.IsEnabled = false;
+            ShortReviewProgressBar.IsIndeterminate = true;
+            ShortReviewProgressBar.Visibility = System.Windows.Visibility.Visible;
+            try
+            {
+                bool hasMore = await shortReviewParser.loadMore();
+                ShortReviewProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                if (!hasMore)
+                {
+                    loadText.Text = AppResources.Finish;
+                }
+                else
+                {
+                    loadMoreButton.IsEnabled = true;
+                }
+            }
+            catch (TaskCanceledException)
+            {
+                if (App.isFromDormant)
+                {
+                    fromDormant = true;
+                }
+                else
+                {
+                    ShortReviewProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                    loadMoreButton.IsEnabled = true;
+                    if (!shortReviewParser.isCanceled())
+                    {
+                        MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                loadMoreButton.IsEnabled = true;
+                ShortReviewProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+            }
+
+            if (fromDormant)
+            {
+                App.isFromDormant = false;
+                await loadMoreShortReview();
+            }
+        }
+        private async void Pivot_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             int index = ((Pivot)sender).SelectedIndex;
             if (index == 2)
@@ -168,7 +313,7 @@ namespace PanoramaApp2
                 if (shortReviewLoaded == false)
                 {
                     shortReviewLoaded = true;
-                    loadShortReview();
+                    await loadShortReview();
                 }
             }
             if (index == 3)
@@ -189,30 +334,12 @@ namespace PanoramaApp2
             }
         }
 
-        private void loadImage()
-        {
-            if (movie != null)
-            {
-                loadMoreImageButton.IsEnabled = false;
-                imageParser = new ImageHtmlParser(movie);
-                imageParser.progressBar = ImageProgressBar;
-                ImageProgressBar.IsIndeterminate = true;
-                ImageProgressBar.Visibility = System.Windows.Visibility.Visible;
-                imageParser.button = loadMoreImageButton;
-                imageParser.text = loadImageText;
-                imageListBox.ItemsSource = imageParser.imageCollection;
-                imageParser.parseImage();
-            }
-        }
 
-        private void loadMoreButton_Click(object sender, RoutedEventArgs e)
+        private async void loadMoreButton_Click(object sender, RoutedEventArgs e)
         {
             if (shortReviewParser != null && movie != null)
             {
-                loadMoreButton.IsEnabled = false;
-                ShortReviewProgressBar.IsIndeterminate = true;
-                ShortReviewProgressBar.Visibility = System.Windows.Visibility.Visible;
-                shortReviewParser.loadMore();
+                await loadMoreShortReview();
             }
         }
 

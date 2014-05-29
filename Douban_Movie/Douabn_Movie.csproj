@@ -155,6 +155,7 @@
     </Compile>
     <Compile Include="Utility\Downloader.cs" />
     <Compile Include="Utility\Util.cs" />
+    <Compile Include="Utility\WP8PullToRefreshDetector.cs" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
