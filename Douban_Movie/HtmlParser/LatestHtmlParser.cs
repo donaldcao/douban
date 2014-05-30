@@ -12,100 +12,68 @@ using System.Collections.ObjectModel;
 using Microsoft.Phone.Shell;
 using System.Windows;
 using PanoramaApp2.Resources;
+using PanoramaApp2.Utility;
 
 namespace PanoramaApp2.HtmlParser
 {
     class LatestHtmlParser
     {
-        public static LongListSelector selector;
-        public static ProgressBar progressbar;
-        public static BoolObject loaded { get; set; }
+        private static ObservableCollection<Movie> movieCollection = new ObservableCollection<Movie>();
+        private static Downloader downloader = new Downloader(Movie.latest);
 
-        public static void parseLatestMovie() {
-            WebClient client = new WebClient();
-            client.DownloadStringCompleted += downloadLatestCompleted;
-            client.DownloadStringAsync(new Uri(Movie.latest));
-        }
-
-        public static void downloadLatestCompleted(object sender, DownloadStringCompletedEventArgs e)
+        /// <summary>
+        /// Get latest movie
+        /// </summary>
+        /// <returns>Latest movie collection</returns>
+        public async static Task<ObservableCollection<Movie>> getLatestMovie()
         {
-            try
+            string latestHtml = await downloader.downloadString();
+            HtmlDocument doc = new HtmlDocument();
+            doc.LoadHtml(latestHtml);
+            HtmlNodeCollection nodeCollection = doc.DocumentNode.SelectNodes("//div[@class='item mod odd']");
+            if (nodeCollection != null)
             {
-                if (e.Error == null && !e.Cancelled)
+                foreach (HtmlNode node in nodeCollection)
                 {
-                    string page = e.Result;
-                    List<Movie> movieList = new List<Movie>();
-                    HtmlDocument doc = new HtmlDocument();
-                    doc.LoadHtml(page);
-                    HtmlNodeCollection nodeCollection = doc.DocumentNode.SelectNodes("//div[@class='item mod odd']");
-                    if (nodeCollection != null)
+                    Movie movie;
+                    try
                     {
-                        foreach (HtmlNode node in nodeCollection)
-                        {
-                            Movie movie;
-                            try
-                            {
-                                movie = getLatestMovie(node);
-                            }
-                            catch (Exception)
-                            {
-                                continue;
-                            }
-                            movieList.Add(movie);
-                        }
+                        movie = getLatestMovie(node);
                     }
-                    nodeCollection = doc.DocumentNode.SelectNodes("//div[@class='item mod ']");
-                    if (nodeCollection != null) 
+                    catch (Exception)
                     {
-                        foreach (HtmlNode node in nodeCollection)
-                        {
-                            Movie movie;
-                            try
-                            {
-                                movie = getLatestMovie(node);
-                            }
-                            catch (Exception)
-                            {
-                                continue;
-                            }
-                            movieList.Add(movie);
-                        }
+                        continue;
                     }
-                    selector.ItemsSource = movieList;
-                    loaded.isLoaded = true;
-                    if (progressbar != null)
-                    {
-                        progressbar.Visibility = Visibility.Collapsed;
-                    }
-                }
-                else 
-                {
-                    var wEx = e.Error as WebException;
-                    if (wEx.Status == WebExceptionStatus.RequestCanceled)
-                    {
-                        if (App.isFromDormant)
-                        {
-                            App.isFromDormant = false;
-                            parseLatestMovie();
-                        }
-                    }
-                    else
-                    {
-                        if (progressbar != null)
-                        {
-                            progressbar.Visibility = Visibility.Collapsed;
-                        }
-                    }
+                    movieCollection.Add(movie);
                 }
             }
-            catch (WebException)
+            nodeCollection = doc.DocumentNode.SelectNodes("//div[@class='item mod ']");
+            if (nodeCollection != null)
             {
-                MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                foreach (HtmlNode node in nodeCollection)
+                {
+                    Movie movie;
+                    try
+                    {
+                        movie = getLatestMovie(node);
+                    }
+                    catch (Exception)
+                    {
+                        continue;
+                    }
+                    movieCollection.Add(movie);
+                }
             }
-            loaded.isLoading = false;
+
+            return movieCollection;
         }
 
-        public static Movie getLatestMovie(HtmlNode node)
+        /// <summary>
+        /// Parse movie from html node
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns>Movie</returns>
+        private static Movie getLatestMovie(HtmlNode node)
         {
             string title = "";
             string region = "";

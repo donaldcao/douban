@@ -21,74 +21,28 @@ namespace PanoramaApp2.JsonParser
 {
     class USBoxJsonParser
     {
-        public static LongListSelector usboxLongListSelector;
-        public static ProgressBar progressBar;
-        public static BoolObject loaded { get; set; }
+        private static ObservableCollection<Movie> movieCollection = new ObservableCollection<Movie>();
+        private static Downloader downloader = new Downloader(Movie.apiUSBoxHeader + "?apikey=" + App.apikey);
 
-        public static void parseUSBox()
+        public async static Task<ObservableCollection<Movie>> getUSMovie()
         {
-            WebClient client = new WebClient();
-            client.DownloadStringCompleted += downloadUSBoxCompleted;
-            client.DownloadStringAsync(new Uri(Movie.apiUSBoxHeader + "?apikey=" + App.apikey));
-        }
+            String USHtml = await downloader.downloadString();
 
-        public static void downloadUSBoxCompleted(object sender, DownloadStringCompletedEventArgs e)
-        {
-            try
+            JObject obj = JObject.Parse(USHtml);
+            JArray array = (JArray)obj["subjects"];
+            for (int i = 0; i < array.Count; i++)
             {
-                if (e.Error == null && !e.Cancelled)
-                {
-                    string data = e.Result;
-                    JObject obj = JObject.Parse(data);
-                    JArray array = (JArray)obj["subjects"];
-                    List<Movie> movieList = new List<Movie>();
-                    for (int i = 0; i < array.Count; i++)
-                    {
-                        Movie movie = new Movie();
-                        movie.id = JsonParsers.getDouble(array[i], "subject", "id");
-                        movie.posterUrl = JsonParsers.getTriple(array[i], "subject", "images", "small");
-                        movie.money = JsonParsers.getValue(array[i], "box");
-                        movie.rating = JsonParsers.getTriple(array[i], "subject", "rating", "average");
-                        movie.title = JsonParsers.getDouble(array[i], "subject", "title");
-                        movie.star = Util.getStarPath(movie.rating);
-                        movieList.Add(movie);
-                    }
-                    usboxLongListSelector.ItemsSource = movieList;
-                    if (progressBar != null)
-                    {
-                        progressBar.Visibility = Visibility.Collapsed;
-                    }
-                    loaded.isLoaded = true;
-                }
-                else
-                {
-                    var wEx = e.Error as WebException;
-                    if (wEx.Status == WebExceptionStatus.RequestCanceled)
-                    {
-                        if (App.isFromDormant)
-                        {
-                            App.isFromDormant = false;
-                            parseUSBox();
-                        }
-                    }
-                    else
-                    {
-                        if (progressBar != null)
-                        {
-                            progressBar.Visibility = Visibility.Collapsed;
-                        }
-                    }
-                }
+                Movie movie = new Movie();
+                movie.id = JsonParsers.getDouble(array[i], "subject", "id");
+                movie.posterUrl = JsonParsers.getTriple(array[i], "subject", "images", "small");
+                movie.money = JsonParsers.getValue(array[i], "box");
+                movie.rating = JsonParsers.getTriple(array[i], "subject", "rating", "average");
+                movie.title = JsonParsers.getDouble(array[i], "subject", "title");
+                movie.star = Util.getStarPath(movie.rating);
+                movieCollection.Add(movie);
             }
-            catch (WebException)
-            {
-                if (progressBar != null)
-                {
-                    progressBar.Visibility = Visibility.Collapsed;
-                }
-                MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
-            }
-            loaded.isLoading = false;
+
+            return movieCollection;
         }
     }
 }

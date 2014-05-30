@@ -81,7 +81,7 @@
             </phone:PivotItem>
             
             <!--pivot item three-->
-            <phone:PivotItem x:Name="topPivotItem" Header="{Binding Path=LocalizedResources.TopPivot, Source={StaticResource LocalizedStrings}}" Foreground="White" Margin="24, 24, 24, 0">
+            <phone:PivotItem x:Name="topPivotItem" Header="{Binding Path=LocalizedResources.TopPivot, Source={StaticResource LocalizedStrings}}" Foreground="White" Margin="24, 24, 24, 24">
                 <Grid Margin="0, 0, 0, 0" Background="#2B4F81">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
@@ -106,9 +106,6 @@
                             </DataTemplate>
                         </phone:LongListSelector.ItemTemplate>
                     </phone:LongListSelector>
-                    <Button x:Name="loadMoreButton" Grid.Row="1" HorizontalAlignment="Center" Click="loadMoreButton_Click">
-                        <TextBlock x:Name="loadText" Text="{Binding Path=LocalizedResources.LoadMore, Source={StaticResource LocalizedStrings}}" Style="{StaticResource PhoneTextSmallStyle}" Foreground="White" HorizontalAlignment="Center"/>
-                    </Button>
                 </Grid>
             </phone:PivotItem>
             
@@ -141,7 +138,7 @@
             </phone:PivotItem>
 
             <!--pivot item five-->
-            <phone:PivotItem x:Name="reviewPivotItem" Header="{Binding Path=LocalizedResources.HotReviewPivot, Source={StaticResource LocalizedStrings}}" Foreground="White" Margin="24, 24, 24, 0">
+            <phone:PivotItem x:Name="reviewPivotItem" Header="{Binding Path=LocalizedResources.HotReviewPivot, Source={StaticResource LocalizedStrings}}" Foreground="White" Margin="24, 24, 24, 24">
                 <Grid Margin="0, 0, 0, 0" Background="#2B4F81">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
@@ -169,9 +166,6 @@
                             </DataTemplate>
                         </phone:LongListSelector.ItemTemplate>
                     </phone:LongListSelector>
-                    <Button x:Name="loadMoreReviewButton" Grid.Row="1" HorizontalAlignment="Center" Click="loadReviewMoreButton_Click">
-                        <TextBlock x:Name="loadReviewText" Text="{Binding Path=LocalizedResources.LoadMore, Source={StaticResource LocalizedStrings}}" Style="{StaticResource PhoneTextSmallStyle}" Foreground="White" HorizontalAlignment="Center"/>
-                    </Button>
                 </Grid>
             </phone:PivotItem>
         </phone:Pivot>

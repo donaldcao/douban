@@ -240,6 +240,7 @@ namespace PanoramaApp2
                         ShortReviewProgressBar.Visibility = System.Windows.Visibility.Collapsed;
                         if (!shortReviewParser.isCanceled())
                         {
+                            shortReviewLoaded = false;
                             MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
                         }
                     }
@@ -247,6 +248,7 @@ namespace PanoramaApp2
                 catch (Exception)
                 {
                     ShortReviewProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                    shortReviewLoaded = false;
                     MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
                 }
 
@@ -287,12 +289,14 @@ namespace PanoramaApp2
                         ReviewProgressBar.Visibility = System.Windows.Visibility.Collapsed;
                         if (!reviewParser.isCanceled())
                         {
+                            reviewLoaded = false;
                             MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
                         }
                     }
                 }
                 catch (Exception)
                 {
+                    reviewLoaded = false;
                     ReviewProgressBar.Visibility = System.Windows.Visibility.Collapsed;
                     MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
                 }
@@ -334,12 +338,14 @@ namespace PanoramaApp2
                         ImageProgressBar.Visibility = System.Windows.Visibility.Collapsed;
                         if (!imageParser.isCanceled())
                         {
+                            imageLoaded = false;
                             MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
                         }
                     }
                 }
                 catch (Exception)
                 {
+                    imageLoaded = false;
                     ImageProgressBar.Visibility = System.Windows.Visibility.Collapsed;
                     MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
                 }

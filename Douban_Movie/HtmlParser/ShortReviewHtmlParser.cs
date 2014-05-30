@@ -18,7 +18,7 @@ namespace PanoramaApp2.HtmlParser
 {
     class ShortReviewHtmlParser
     {
-        public ObservableCollection<ShortReview> shortReviewCollection;
+        public ObservableCollection<ShortReview> shortReviewCollection { get; set; }
         public bool hasMoreReview { get; set; }
         private Movie movie { get; set; }
         private Downloader downloader;

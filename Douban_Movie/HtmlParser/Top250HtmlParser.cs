@@ -18,92 +18,45 @@ namespace PanoramaApp2.HtmlParser
 {
     class Top250HtmlParser
     {
-        public static Button loadMoreButton;
-        public static TextBlock loadText;
-        public static int currentIndex = 0;
-        public static int maxIndex = 9;
-        public static ProgressBar progressBar;
-        public static BoolObject loaded { get; set; }
+        private static int currentIndex = 0;
+        private static int maxIndex = 9;
+
         public static ObservableCollection<Movie> observableMovieList = new ObservableCollection<Movie>();
+        private static Downloader downloader;
+        public static bool hasMore = true;
 
-        public static void parseTop250()
+        public static async Task getTop250()
         {
-            WebClient client = new WebClient();
-            client.DownloadStringCompleted += downloadTop250Completed;
-            client.DownloadStringAsync(new Uri(Movie.top250 + "?start=" + currentIndex * 25 + "&format="));
-        }
-
-        public static void downloadTop250Completed(object sender, DownloadStringCompletedEventArgs e)
-        {
-            try
+            downloader = new Downloader(Movie.top250 + "?start=" + currentIndex * 25 + "&format=");
+            String top250Html = await downloader.downloadString();
+            HtmlDocument doc = new HtmlDocument();
+            doc.LoadHtml(top250Html);
+            HtmlNodeCollection nodeCollection = doc.DocumentNode.SelectNodes("//div[@class='item']");
+            if (nodeCollection != null)
             {
-                if (e.Error == null && !e.Cancelled)
+                foreach (HtmlNode node in nodeCollection)
                 {
-                    string page = e.Result;
-                    HtmlDocument doc = new HtmlDocument();
-                    doc.LoadHtml(page);
-                    HtmlNodeCollection nodeCollection = doc.DocumentNode.SelectNodes("//div[@class='item']");
-                    if (nodeCollection != null)
+                    Movie movie;
+                    try
                     {
-                        foreach (HtmlNode node in nodeCollection)
-                        {
-                            Movie movie;
-                            try
-                            {
-                                movie = getTopMovie(node);
-                            }
-                            catch (Exception)
-                            {
-                                continue;
-                            }
-                            observableMovieList.Add(movie);
-                        }
+                        movie = getTopMovie(node);
                     }
-                    loaded.isLoaded = true;
-                    if (progressBar != null)
+                    catch (Exception)
                     {
-                        progressBar.Visibility = Visibility.Collapsed;
+                        continue;
                     }
-                    currentIndex++;
-                    if (currentIndex > maxIndex)
-                    {
-                        loadMoreButton.IsEnabled = false;
-                        loadText.Text = AppResources.Finish;
-                    }
-                    else
-                    {
-                        loadMoreButton.IsEnabled = true;
-                    }
-                }
-                else
-                {
-                    var wEx = e.Error as WebException;
-                    if (wEx.Status == WebExceptionStatus.RequestCanceled)
-                    {
-                        if (App.isFromDormant)
-                        {
-                            App.isFromDormant = false;
-                            parseTop250();
-                        }
-                    }
-                    else
-                    {
-                        if (progressBar != null)
-                        {
-                            progressBar.Visibility = Visibility.Collapsed;
-                        }
-                    }
+                    observableMovieList.Add(movie);
                 }
             }
-            catch (WebException)
+            currentIndex++;
+            if (currentIndex > maxIndex)
             {
-                if (progressBar != null)
-                {
-                    progressBar.Visibility = Visibility.Collapsed;
-                }
-                MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                hasMore = false;
             }
-            loaded.isLoading = false;
+            else
+            {
+                hasMore = true;
+            }
         }
 
         private static Movie getTopMovie(HtmlNode node)

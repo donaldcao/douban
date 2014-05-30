@@ -132,12 +132,6 @@ namespace PanoramaApp2
             App.mainPage.boxPivotItem.Language = XmlLanguage.GetLanguage(locale);
             App.mainPage.boxPivotItem.Header = AppResources.USPivot;
 
-            App.mainPage.loadText.Language = XmlLanguage.GetLanguage(locale);
-            App.mainPage.loadText.Text = AppResources.LoadMore;
-
-            App.mainPage.loadReviewText.Language = XmlLanguage.GetLanguage(locale);
-            App.mainPage.loadReviewText.Text = AppResources.LoadMore;
-
             App.mainPage.settingMenu.Text = AppResources.SettingMenu;
             App.mainPage.rateMenu.Text = AppResources.RateMenu;
             App.mainPage.aboutMenu.Text = AppResources.AboutMenu;

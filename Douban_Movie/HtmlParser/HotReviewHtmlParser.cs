@@ -18,106 +18,61 @@ namespace PanoramaApp2.HtmlParser
 {
     class HotReviewHtmlParser
     {
-        public static Button loadmoreButton;
-        public static TextBlock buttonText;
+        public static bool hasMore = true;
         public static string nextLink = Review.hotReviewHeader;
-        public static ProgressBar progressBar;
-        public static BoolObject loaded { get; set; }
         public static ObservableCollection<Review> reviewCollection = new ObservableCollection<Review>();
+        private static Downloader downloader;
 
-        public static void parseHotReview()
+        /// <summary>
+        /// Get hot review
+        /// </summary>
+        /// <returns></returns>
+        public static async Task getHotReview()
         {
-            WebClient client = new WebClient();
-            client.DownloadStringCompleted += downloadHotReviewComplete;
-            client.DownloadStringAsync(new Uri(nextLink));
-        }
-
-
-        public static void downloadHotReviewComplete(object sender, DownloadStringCompletedEventArgs e)
-        {
-            try
+            downloader = new Downloader(nextLink);
+            String hotReviewHtml = await downloader.downloadString();
+            HtmlDocument doc = new HtmlDocument();
+            doc.LoadHtml(hotReviewHtml);
+            HtmlNodeCollection nodeCollction = doc.DocumentNode.SelectNodes("//ul[@class='tlst clearfix']");
+            if (nodeCollction != null)
             {
-                if (e.Error == null && !e.Cancelled)
-                {
-                    string page = e.Result;
-                    HtmlDocument doc = new HtmlDocument();
-                    doc.LoadHtml(page);
-                    HtmlNodeCollection nodeCollction = doc.DocumentNode.SelectNodes("//ul[@class='tlst clearfix']");
-                    if (nodeCollction != null)
-                    {
 
-                        foreach (HtmlNode node in nodeCollction)
-                        {
-                            Review review;
-                            try
-                            {
-                                review = getReview(node);
-                            }
-                            catch (Exception)
-                            {
-                                continue;
-                            }
-                            reviewCollection.Add(review);
-                        }
-                        if (progressBar != null)
-                        {
-                            progressBar.Visibility = Visibility.Collapsed;
-                        }
-                        HtmlNodeCollection nextLinkNode = doc.DocumentNode.SelectNodes("//span[@class='next']")[0].SelectNodes("a");
-                        if (nextLinkNode == null)
-                        {
-                            loadmoreButton.IsEnabled = false;
-                            buttonText.Text = AppResources.Finish;
-                        }
-                        else
-                        {
-                            nextLink = nextLinkNode[0].Attributes["href"].Value;
-                            loadmoreButton.IsEnabled = true;
-                        }
-                    }
-                    else
+                foreach (HtmlNode node in nodeCollction)
+                {
+                    Review review;
+                    try
                     {
-                        if (progressBar != null)
-                        {
-                            progressBar.Visibility = Visibility.Collapsed;
-                        }
-                        loadmoreButton.IsEnabled = false;
-                        buttonText.Text = AppResources.Finish;
+                        review = getReview(node);
                     }
-                    loaded.isLoaded = true;
+                    catch (Exception)
+                    {
+                        continue;
+                    }
+                    reviewCollection.Add(review);
+                }
+                HtmlNodeCollection nextLinkNode = doc.DocumentNode.SelectNodes("//span[@class='next']")[0].SelectNodes("a");
+                if (nextLinkNode == null)
+                {
+                    hasMore = false;
                 }
                 else
                 {
-                    var wEx = e.Error as WebException;
-                    if (wEx.Status == WebExceptionStatus.RequestCanceled)
-                    {
-                        if (App.isFromDormant)
-                        {
-                            App.isFromDormant = false;
-                            parseHotReview();
-                        }
-                    }
-                    else
-                    {
-                        if (progressBar != null)
-                        {
-                            progressBar.Visibility = Visibility.Collapsed;
-                        }
-                    }
+                    nextLink = nextLinkNode[0].Attributes["href"].Value;
+                    hasMore = true;
                 }
             }
-            catch (WebException)
+            else
             {
-                MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
-                if (progressBar != null)
-                {
-                    progressBar.Visibility = Visibility.Collapsed;
-                }
+                hasMore = false;
             }
-            loaded.isLoading = false;
         }
 
-        public static Review getReview(HtmlNode node)
+        /// <summary>
+        /// Get review from html node
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns></returns>
+        private static Review getReview(HtmlNode node)
         {
             string title = "";
             string id = "";

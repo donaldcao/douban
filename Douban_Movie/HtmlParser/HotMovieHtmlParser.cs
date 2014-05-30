@@ -10,6 +10,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows;
 using PanoramaApp2.Resources;
 using PanoramaApp2.Utility;
+using System.Collections.ObjectModel;
 
 namespace PanoramaApp2.HtmlParser
 {
@@ -18,101 +19,58 @@ namespace PanoramaApp2.HtmlParser
     /// </summary>
     class HotMovieHtmlParser
     {
-        public static LongListSelector selector { get; set; }
-        public static Popup popup { get; set; }
-        public static BoolObject loaded { get; set; }
+
+        private static ObservableCollection<Movie> movieCollection = new ObservableCollection<Movie>();
+        private static Downloader downloader = new Downloader(Movie.homePage);
 
         /// <summary>
-        /// Return a list of latest movies 
+        /// Get movie collection
         /// </summary>
-        /// <param name="url"></param>
         /// <returns></returns>
-        public static void parseHottMovie()
+        public async static Task<ObservableCollection<Movie>> getHotMovie()
         {
-            WebClient client = new WebClient();
-            client.DownloadStringCompleted += downloadLatestMovieCompleted;
-            client.DownloadStringAsync(new Uri(Movie.homePage));
-        }
+            String hotMovieHtml = await downloader.downloadString();
+            HtmlDocument doc = new HtmlDocument();
+            doc.LoadHtml(hotMovieHtml);
+            HtmlNodeCollection nodeCollection = doc.DocumentNode.SelectNodes("//li[@class='ui-slide-item s']");
 
-        /// <summary>
-        /// Download movie info
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private static void downloadLatestMovieCompleted(object sender, DownloadStringCompletedEventArgs e)
-        {
-            try
+            // Can't find movie! Hmmm, shouldn't happen...
+            if (nodeCollection != null)
             {
-                if (!e.Cancelled && e.Error == null)
+                foreach (HtmlNode movieNode in nodeCollection)
                 {
-                    string page = e.Result;
-                    HtmlDocument doc = new HtmlDocument();
-                    doc.LoadHtml(page);
-                    HtmlNodeCollection nodeCollection = doc.DocumentNode.SelectNodes("//li[@class='ui-slide-item s']");
-                    List<Movie> movieList = new List<Movie>();
-
-                    // Can't find movie! Hmmm, shouldn't happen...
-                    if (nodeCollection != null)
+                    Movie movie;
+                    try
                     {
-                        foreach (HtmlNode movieNode in nodeCollection)
-                        {
-                            Movie movie;
-                            try
-                            {
-                                movie = getHotMovie(movieNode);
-                            }
-                            catch (Exception)
-                            {
-                                continue;
-                            }
-                            movieList.Add(movie);
-                        }
+                        movie = getHotMovie(movieNode);
                     }
-                    nodeCollection = doc.DocumentNode.SelectNodes("//li[@class='ui-slide-item']");
-                    // Can't find movie! Hmmm, shouldn't happen...
-                    if (nodeCollection != null)
+                    catch (Exception)
                     {
-                        foreach (HtmlNode movieNode in nodeCollection)
-                        {
-                            Movie movie;
-                            try
-                            {
-                                movie = getHotMovie(movieNode);
-                            }
-                            catch (Exception)
-                            {
-                                continue;
-                            }
-                            movieList.Add(movie);
-                        }
+                        continue;
                     }
-                    loaded.isLoaded = true;
-                    selector.ItemsSource = movieList;
-                    popup.IsOpen = false;
-                }
-                else
-                {
-                    var wEx = e.Error as WebException;
-                    if (wEx.Status == WebExceptionStatus.RequestCanceled)
-                    {
-                        if (App.isFromDormant)
-                        {
-                            App.isFromDormant = false;
-                            parseHottMovie();
-                        }
-                    }
-                    else
-                    {
-                        popup.IsOpen = false;
-                    }
+                    movieCollection.Add(movie);
                 }
             }
-            catch (WebException)
+            nodeCollection = doc.DocumentNode.SelectNodes("//li[@class='ui-slide-item']");
+            // Can't find movie! Hmmm, shouldn't happen...
+            if (nodeCollection != null)
             {
-                popup.IsOpen = false;
-                MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                foreach (HtmlNode movieNode in nodeCollection)
+                {
+                    Movie movie;
+                    try
+                    {
+                        movie = getHotMovie(movieNode);
+                    }
+                    catch (Exception)
+                    {
+                        continue;
+                    }
+                    movieCollection.Add(movie);
+                }
             }
-            loaded.isLoading = false;
+
+            return movieCollection;
         }
 
         /// <summary>

@@ -12,6 +12,8 @@ using PanoramaApp2.JsonParser;
 using PanoramaApp2.HtmlParser;
 using PanoramaApp2.Resources;
 using Microsoft.Phone.Tasks;
+using System.Threading.Tasks;
+using PanoramaApp2.Utility;
 
 namespace PanoramaApp2
 {
@@ -22,11 +24,11 @@ namespace PanoramaApp2
         public ApplicationBarMenuItem settingMenu;
         public ApplicationBarMenuItem rateMenu;
         public ApplicationBarMenuItem aboutMenu;
-        private BoolObject hotLoaded;
-        private BoolObject latestLoaded;
-        private BoolObject top250Loaded;
-        private BoolObject usboxLoaded;
-        private BoolObject commentLoaded;
+        private bool hotLoaded;
+        private bool latestLoaded;
+        private bool top250Loaded;
+        private bool usboxLoaded;
+        private bool commentLoaded;
 
         // Constructor
         public MainPage()
@@ -34,20 +36,52 @@ namespace PanoramaApp2
             InitializeComponent();
             App.mainPage = this;
 
-            hotLoaded = new BoolObject(false, false);
-            latestLoaded = new BoolObject(false, false);
-            top250Loaded = new BoolObject(false, false);
-            usboxLoaded = new BoolObject(false, false);
-            commentLoaded = new BoolObject(false, false);
-
+            var top250PullDector = new WP8PullToRefreshDetector();
+            top250PullDector.Bind(top250LongListSelector);
+            top250PullDector.Compression += top250Dector_Compress;
+            var hotReviewPullDector = new WP8PullToRefreshDetector();
+            hotReviewPullDector.Bind(hotReviewLongListSelector);
+            hotReviewPullDector.Compression += hotReviewDector_Compress;
             // Get hot movie
-            HotMovieHtmlParser.selector = hotLongListSelector;
             popup = new Popup();
             searchPopup = new Popup();
-            HotMovieHtmlParser.popup = popup;
-            HotMovieHtmlParser.loaded = hotLoaded;
-            
-            // Create an application bar
+        }
+
+        /// <summary>
+        /// Top 250 pull to refresh handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private async void top250Dector_Compress(object sender, CompressionEventArgs e)
+        {
+            if (e.Type == CompressionType.Bottom)
+            {
+                if (Top250HtmlParser.hasMore)
+                {
+                    await loadTopPivotItem();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Top 250 pull to refresh handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private async void hotReviewDector_Compress(object sender, CompressionEventArgs e)
+        {
+            if (e.Type == CompressionType.Bottom)
+            {
+                if (HotReviewHtmlParser.hasMore)
+                {
+                    await loadReviewPivotItem();
+                }
+            }
+        }
+        /// <summary>
+        /// Create application bar
+        /// </summary>
+        private void createApplicationBar() {
             ApplicationBar = new ApplicationBar();
             
             ApplicationBar.Mode = ApplicationBarMode.Minimized;
@@ -163,23 +197,6 @@ namespace PanoramaApp2
             }
         }
 
-        private void loadMoreButton_Click(object sender, RoutedEventArgs e)
-        {
-            loadMoreButton.IsEnabled = false;
-            TopProgressBar.IsIndeterminate = true;
-            TopProgressBar.Visibility = System.Windows.Visibility.Visible;
-            Top250HtmlParser.parseTop250();
-        }
-
-        private void loadReviewMoreButton_Click(object sender, RoutedEventArgs e)
-        {
-            loadMoreReviewButton.IsEnabled = false;
-            HotReviewProgressBar.IsIndeterminate = true;
-            HotReviewProgressBar.Visibility = System.Windows.Visibility.Visible;
-            HotReviewHtmlParser.progressBar = HotReviewProgressBar;
-            HotReviewHtmlParser.parseHotReview();
-        }
-
         private void latestListSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (latestListSelector != null && latestListSelector.SelectedItem != null)
@@ -202,99 +219,242 @@ namespace PanoramaApp2
             }
         }
 
-        private void loadLatestPivotItem()
+        private async Task loadLatestPivotItem()
         {
             // Get latest
+            bool fromDormant = false;
             UpcomingProgressBar.IsIndeterminate = true;
             UpcomingProgressBar.Visibility = System.Windows.Visibility.Visible;
-            LatestHtmlParser.selector = latestListSelector;
-            LatestHtmlParser.progressbar = UpcomingProgressBar;
-            LatestHtmlParser.loaded = latestLoaded;
-            LatestHtmlParser.parseLatestMovie();
+            try
+            {
+                latestListSelector.ItemsSource = await LatestHtmlParser.getLatestMovie();
+                UpcomingProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+            }
+            catch (TaskCanceledException)
+            {
+                if (App.isFromDormant)
+                {
+                    fromDormant = true;
+                }
+                else
+                {
+                    UpcomingProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                    latestLoaded = false;
+                    MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                }
+            }
+            catch (Exception)
+            {
+                UpcomingProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                latestLoaded = false;
+                MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+            }
+            if (fromDormant)
+            {
+                App.isFromDormant = false;
+                await loadLatestPivotItem();
+            }
         }
 
-        private void loadTopPivotItem()
+        private async Task loadTopPivotItem()
         {
             // Get top 250 movie
-            top250LongListSelector.ItemsSource = Top250HtmlParser.observableMovieList;
-            loadMoreButton.IsEnabled = false;
+            bool fromDormant = false;
             TopProgressBar.IsIndeterminate = true;
             TopProgressBar.Visibility = System.Windows.Visibility.Visible;
-            Top250HtmlParser.progressBar = TopProgressBar;
-            Top250HtmlParser.loadText = loadText;
-            Top250HtmlParser.loadMoreButton = loadMoreButton;
-            Top250HtmlParser.loaded = top250Loaded;
-            Top250HtmlParser.parseTop250();
 
+            try
+            {
+                await Top250HtmlParser.getTop250();
+                top250LongListSelector.ItemsSource = Top250HtmlParser.observableMovieList;
+                TopProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+            }
+            catch (TaskCanceledException)
+            {
+                if (App.isFromDormant)
+                {
+                    fromDormant = true;
+                }
+                else
+                {
+                    TopProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                    top250Loaded = false;
+                    MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                }
+            }
+            catch (Exception)
+            {
+                TopProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                top250Loaded = false;
+                MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+            }
+            if (fromDormant)
+            {
+                App.isFromDormant = false;
+                await loadTopPivotItem();
+            }
         }
 
-        private void loadUSBoxPivotItem() 
+        private async Task loadUSBoxPivotItem() 
         {
             // Get us box
+            bool fromDormant = false;
             USBoxProgressBar.IsIndeterminate = true;
             USBoxProgressBar.Visibility = System.Windows.Visibility.Visible;
-            USBoxJsonParser.usboxLongListSelector = usboxLongListSelector;
-            USBoxJsonParser.progressBar = USBoxProgressBar;
-            USBoxJsonParser.loaded = usboxLoaded;
-            USBoxJsonParser.parseUSBox();
+
+            try
+            {
+                usboxLongListSelector.ItemsSource = await USBoxJsonParser.getUSMovie();
+                USBoxProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+            }
+            catch (TaskCanceledException)
+            {
+                if (App.isFromDormant)
+                {
+                    fromDormant = true;
+                }
+                else
+                {
+                    USBoxProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                    usboxLoaded = false;
+                    MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                }
+            }
+            catch (Exception)
+            {
+                USBoxProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                usboxLoaded = false;
+                MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+            }
+            if (fromDormant)
+            {
+                App.isFromDormant = false;
+                await loadUSBoxPivotItem();
+            }
         }
 
-        private void loadReviewPivotItem()
+        private async Task loadReviewPivotItem()
         {
             // Get hot review
-            loadMoreReviewButton.IsEnabled = false;
-            hotReviewLongListSelector.ItemsSource = HotReviewHtmlParser.reviewCollection;
+            bool fromDormant = false;
             HotReviewProgressBar.IsIndeterminate = true;
             HotReviewProgressBar.Visibility = System.Windows.Visibility.Visible;
-            HotReviewHtmlParser.progressBar = HotReviewProgressBar;
-            HotReviewHtmlParser.buttonText = loadReviewText;
-            HotReviewHtmlParser.loadmoreButton = loadMoreReviewButton;
-            HotReviewHtmlParser.loaded = commentLoaded;
-            HotReviewHtmlParser.parseHotReview();
+
+            try
+            {
+                await HotReviewHtmlParser.getHotReview();
+                hotReviewLongListSelector.ItemsSource = HotReviewHtmlParser.reviewCollection;
+                HotReviewProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+            }
+            catch (TaskCanceledException)
+            {
+                if (App.isFromDormant)
+                {
+                    fromDormant = true;
+                }
+                else
+                {
+                    HotReviewProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                    commentLoaded = false;
+                    MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                }
+            }
+            catch (Exception)
+            {
+                HotReviewProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                commentLoaded = false;
+                MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+            }
+            if (fromDormant)
+            {
+                App.isFromDormant = false;
+                await loadReviewPivotItem();
+            }
+
         }
 
-        private void Pivot_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        /// <summary>
+        /// Load hot movie
+        /// </summary>
+        /// <returns></returns>
+        private async Task loadHotMovie()
+        {
+            bool fromDormant = false;
+            try
+            {
+                hotLongListSelector.ItemsSource = await HotMovieHtmlParser.getHotMovie();
+                popup.IsOpen = false;
+                createApplicationBar();
+            }
+            catch (TaskCanceledException)
+            {
+                if (App.isFromDormant)
+                {
+                    fromDormant = true;
+                }
+                else
+                {
+                    popup.IsOpen = false;
+                    hotLoaded = false;
+                    MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                }
+            }
+            catch (Exception)
+            {
+                popup.IsOpen = false;
+                hotLoaded = false;
+                MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+            }
+            if (fromDormant)
+            {
+                App.isFromDormant = false;
+                await loadHotMovie();
+            }
+        }
+
+        private async void Pivot_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             int index = ((Pivot)sender).SelectedIndex;
             if (index == 0)
             {
-                if (hotLoaded.isLoaded == false && hotLoaded.isLoading == false)
+                if (hotLoaded == false)
                 {
-                    hotLoaded.isLoading = true;
-                    HotMovieHtmlParser.parseHottMovie();
+                    hotLoaded = true;
+                    await loadHotMovie();
+                    createApplicationBar();
                 }
             }
 
             else if (index == 1)
             {
-                if (latestLoaded.isLoaded == false && latestLoaded.isLoading == false)
+                if (latestLoaded == false)
                 {
-                    latestLoaded.isLoading = true;
-                    loadLatestPivotItem();
+                    latestLoaded = true;
+                    await loadLatestPivotItem();
                 }
             }
             else if (index == 2)
             {
-                if (top250Loaded.isLoaded == false && top250Loaded.isLoading == false)
+                if (top250Loaded == false)
                 {
-                    top250Loaded.isLoading = true;
-                    loadTopPivotItem();
+                    top250Loaded = true;
+                    await loadTopPivotItem();
                 }
             }
             else if (index == 3)
             {
-                if (usboxLoaded.isLoaded == false && usboxLoaded.isLoading == false)
+                if (usboxLoaded == false)
                 {
-                    usboxLoaded.isLoading = true;
-                    loadUSBoxPivotItem();
+                    usboxLoaded = true;
+                    await loadUSBoxPivotItem();
                 }
             }
             else if (index == 4)
             {
-                if (commentLoaded.isLoaded == false && commentLoaded.isLoading == false)
+                if (commentLoaded == false)
                 {
-                    commentLoaded.isLoading = true;
-                    loadReviewPivotItem();
+                    commentLoaded = true;
+                    await loadReviewPivotItem();
                 }
             }
         }
