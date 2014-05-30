@@ -245,9 +245,16 @@ namespace PanoramaApp2
             }
             catch (Exception)
             {
-                UpcomingProgressBar.Visibility = System.Windows.Visibility.Collapsed;
-                latestLoaded = false;
-                MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                if (App.isFromDormant)
+                {
+                    fromDormant = true;
+                }
+                else
+                {
+                    UpcomingProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                    latestLoaded = false;
+                    MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                }
             }
             if (fromDormant)
             {
@@ -284,9 +291,16 @@ namespace PanoramaApp2
             }
             catch (Exception)
             {
-                TopProgressBar.Visibility = System.Windows.Visibility.Collapsed;
-                top250Loaded = false;
-                MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                if (App.isFromDormant)
+                {
+                    fromDormant = true;
+                }
+                else
+                {
+                    TopProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                    top250Loaded = false;
+                    MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                }
             }
             if (fromDormant)
             {
@@ -322,9 +336,16 @@ namespace PanoramaApp2
             }
             catch (Exception)
             {
-                USBoxProgressBar.Visibility = System.Windows.Visibility.Collapsed;
-                usboxLoaded = false;
-                MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                if (App.isFromDormant)
+                {
+                    fromDormant = true;
+                }
+                else
+                {
+                    USBoxProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                    usboxLoaded = false;
+                    MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                }
             }
             if (fromDormant)
             {
@@ -361,9 +382,16 @@ namespace PanoramaApp2
             }
             catch (Exception)
             {
-                HotReviewProgressBar.Visibility = System.Windows.Visibility.Collapsed;
-                commentLoaded = false;
-                MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                if (App.isFromDormant)
+                {
+                    fromDormant = true;
+                }
+                else
+                {
+                    HotReviewProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                    commentLoaded = false;
+                    MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                }
             }
             if (fromDormant)
             {
@@ -399,11 +427,18 @@ namespace PanoramaApp2
                     MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                popup.IsOpen = false;
-                hotLoaded = false;
-                MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                if (App.isFromDormant)
+                {
+                    fromDormant = true;
+                }
+                else
+                {
+                    popup.IsOpen = false;
+                    hotLoaded = false;
+                    MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                }
             }
             if (fromDormant)
             {

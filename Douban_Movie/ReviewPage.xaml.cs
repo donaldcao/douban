@@ -127,12 +127,20 @@ namespace PanoramaApp2
                 }
                 catch (Exception)
                 {
-                    ReviewCommentProgressBar.Visibility = System.Windows.Visibility.Collapsed;
-                    MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                    if (App.isFromDormant)
+                    {
+                        fromDormant = true;
+                    }
+                    else
+                    {
+                        ReviewCommentProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                        MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                    }
                 }
 
                 if (fromDormant)
                 {
+                    App.isFromDormant = false;
                     await loadMoreComment();
                 }
             }
@@ -173,8 +181,15 @@ namespace PanoramaApp2
             }
             catch (Exception)
             {
-                ReviewProgressBar.Visibility = System.Windows.Visibility.Collapsed;
-                MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                if (App.isFromDormant)
+                {
+                    fromDormant = true;
+                }
+                else
+                {
+                    ReviewProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                    MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                }
             }
 
             if (fromDormant)

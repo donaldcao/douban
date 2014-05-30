@@ -199,8 +199,15 @@ namespace PanoramaApp2
             }
             catch (Exception)
             {
-                MovieProgressBar.Visibility = System.Windows.Visibility.Collapsed;
-                MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                if (App.isFromDormant)
+                {
+                    fromDormant = true;
+                }
+                else
+                {
+                    MovieProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                    MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                }
             }
 
             // From dormant state, reload
@@ -247,9 +254,16 @@ namespace PanoramaApp2
                 }
                 catch (Exception)
                 {
-                    ShortReviewProgressBar.Visibility = System.Windows.Visibility.Collapsed;
-                    shortReviewLoaded = false;
-                    MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                    if (App.isFromDormant)
+                    {
+                        fromDormant = true;
+                    }
+                    else
+                    {
+                        ShortReviewProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                        shortReviewLoaded = false;
+                        MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                    }
                 }
 
                 if (fromDormant)
@@ -296,9 +310,16 @@ namespace PanoramaApp2
                 }
                 catch (Exception)
                 {
-                    reviewLoaded = false;
-                    ReviewProgressBar.Visibility = System.Windows.Visibility.Collapsed;
-                    MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                    if (App.isFromDormant)
+                    {
+                        fromDormant = true;
+                    }
+                    else
+                    {
+                        reviewLoaded = false;
+                        ReviewProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                        MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                    }
                 }
 
                 if (fromDormant)
@@ -345,9 +366,16 @@ namespace PanoramaApp2
                 }
                 catch (Exception)
                 {
-                    imageLoaded = false;
-                    ImageProgressBar.Visibility = System.Windows.Visibility.Collapsed;
-                    MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                    if (App.isFromDormant)
+                    {
+                        fromDormant = true;
+                    }
+                    else
+                    {
+                        imageLoaded = false;
+                        ImageProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                        MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                    }
                 }
 
                 if (fromDormant)
@@ -387,8 +415,15 @@ namespace PanoramaApp2
                 }
                 catch (Exception)
                 {
-                    ImageProgressBar.Visibility = System.Windows.Visibility.Collapsed;
-                    MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                    if (App.isFromDormant)
+                    {
+                        fromDormant = true;
+                    }
+                    else
+                    {
+                        ImageProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                        MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                    }
                 }
 
                 if (fromDormant)
@@ -432,8 +467,15 @@ namespace PanoramaApp2
                 }
                 catch (Exception)
                 {
-                    ReviewProgressBar.Visibility = System.Windows.Visibility.Collapsed;
-                    MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                    if (App.isFromDormant)
+                    {
+                        fromDormant = true;
+                    }
+                    else
+                    {
+                        ReviewProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                        MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                    }
                 }
 
                 if (fromDormant)
@@ -477,8 +519,15 @@ namespace PanoramaApp2
                 }
                 catch (Exception)
                 {
-                    ShortReviewProgressBar.Visibility = System.Windows.Visibility.Collapsed;
-                    MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                    if (App.isFromDormant)
+                    {
+                        fromDormant = true;
+                    }
+                    else
+                    {
+                        ShortReviewProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                        MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                    }
                 }
 
                 if (fromDormant)
