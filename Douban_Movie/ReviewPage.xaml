@@ -62,7 +62,7 @@
                 </ScrollViewer>
             </phone:PivotItem>
 
-            <phone:PivotItem Header="{Binding Path=LocalizedResources.Comments, Source={StaticResource LocalizedStrings}}"  Margin="24, 24, 24, 0">
+            <phone:PivotItem Header="{Binding Path=LocalizedResources.Comments, Source={StaticResource LocalizedStrings}}"  Margin="24, 24, 24, 24">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
@@ -82,9 +82,6 @@
                             </DataTemplate>
                         </phone:LongListSelector.ItemTemplate>
                     </phone:LongListSelector>
-                    <Button x:Name="loadMoreCommentButton" Grid.Row="1" HorizontalAlignment="Center" Click="loadMoreCommentButton_Click">
-                        <TextBlock x:Name="loadCommentText" Text="{Binding Path=LocalizedResources.LoadMore, Source={StaticResource LocalizedStrings}}" Style="{StaticResource PhoneTextSmallStyle}" Foreground="White" HorizontalAlignment="Center"/>
-                    </Button>
                 </Grid>
             </phone:PivotItem>
         </phone:Pivot>

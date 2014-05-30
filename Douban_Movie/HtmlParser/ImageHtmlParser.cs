@@ -12,24 +12,101 @@ using System.Collections.ObjectModel;
 using Microsoft.Phone.Shell;
 using System.Windows;
 using PanoramaApp2.Resources;
+using PanoramaApp2.Utility;
 
 namespace PanoramaApp2.HtmlParser
 {
     class ImageHtmlParser
     {
         private Movie movie;
-        public Button button { get; set; }
-        public TextBlock text { get; set; }
         public ProgressBar progressBar { get; set; }
-        public ObservableCollection<MovieImage> imageCollection = new ObservableCollection<MovieImage>();
-        private WebClient client;
-        private bool isFromLoadMore = false;
+        public ObservableCollection<MovieImage> imageCollection { get; set; }
+        public bool hasMore { get; set; }
+        private Downloader downloader;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="m"></param>
         public ImageHtmlParser(Movie m)
         {
             movie = m;
+            imageCollection = new ObservableCollection<MovieImage>();
+            movie.nextImageLink = Movie.movieLinkHeader + movie.id + "/photos?type=S";
+            downloader = new Downloader(movie.nextImageLink);
+            hasMore = false;
         }
 
+        /// <summary>
+        /// Get image
+        /// </summary>
+        /// <returns></returns>
+        public async Task getImage()
+        {
+            String imageHtml = await downloader.downloadString();
+            parseImageHtml(imageHtml);
+        }
+
+        /// <summary>
+        /// Parse image html page
+        /// </summary>
+        /// <param name="imageHtml"></param>
+        public void parseImageHtml(String imageHtml)
+        {
+            HtmlDocument doc = new HtmlDocument();
+            doc.LoadHtml(imageHtml);
+            HtmlNodeCollection nodeCollection = doc.DocumentNode.SelectNodes("//div[@class='cover']");
+            if (nodeCollection == null)
+            {
+                hasMore = false;
+            }
+            else
+            {
+                foreach (HtmlNode node in nodeCollection)
+                {
+                    MovieImage image;
+                    try
+                    {
+                        image = getImage(node);
+                    }
+                    catch (Exception)
+                    {
+                        continue;
+                    }
+                    imageCollection.Add(image);
+                }
+                nodeCollection = doc.DocumentNode.SelectNodes("//div[@class='paginator']");
+                if (nodeCollection == null)
+                {
+                    hasMore = false;
+                }
+                else
+                {
+                    HtmlNodeCollection nc = nodeCollection[0].SelectNodes("span[@class='next']");
+                    if (nc == null)
+                    {
+                        hasMore = false;
+                    }
+                    else
+                    {
+                        HtmlNodeCollection aCollection = nc[0].SelectNodes("a");
+                        if (aCollection == null)
+                        {
+                            hasMore = false;
+                        }
+                        else
+                        {
+                            hasMore = true;
+                            string link = aCollection[0].Attributes["href"].Value;
+                            link = link.Replace("&amp;", "&");
+                            movie.nextImageLink = link;
+                        }
+                    }
+                }
+            }
+        }
+
+        /*
         public void parseImage()
         {
             if (movie.imageLoaded == false)
@@ -59,15 +136,20 @@ namespace PanoramaApp2.HtmlParser
                 }
             }
         }
+        */
 
-        public void loadMore()
+        /// <summary>
+        /// Load more image
+        /// </summary>
+        /// <returns></returns>
+        public async Task loadMore()
         {
-            isFromLoadMore = true;
-            client = new WebClient();
-            client.DownloadStringCompleted += downloadImageCompleted;
-            client.DownloadStringAsync(new Uri(movie.nextImageLink));
+            downloader = new Downloader(movie.nextImageLink);
+            String imageHtml = await downloader.downloadString();
+            parseImageHtml(imageHtml);
         }
 
+        /*
         public void downloadImageCompleted(object sender, DownloadStringCompletedEventArgs e)
         {
             try
@@ -84,7 +166,7 @@ namespace PanoramaApp2.HtmlParser
                         {
                             progressBar.Visibility = Visibility.Collapsed;
                         }
-                        movie.hasMoreShortReview = false;
+                        movie.hasMoreImage = false;
                         button.IsEnabled = false;
                         text.Text = AppResources.Finish;
                     }
@@ -191,7 +273,13 @@ namespace PanoramaApp2.HtmlParser
                 }
             }
         }
+        */
 
+        /// <summary>
+        /// Get image from html node
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns></returns>
         private MovieImage getImage(HtmlNode node)
         {
             string smallUrl = "";
@@ -215,12 +303,21 @@ namespace PanoramaApp2.HtmlParser
             return image;
         }
 
+        /// <summary>
+        /// Cancel download
+        /// </summary>
         public void cancelDownload()
         {
-            if (client != null)
-            {
-                client.CancelAsync();
-            }
+            downloader.cancelDownload();
+        }
+
+        /// <summary>
+        /// If download is canceled
+        /// </summary>
+        /// <returns>If download is canceled</returns>
+        public bool isCanceled()
+        {
+            return downloader.isCanceled();
         }
     }
 }

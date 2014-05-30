@@ -60,18 +60,16 @@
                                     <TextBlock x:Name="slash" Foreground="White" Style="{StaticResource PhoneTextSmallStyle}" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0, 0, 0, 0"/>
                                     <TextBlock x:Name="length" Text="{Binding length, Mode=OneTime}" Foreground="White" Style="{StaticResource PhoneTextSmallStyle}" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0, 0, 0, 0"/>
                                 </StackPanel>
-                                <TextBlock x:Name="region" Text="{Binding region, Mode=OneTime}" Foreground="White" Style="{StaticResource PhoneTextSmallStyle}" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0, 24, 0, 24"  Width="250" TextWrapping="Wrap"/>
-                                <TextBlock x:Name="genre" Text="{Binding genre, Mode=OneTime}" Foreground="White" Style="{StaticResource PhoneTextSmallStyle}" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0, 24, 0, 24"  Width="250" TextWrapping="Wrap"/>
+                                <TextBlock x:Name="region" Text="{Binding region, Mode=OneTime}" Foreground="White" Style="{StaticResource PhoneTextSmallStyle}" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0, 12, 0, 0"  Width="250" TextWrapping="Wrap"/>
+                                <TextBlock x:Name="genre" Text="{Binding genre, Mode=OneTime}" Foreground="White" Style="{StaticResource PhoneTextSmallStyle}" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0, 12, 0, 0"  Width="250" TextWrapping="Wrap"/>
                                 <StackPanel Orientation="Horizontal" Margin="-12, 0, 0, 0">
                                     <HyperlinkButton x:Name="trailer" Foreground="White" TargetName="_blank"/>
                                     <HyperlinkButton x:Name="theater" Foreground="White" TargetName="_blank"/>
                                 </StackPanel>
                             </StackPanel>
                         </StackPanel>
-                        
                         <!-- Second grid -->
                         <my:ScrollableTextBlock x:Name="summary" Text="{Binding summary, Mode=OneTime}" Margin="0, 24, 0, 0" Grid.Row="1" Foreground="White" Width="auto" Height="auto"/>
-                        
                     </Grid>
                 </ScrollViewer>
             </phone:PivotItem>
@@ -96,7 +94,7 @@
                 </Grid>
             </phone:PivotItem>
 
-            <phone:PivotItem Header="{Binding Path=LocalizedResources.Comment, Source={StaticResource LocalizedStrings}}"  Margin="24, 24, 24, 0">
+            <phone:PivotItem Header="{Binding Path=LocalizedResources.Comment, Source={StaticResource LocalizedStrings}}"  Margin="24, 24, 24, 24">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
@@ -119,13 +117,10 @@
                             </DataTemplate>
                         </phone:LongListSelector.ItemTemplate>
                     </phone:LongListSelector>
-                    <Button x:Name="loadMoreButton" Grid.Row="1" HorizontalAlignment="Center" Click="loadMoreButton_Click">
-                        <TextBlock x:Name="loadText" Text="{Binding Path=LocalizedResources.LoadMore, Source={StaticResource LocalizedStrings}}" Style="{StaticResource PhoneTextSmallStyle}" Foreground="White" HorizontalAlignment="Center"/>
-                    </Button>
                 </Grid>
             </phone:PivotItem>
 
-            <phone:PivotItem Header="{Binding Path=LocalizedResources.Review, Source={StaticResource LocalizedStrings}}"  Margin="24, 24, 24, 0" toolkit:TiltEffect.IsTiltEnabled="True">
+            <phone:PivotItem Header="{Binding Path=LocalizedResources.Review, Source={StaticResource LocalizedStrings}}"  Margin="24, 24, 24, 24" toolkit:TiltEffect.IsTiltEnabled="True">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
@@ -150,40 +145,24 @@
                             </DataTemplate>
                         </phone:LongListSelector.ItemTemplate>
                     </phone:LongListSelector>
-                    <Button x:Name="loadMoreReviewButton" Grid.Row="1" HorizontalAlignment="Center" Click="loadMoreReviewButton_Click">
-                        <TextBlock x:Name="loadReviewText" Text="{Binding Path=LocalizedResources.LoadMore, Source={StaticResource LocalizedStrings}}" Style="{StaticResource PhoneTextSmallStyle}" Foreground="White" HorizontalAlignment="Center"/>
-                    </Button>
                 </Grid>
             </phone:PivotItem>
 
 
-            <phone:PivotItem Header="{Binding Path=LocalizedResources.Image, Source={StaticResource LocalizedStrings}}" Margin="24, 24, 24, 0">
+            <phone:PivotItem Header="{Binding Path=LocalizedResources.Image, Source={StaticResource LocalizedStrings}}" Margin="24, 24, 24, 24">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="auto"/>
                     </Grid.RowDefinitions>
                     <ProgressBar x:Name="ImageProgressBar" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Width="383" Grid.Row="0"/>
-                    <!--Single line list with text wrapping-->
-                    <ListBox x:Name="imageListBox" SelectionChanged="imageListBox_SelectionChanged" Grid.Row="0">
-                        <ListBox.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <toolkit:WrapPanel HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" />
-                            </ItemsPanelTemplate>
-                        </ListBox.ItemsPanel>
-                        <ListBox.ItemTemplate>
+                    <phone:LongListSelector x:Name="imageSelector" SelectionChanged="imageListBox_SelectionChanged" Grid.Row="0" LayoutMode="Grid" GridCellSize="102, 102">
+                        <phone:LongListSelector.ItemTemplate>
                             <DataTemplate>
-                                <StackPanel Margin="2">
-                                    <StackPanel Orientation="Vertical">
-                                        <Image Width="100" Height="100" Source="{Binding smallUrl, Mode=OneTime}" Stretch="UniformToFill"/>
-                                    </StackPanel>
-                                </StackPanel>
+                                <Image Width="100" Height="100" Source="{Binding smallUrl, Mode=OneTime}" Stretch="UniformToFill"/>
                             </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-                    <Button x:Name="loadMoreImageButton" Grid.Row="1" HorizontalAlignment="Center" Click="loadMoreImageButton_Click">
-                        <TextBlock x:Name="loadImageText" Text="{Binding Path=LocalizedResources.LoadMore, Source={StaticResource LocalizedStrings}}" Style="{StaticResource PhoneTextSmallStyle}" Foreground="White" HorizontalAlignment="Center"/>
-                    </Button>
+                        </phone:LongListSelector.ItemTemplate>
+                    </phone:LongListSelector>
                 </Grid>
             </phone:PivotItem>
         </phone:Pivot>

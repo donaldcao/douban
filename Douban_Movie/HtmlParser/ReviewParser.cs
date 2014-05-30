@@ -19,179 +19,112 @@ namespace PanoramaApp2.HtmlParser
     class ReviewParser
     {
         private Movie movie;
-        public Button button { get; set; }
-        public TextBlock text { get; set; }
-        public ProgressBar progressBar { get; set; }
-        public ObservableCollection<Review> reviewCollection = new ObservableCollection<Review>();
-        private WebClient client;
-        private bool isFromLoadMore = false;
+        public ObservableCollection<Review> reviewCollection { get; set; }
+        public bool hasMoreReview { get; set; }
+        private Downloader downloader;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="m">Movie</param>
         public ReviewParser(Movie m)
         {
             movie = m;
+            movie.nextReviewLink = Movie.movieLinkHeader + movie.id + "/reviews";
+            reviewCollection = new ObservableCollection<Review>();
+            downloader = new Downloader(movie.nextReviewLink);
+            hasMoreReview = false;
         }
 
-        public void parseReview()
+        /// <summary>
+        /// Get review
+        /// </summary>
+        /// <returns></returns>
+        public async Task getReview()
         {
-            if (movie.reviewLoaded)
+            String reviewHtml = await downloader.downloadString();
+            parseReviewHtml(reviewHtml);
+        }
+
+        /// <summary>
+        /// Parse review from html page
+        /// </summary>
+        /// <param name="reviewHtml"></param>
+        private void parseReviewHtml(String reviewHtml)
+        {
+            HtmlDocument doc = new HtmlDocument();
+            doc.LoadHtml(reviewHtml);
+            HtmlNodeCollection nodeCollection = doc.DocumentNode.SelectNodes("//div[@class='review']");
+            if (nodeCollection == null)
             {
-                foreach (Review r in movie.reviewSet)
-                {
-                    reviewCollection.Add(r);
-                }
-                if (progressBar != null)
-                {
-                    progressBar.Visibility = Visibility.Collapsed;
-                }
-                if (movie.hasMoreReview == false)
-                {
-                    button.IsEnabled = false;
-                    text.Text = AppResources.Finish;
-                }
-                else
-                {
-                    button.IsEnabled = true;
-                }
+                hasMoreReview = false;
             }
             else
             {
-                movie.nextReviewLink = Movie.movieLinkHeader + movie.id + "/reviews";
-                client = new WebClient();
-                client.DownloadStringCompleted += downloadReviewCompleted;
-                client.DownloadStringAsync(new Uri(movie.nextReviewLink));
-            }
-        }
-
-        public void loadMore()
-        {
-            isFromLoadMore = true;
-            client = new WebClient();
-            client.DownloadStringCompleted += downloadReviewCompleted;
-            client.DownloadStringAsync(new Uri(movie.nextReviewLink));
-        }
-
-        public void downloadReviewCompleted(object sender, DownloadStringCompletedEventArgs e)
-        {
-            try
-            {
-                if (e.Error == null && !e.Cancelled)
+                foreach (HtmlNode node in nodeCollection)
                 {
-                    string page = e.Result;
-                    HtmlDocument doc = new HtmlDocument();
-                    doc.LoadHtml(page);
-                    HtmlNodeCollection nodeCollection = doc.DocumentNode.SelectNodes("//div[@class='review']");
-                    if (nodeCollection == null)
+                    Review r;
+                    try
                     {
-                        if (progressBar != null)
-                        {
-                            progressBar.Visibility = Visibility.Collapsed;
-                        }
-                        movie.hasMoreShortReview = false;
-                        button.IsEnabled = false;
-                        text.Text = AppResources.Finish;
+                        r = getReview(node);
                     }
-                    else
+                    catch (Exception)
                     {
-                        foreach (HtmlNode node in nodeCollection)
-                        {
-                            Review r;
-                            try
-                            {
-                                r = getReview(node);
-                            }
-                            catch (Exception)
-                            {
-                                continue;
-                            }
-                            reviewCollection.Add(r);
-                            movie.reviewSet.Add(r);
-                        }
-                        if (progressBar != null)
-                        {
-                            progressBar.Visibility = Visibility.Collapsed;
-                        }
-                        nodeCollection = doc.DocumentNode.SelectNodes("//div[@id='paginator']");
-                        if (nodeCollection == null)
-                        {
-                            movie.hasMoreReview = false;
-                            button.IsEnabled = false;
-                            text.Text = AppResources.Finish;
-                        }
-                        else
-                        {
-                            HtmlNodeCollection nc = nodeCollection[0].SelectNodes("a[@class='next']");
-                            if (nc == null)
-                            {
-                                movie.hasMoreReview = false;
-                                button.IsEnabled = false;
-                                text.Text = AppResources.Finish;
-                            }
-                            else
-                            {
-                                movie.hasMoreReview = true;
-                                string link = nc[0].Attributes["href"].Value;
-                                link = link.Replace("&amp;", "&");
-                                movie.nextReviewLink = Movie.movieLinkHeader + movie.id + "/reviews" + link;
-                                button.IsEnabled = true;
-                            }
-                        }
+                        continue;
                     }
-                    movie.reviewLoaded = true;
+                    reviewCollection.Add(r);
+                }
+                nodeCollection = doc.DocumentNode.SelectNodes("//div[@id='paginator']");
+                if (nodeCollection == null)
+                {
+                    hasMoreReview = false;
                 }
                 else
                 {
-                    var wEx = e.Error as WebException;
-                    if (wEx.Status == WebExceptionStatus.RequestCanceled)
+                    HtmlNodeCollection nc = nodeCollection[0].SelectNodes("a[@class='next']");
+                    if (nc == null)
                     {
-                        if (App.isFromDormant)
-                        {
-                            App.isFromDormant = false;
-                            if (isFromLoadMore)
-                            {
-                                loadMore();
-                            }
-                            else
-                            {
-                                parseReview();
-                            }
-                        }
+                        hasMoreReview = false;
                     }
                     else
                     {
-                        if (progressBar != null)
-                        {
-                            progressBar.Visibility = Visibility.Collapsed;
-                        }
+                        hasMoreReview = true;
+                        string link = nc[0].Attributes["href"].Value;
+                        link = link.Replace("&amp;", "&");
+                        movie.nextReviewLink = Movie.movieLinkHeader + movie.id + "/reviews" + link;
                     }
                 }
             }
-            catch (WebException)
-            {
-                button.IsEnabled = true;
-                if (progressBar != null)
-                {
-                    progressBar.Visibility = Visibility.Collapsed;
-                }
-                MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
-            }
-            catch (Exception)
-            {
-                button.IsEnabled = true;
-                if (progressBar != null)
-                {
-                    progressBar.Visibility = Visibility.Collapsed;
-                }
-            }
         }
 
+        public async Task loadMore()
+        {
+            downloader = new Downloader(movie.nextReviewLink);
+            String reviewHtml = await downloader.downloadString();
+            parseReviewHtml(reviewHtml);
+        }
+
+        /// <summary>
+        /// Cancel download
+        /// </summary>
         public void cancelDownload()
         {
-            if (client != null)
-            {
-                client.CancelAsync();
-            }
+            downloader.cancelDownload();
         }
 
+        /// <summary>
+        /// Is download canceled
+        /// </summary>
+        /// <returns>If download is canceled</returns>
+        public bool isCanceled() {
+            return downloader.isCanceled();
+        }
+
+        /// <summary>
+        /// Get review from htmlnode
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns></returns>
         private Review getReview(HtmlNode node)
         {
             string author = "";

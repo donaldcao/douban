@@ -18,167 +18,70 @@ namespace PanoramaApp2.HtmlParser
 {
     class ReviewHtmlParser
     {
-        private Review review;
-        public ProgressBar reviewProgressBar { set; get; }
-        public ProgressBar commentProgressBar { set; get; }
-        public StackPanel reviewStackPanel { get; set; }
-        public Button button { get; set; }
-        public Border border { get; set; }
-        public TextBlock movieText { get; set; }
-        public TextBlock text { get; set; }
-        private WebClient client;
-        public ObservableCollection<Comment> commentCollection = new ObservableCollection<Comment>();
-
+        public Review review { get; set; }
+        public ObservableCollection<Comment> commentCollection { get; set; }
+        private Downloader downloader;
+        public bool hasMoreComments { get; set; }
         public ReviewHtmlParser(Review r)
         {
             review = r;
+            commentCollection = new ObservableCollection<Comment>();
+            hasMoreComments = false;
         }
 
-        public void parseReview()
+        public async Task getReview()
         {
-            Review r = Cache.getReview(review.id);
-            if (r == null)
-            {
-                client = new WebClient();
-                client.DownloadStringCompleted += downloadReviewCompleted;
-                client.DownloadStringAsync(new Uri(Review.reviewLinkHeader + review.id));
-            }
-            else
-            {
-                border.Visibility = Visibility.Visible;
-                movieText.Visibility = Visibility.Visible;
-                reviewStackPanel.DataContext = r;
-                foreach (Comment c in review.commentSet)
-                {
-                    commentCollection.Add(c);
-                }
-                if (r.hasMoreComment == false)
-                {
-                    button.IsEnabled = false;
-                    text.Text = AppResources.Finish;
-                }
-                else
-                {
-                    button.IsEnabled = true;
-                }
-                if (reviewProgressBar != null)
-                {
-                    reviewProgressBar.Visibility = Visibility.Collapsed;
-                }
-            }
-        }
-
-        public void parseComment()
-        {
-            client = new WebClient();
-            client.DownloadStringCompleted += downloadCommentCompleted;
-            client.DownloadStringAsync(new Uri(review.nextCommentLink));
-        }
-
-        private void downloadCommentCompleted(object sender, DownloadStringCompletedEventArgs e)
-        {
+            downloader = new Downloader(Review.reviewLinkHeader + review.id);
+            String reviewHtml = await downloader.downloadString();
+            HtmlDocument doc = new HtmlDocument();
+            doc.LoadHtml(reviewHtml);
             try
             {
-                if (e.Error == null && !e.Cancelled)
-                {
-                    string page = e.Result;
-                    HtmlDocument doc = new HtmlDocument();
-                    doc.LoadHtml(page);
-                    try
-                    {
-                        loadComments(doc);
-                    }
-                    catch (Exception)
-                    {
-                    }
-                    commentProgressBar.Visibility = Visibility.Collapsed;
-                }
-                else
-                {
-                    var wEx = e.Error as WebException;
-                    if (wEx.Status == WebExceptionStatus.RequestCanceled)
-                    {
-                        if (App.isFromDormant)
-                        {
-                            App.isFromDormant = false;
-                            parseComment();
-                        }
-                    }
-                    else
-                    {
-                        commentProgressBar.Visibility = Visibility.Collapsed;
-                    }
-                }
+                getReview(doc);
             }
-            catch (WebException)
+            catch (Exception)
             {
-                button.IsEnabled = true;
-                if (reviewProgressBar != null)
-                {
-                    reviewProgressBar.Visibility = Visibility.Collapsed;
-                }
-                MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
             }
         }
 
+        public async Task loadMore()
+        {
+            downloader = new Downloader(review.nextCommentLink);
+            String commentHtml = await downloader.downloadString();
+            HtmlDocument doc = new HtmlDocument();
+            doc.LoadHtml(commentHtml);
+            try
+            {
+                loadComments(doc);
+            }
+            catch (Exception)
+            {
+
+            }
+        }
+
+        /// <summary>
+        /// Cancel download
+        /// </summary>
         public void cancelDownload()
         {
-            if (client != null)
+            if (downloader != null)
             {
-                client.CancelAsync();
+                downloader.cancelDownload();
             }
         }
 
-        private void downloadReviewCompleted(object sender, DownloadStringCompletedEventArgs e)
+        /// <summary>
+        /// If download is canceled
+        /// </summary>
+        /// <returns>If download is canceled</returns>
+        public bool isCanceled()
         {
-            try
+            if (downloader != null)
             {
-                if (e.Error == null && !e.Cancelled)
-                {
-                    string page = e.Result;
-                    HtmlDocument doc = new HtmlDocument();
-                    doc.LoadHtml(page);
-                    try
-                    {
-                        getReview(doc);
-                        border.Visibility = Visibility.Visible;
-                        movieText.Visibility = Visibility.Visible;
-                        reviewStackPanel.DataContext = review;
-                        Cache.insertReview(review);
-                    }
-                    catch (Exception)
-                    {
-                    }
-                    if (reviewProgressBar != null)
-                    {
-                        reviewProgressBar.Visibility = Visibility.Collapsed;
-                    }
-                }
-                else
-                {
-                    var wEx = e.Error as WebException;
-                    if (wEx.Status == WebExceptionStatus.RequestCanceled)
-                    {
-                        if (App.isFromDormant)
-                        {
-                            App.isFromDormant = false;
-                            parseReview();
-                        }
-                    }
-                    if (reviewProgressBar != null)
-                    {
-                        reviewProgressBar.Visibility = Visibility.Collapsed;
-                    }
-                }
+                return downloader.isCanceled();
             }
-            catch (WebException)
-            {
-                if (reviewProgressBar != null)
-                {
-                    reviewProgressBar.Visibility = Visibility.Collapsed;
-                }
-                MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
-            }
+            return false;
         }
 
         private Comment getComment(HtmlNode node)
@@ -215,9 +118,7 @@ namespace PanoramaApp2.HtmlParser
                 HtmlNodeCollection collection = doc.DocumentNode.SelectNodes("//div[@class='comment-item']");
                 if (collection == null)
                 {
-                    review.hasMoreComment = false;
-                    button.IsEnabled = false;
-                    text.Text = AppResources.Finish;
+                    hasMoreComments = false;
                 }
                 else
                 {
@@ -233,44 +134,35 @@ namespace PanoramaApp2.HtmlParser
                             continue;
                         }
                         commentCollection.Add(c);
-                        review.commentSet.Add(c);
                     }
                     HtmlNodeCollection nodeCollection = doc.DocumentNode.SelectNodes("//div[@class='paginator']");
                     if (nodeCollection == null)
                     {
-                        review.hasMoreComment = false;
-                        button.IsEnabled = false;
-                        text.Text = AppResources.Finish;
+                        hasMoreComments = false;
                     }
                     else
                     {
                         HtmlNodeCollection nc = nodeCollection[0].SelectNodes("span[@class='next']");
                         if (nc == null)
                         {
-                            review.hasMoreComment = false;
-                            button.IsEnabled = false;
-                            text.Text = AppResources.Finish;
+                            hasMoreComments = false;
                         }
                         else
                         {
                             HtmlNodeCollection aCollection = nc[0].SelectNodes("a");
                             if (aCollection == null)
                             {
-                                review.hasMoreComment = false;
-                                button.IsEnabled = false;
-                                text.Text = AppResources.Finish;
+                                hasMoreComments = false;
                             }
                             else
                             {
-                                review.hasMoreComment = true;
+                                hasMoreComments = true;
                                 string link = aCollection[0].Attributes["href"].Value;
                                 review.nextCommentLink = link;
-                                button.IsEnabled = true;
                             }
                         }
                     }
                 }
-                review.commentLoaded = true;
             }
             catch (Exception)
             {

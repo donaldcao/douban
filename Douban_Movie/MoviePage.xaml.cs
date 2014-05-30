@@ -36,9 +36,17 @@ namespace PanoramaApp2
             shortReviewLoaded = false;
             reviewLoaded = false;
             imageLoaded = false;
+
+            // Pull to refresh handle
             var shortReviewPullDector = new WP8PullToRefreshDetector();
             shortReviewPullDector.Bind(shortReviewSelector);
             shortReviewPullDector.Compression += shortReviewDector_Compress;
+            var reviewPullDector = new WP8PullToRefreshDetector();
+            reviewPullDector.Bind(reviewLongListSelector);
+            reviewPullDector.Compression += reviewDector_Compress;
+            var imagePullDector = new WP8PullToRefreshDetector();
+            imagePullDector.Bind(imageSelector);
+            imagePullDector.Compression += imageDector_Compress;
 
             movie = App.moviePassed;
             if (movie != null)
@@ -106,9 +114,47 @@ namespace PanoramaApp2
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void shortReviewDector_Compress(object sender, CompressionEventArgs e)
+        private async void shortReviewDector_Compress(object sender, CompressionEventArgs e)
         {
-            System.Diagnostics.Debug.WriteLine("Pull event detected");
+            if (e.Type == CompressionType.Bottom)
+            {
+                if (shortReviewParser != null && movie != null)
+                {
+                    await loadMoreShortReview();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Review pull to refresh handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private async void reviewDector_Compress(object sender, CompressionEventArgs e)
+        {
+            if (e.Type == CompressionType.Bottom)
+            {
+                if (reviewParser != null && movie != null)
+                {
+                    await loadMoreReview();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Image pull to refresh handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private async void imageDector_Compress(object sender, CompressionEventArgs e)
+        {
+            if (e.Type == CompressionType.Bottom)
+            {
+                if (imageParser != null && movie != null)
+                {
+                    await loadMoreImage();
+                }
+            }
         }
 
         ///////////////////////////////////////////////////////// Loading functions for tab /////////////////////////////////////////////////
@@ -174,24 +220,13 @@ namespace PanoramaApp2
             if (movie != null)
             {
                 bool fromDormant = false;
-                loadMoreButton.IsEnabled = false;
                 shortReviewParser = new ShortReviewHtmlParser(movie);
                 ShortReviewProgressBar.IsIndeterminate = true;
                 ShortReviewProgressBar.Visibility = System.Windows.Visibility.Visible;
-                loadMoreButton.IsEnabled = false;
                 try
                 {
-                    Tuple<ObservableCollection<ShortReview>, bool> tuple = await shortReviewParser.getShortReview();
-                    shortReviewSelector.ItemsSource = tuple.Item1;
-                    bool hasMoreReview = tuple.Item2;
-                    if (hasMoreReview)
-                    {
-                        loadMoreButton.IsEnabled = true;
-                    }
-                    else
-                    {
-                        loadText.Text = AppResources.Finish;
-                    }
+                    await shortReviewParser.getShortReview();
+                    shortReviewSelector.ItemsSource = shortReviewParser.shortReviewCollection;
                     ShortReviewProgressBar.Visibility = System.Windows.Visibility.Collapsed;
                 } 
                 catch (TaskCanceledException) 
@@ -203,7 +238,6 @@ namespace PanoramaApp2
                     else
                     {
                         ShortReviewProgressBar.Visibility = System.Windows.Visibility.Collapsed;
-                        loadMoreButton.IsEnabled = true;
                         if (!shortReviewParser.isCanceled())
                         {
                             MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
@@ -213,7 +247,6 @@ namespace PanoramaApp2
                 catch (Exception)
                 {
                     ShortReviewProgressBar.Visibility = System.Windows.Visibility.Collapsed;
-                    loadMoreButton.IsEnabled = true;
                     MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
                 }
 
@@ -225,86 +258,236 @@ namespace PanoramaApp2
             }
         }
 
-
-        private void loadReview()
+        /// <summary>
+        /// Load review
+        /// </summary>
+        /// <returns></returns>
+        private async Task loadReview()
         {
             if (movie != null)
             {
-                loadMoreReviewButton.IsEnabled = false;
+                bool fromDormant = false;
                 reviewParser = new ReviewParser(movie);
-                reviewParser.progressBar = ReviewProgressBar;
-                reviewParser.button = loadMoreReviewButton;
-                reviewParser.text = loadReviewText;
-                reviewLongListSelector.ItemsSource = reviewParser.reviewCollection;
                 ReviewProgressBar.IsIndeterminate = true;
                 ReviewProgressBar.Visibility = System.Windows.Visibility.Visible;
-                reviewParser.parseReview();
+                try
+                {
+                    await reviewParser.getReview();
+                    reviewLongListSelector.ItemsSource = reviewParser.reviewCollection;
+                    ReviewProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                }
+                catch (TaskCanceledException)
+                {
+                    if (App.isFromDormant)
+                    {
+                        fromDormant = true;
+                    }
+                    else
+                    {
+                        ReviewProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                        if (!reviewParser.isCanceled())
+                        {
+                            MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    ReviewProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                    MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                }
+
+                if (fromDormant)
+                {
+                    App.isFromDormant = false;
+                    await loadReview();
+                }
             }
         }
-        private void loadImage()
+
+        /// <summary>
+        /// Load image
+        /// </summary>
+        private async Task loadImage()
         {
             if (movie != null)
             {
-                loadMoreImageButton.IsEnabled = false;
                 imageParser = new ImageHtmlParser(movie);
                 imageParser.progressBar = ImageProgressBar;
                 ImageProgressBar.IsIndeterminate = true;
                 ImageProgressBar.Visibility = System.Windows.Visibility.Visible;
-                imageParser.button = loadMoreImageButton;
-                imageParser.text = loadImageText;
-                imageListBox.ItemsSource = imageParser.imageCollection;
-                imageParser.parseImage();
-            }
-        }
-
-        private async Task loadMoreShortReview()
-        {
-            bool fromDormant = false;
-            loadMoreButton.IsEnabled = false;
-            ShortReviewProgressBar.IsIndeterminate = true;
-            ShortReviewProgressBar.Visibility = System.Windows.Visibility.Visible;
-            try
-            {
-                bool hasMore = await shortReviewParser.loadMore();
-                ShortReviewProgressBar.Visibility = System.Windows.Visibility.Collapsed;
-                if (!hasMore)
+                bool fromDormant = false;
+                try
                 {
-                    loadText.Text = AppResources.Finish;
+                    await imageParser.getImage();
+                    imageSelector.ItemsSource = imageParser.imageCollection;
+                    ImageProgressBar.Visibility = System.Windows.Visibility.Collapsed;
                 }
-                else
+                catch (TaskCanceledException)
                 {
-                    loadMoreButton.IsEnabled = true;
-                }
-            }
-            catch (TaskCanceledException)
-            {
-                if (App.isFromDormant)
-                {
-                    fromDormant = true;
-                }
-                else
-                {
-                    ShortReviewProgressBar.Visibility = System.Windows.Visibility.Collapsed;
-                    loadMoreButton.IsEnabled = true;
-                    if (!shortReviewParser.isCanceled())
+                    if (App.isFromDormant)
                     {
-                        MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                        fromDormant = true;
+                    }
+                    else
+                    {
+                        ImageProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                        if (!imageParser.isCanceled())
+                        {
+                            MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                        }
                     }
                 }
-            }
-            catch (Exception)
-            {
-                loadMoreButton.IsEnabled = true;
-                ShortReviewProgressBar.Visibility = System.Windows.Visibility.Collapsed;
-                MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
-            }
+                catch (Exception)
+                {
+                    ImageProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                    MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                }
 
-            if (fromDormant)
-            {
-                App.isFromDormant = false;
-                await loadMoreShortReview();
+                if (fromDormant)
+                {
+                    App.isFromDormant = false;
+                    await loadImage();
+                }
             }
         }
+
+        private async Task loadMoreImage()
+        {
+            if (imageParser.hasMore)
+            {
+                bool fromDormant = false;
+                ImageProgressBar.IsIndeterminate = true;
+                ImageProgressBar.Visibility = System.Windows.Visibility.Visible;
+                try
+                {
+                    await imageParser.loadMore();
+                    ImageProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                }
+                catch (TaskCanceledException)
+                {
+                    if (App.isFromDormant)
+                    {
+                        fromDormant = true;
+                    }
+                    else
+                    {
+                        ImageProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                        if (!imageParser.isCanceled())
+                        {
+                            MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    ImageProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                    MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                }
+
+                if (fromDormant)
+                {
+                    App.isFromDormant = false;
+                    await loadMoreImage();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Load more review
+        /// </summary>
+        /// <returns></returns>
+        private async Task loadMoreReview()
+        {
+            if (reviewParser.hasMoreReview)
+            {
+                bool fromDormant = false;
+                ReviewProgressBar.IsIndeterminate = true;
+                ReviewProgressBar.Visibility = System.Windows.Visibility.Visible;
+                try
+                {
+                    await reviewParser.loadMore();
+                    ReviewProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                }
+                catch (TaskCanceledException)
+                {
+                    if (App.isFromDormant)
+                    {
+                        fromDormant = true;
+                    }
+                    else
+                    {
+                        ReviewProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                        if (!reviewParser.isCanceled())
+                        {
+                            MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    ReviewProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                    MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                }
+
+                if (fromDormant)
+                {
+                    App.isFromDormant = false;
+                    await loadMoreReview();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Load more short review
+        /// </summary>
+        /// <returns></returns>
+        private async Task loadMoreShortReview()
+        {
+            if (shortReviewParser.hasMoreReview)
+            {
+                bool fromDormant = false;
+                ShortReviewProgressBar.IsIndeterminate = true;
+                ShortReviewProgressBar.Visibility = System.Windows.Visibility.Visible;
+                try
+                {
+                    await shortReviewParser.loadMore();
+                    ShortReviewProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                }
+                catch (TaskCanceledException)
+                {
+                    if (App.isFromDormant)
+                    {
+                        fromDormant = true;
+                    }
+                    else
+                    {
+                        ShortReviewProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                        if (!shortReviewParser.isCanceled())
+                        {
+                            MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    ShortReviewProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                    MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                }
+
+                if (fromDormant)
+                {
+                    App.isFromDormant = false;
+                    await loadMoreShortReview();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Privot change event handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private async void Pivot_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             int index = ((Pivot)sender).SelectedIndex;
@@ -321,7 +504,7 @@ namespace PanoramaApp2
                 if (reviewLoaded == false)
                 {
                     reviewLoaded = true;
-                    loadReview();
+                    await loadReview();
                 }
             }
             if (index == 4)
@@ -329,20 +512,11 @@ namespace PanoramaApp2
                 if (imageLoaded == false)
                 {
                     imageLoaded = true;
-                    loadImage();
+                    await loadImage();
                 }
             }
         }
-
-
-        private async void loadMoreButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (shortReviewParser != null && movie != null)
-            {
-                await loadMoreShortReview();
-            }
-        }
-
+        
         private void reviewLongListSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (reviewLongListSelector != null && reviewLongListSelector.SelectedItem != null) {
@@ -356,17 +530,11 @@ namespace PanoramaApp2
             }
         }
 
-        private void loadMoreReviewButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (reviewParser != null && movie != null)
-            {
-                loadMoreReviewButton.IsEnabled = false;
-                ReviewProgressBar.IsIndeterminate = true;
-                ReviewProgressBar.Visibility = System.Windows.Visibility.Visible;
-                reviewParser.loadMore();
-            }
-        }
-
+        /// <summary>
+        /// Open search box
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Image_Tap(object sender, System.Windows.Input.GestureEventArgs e)
         {
             PopupInput input = new PopupInput();
@@ -379,27 +547,16 @@ namespace PanoramaApp2
 
         private void imageListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (imageListBox != null && imageListBox.SelectedItem != null)
+            if (imageSelector != null && imageSelector.SelectedItem != null)
             {
-                MovieImage image = (MovieImage)imageListBox.SelectedItem;
+                MovieImage image = (MovieImage)imageSelector.SelectedItem;
                 if (image != null)
                 {
                     App.imagePassed = image;
                     App.imageCollectionPassed = imageParser.imageCollection;
                     NavigationService.Navigate(new Uri("/ImagePage.xaml", UriKind.Relative));
                 }
-                imageListBox.SelectedItem = null;
-            }
-        }
-
-        private void loadMoreImageButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (imageParser != null && movie != null)
-            {
-                loadMoreImageButton.IsEnabled = false;
-                ImageProgressBar.Visibility = System.Windows.Visibility.Visible;
-                ImageProgressBar.IsIndeterminate = true;
-                imageParser.loadMore();
+                imageSelector.SelectedItem = null;
             }
         }
 

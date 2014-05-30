@@ -72,7 +72,6 @@ namespace PanoramaApp2.Utility
 
         void OnViewportChanged(object sender, Microsoft.Phone.Controls.ItemRealizationEventArgs e)
         {
-            System.Diagnostics.Debug.WriteLine("Realized");
             viewportChanged = true;
         }
 
@@ -82,12 +81,10 @@ namespace PanoramaApp2.Utility
 
             if (!isMoving)
             {
-                System.Diagnostics.Debug.WriteLine("not moving, position is " + pos.Y);
                 manipulationStart = pos.Y;
             }
             else 
             {
-                System.Diagnostics.Debug.WriteLine("Moving, position is " + pos.Y);
                 manipulationEnd = pos.Y;
             }
 
@@ -111,14 +108,24 @@ namespace PanoramaApp2.Utility
 
                 if (!viewportChanged && Compression != null)
                 {
+                    /*
                     System.Diagnostics.Debug.WriteLine("bound top " + _viewport.Bounds.Top);
                     System.Diagnostics.Debug.WriteLine("bound bottom " + _viewport.Bounds.Bottom);
                     System.Diagnostics.Debug.WriteLine("viewport top " + _viewport.Viewport.Top);
                     System.Diagnostics.Debug.WriteLine("viewport bottom " + _viewport.Viewport.Bottom);
-                    if (total < 0 && (_viewport.Viewport.Top == _viewport.Bounds.Top))
+                    System.Diagnostics.Debug.WriteLine("bound top int " + (int)_viewport.Bounds.Top);
+                    System.Diagnostics.Debug.WriteLine("bound bottom int" + (int)_viewport.Bounds.Bottom);
+                    System.Diagnostics.Debug.WriteLine("viewport top int" + (int)_viewport.Viewport.Top);
+                    System.Diagnostics.Debug.WriteLine("viewport bottom int" + (int)_viewport.Viewport.Bottom);
+                    */
+                    if (total < 0 && (((int)_viewport.Viewport.Top) <= ((int)_viewport.Bounds.Top)))
+                    {
                         Compression(this, new CompressionEventArgs(CompressionType.Top));
-                    else if (total > 0 && (_viewport.Bounds.Bottom == _viewport.Viewport.Bottom)) // Explicitly exclude total == 0 case
+                    }
+                    else if (total > 0 && (((int)_viewport.Bounds.Bottom) <= ((int)_viewport.Viewport.Bottom)))
+                    {
                         Compression(this, new CompressionEventArgs(CompressionType.Bottom));
+                    }
                 }
             }
         }

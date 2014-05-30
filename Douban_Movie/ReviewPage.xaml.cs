@@ -9,6 +9,9 @@ using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
 using PanoramaApp2.HtmlParser;
 using System.Windows.Controls.Primitives;
+using System.Threading.Tasks;
+using PanoramaApp2.Resources;
+using PanoramaApp2.Utility;
 
 namespace PanoramaApp2
 {
@@ -25,21 +28,12 @@ namespace PanoramaApp2
             review = App.reviewPassed;
             if (review != null)
             {
-                Review r = Cache.getReview(review.id);
-                if (r != null)
-                {
-                    review = r;
-                }
                 reviewParser = new ReviewHtmlParser(review);
-                reviewParser.reviewStackPanel = reviewStackPanel;
-                reviewParser.reviewProgressBar = ReviewProgressBar;
-                reviewParser.commentProgressBar = ReviewCommentProgressBar;
-                reviewParser.button = loadMoreCommentButton;
-                reviewParser.text = loadCommentText;
-                reviewParser.border = border;
-                reviewParser.movieText = movieText;
-                commentSelector.ItemsSource = reviewParser.commentCollection;
             }
+
+            var commentPullDector = new WP8PullToRefreshDetector();
+            commentPullDector.Bind(commentSelector);
+            commentPullDector.Compression += commentDector_Compress;
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
@@ -54,7 +48,7 @@ namespace PanoramaApp2
             }
         }
 
-        protected override void OnNavigatedTo(NavigationEventArgs e)
+        protected async override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
             if (App.fromTombStone)
@@ -67,10 +61,7 @@ namespace PanoramaApp2
                 {
                     if (reviewParser != null)
                     {
-                        ReviewProgressBar.IsIndeterminate = true;
-                        ReviewProgressBar.Visibility = System.Windows.Visibility.Visible;
-                        loadMoreCommentButton.IsEnabled = false;
-                        reviewParser.parseReview();
+                        await loadReview();
                     }
                 }
             }
@@ -89,6 +80,115 @@ namespace PanoramaApp2
             }
         }
 
+        ///////////////////////////////////////////////////////// Pull to refresh event handler///////////////////////////////////////////////
+        /// <summary>
+        /// Short review pull to refresh handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private async void commentDector_Compress(object sender, CompressionEventArgs e)
+        {
+            if (e.Type == CompressionType.Bottom)
+            {
+                if (reviewParser != null && review != null)
+                {
+                    await loadMoreComment();
+                }
+            }
+        }
+
+        private async Task loadMoreComment()
+        {
+            if (reviewParser.hasMoreComments)
+            {
+                bool fromDormant = false;
+                ReviewCommentProgressBar.IsIndeterminate = true;
+                ReviewCommentProgressBar.Visibility = System.Windows.Visibility.Visible;
+
+                try
+                {
+                    await reviewParser.loadMore();
+                    ReviewCommentProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                }
+                catch (TaskCanceledException)
+                {
+                    if (App.isFromDormant)
+                    {
+                        fromDormant = true;
+                    }
+                    else
+                    {
+                        ReviewCommentProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                        if (!reviewParser.isCanceled())
+                        {
+                            MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    ReviewCommentProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                    MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                }
+
+                if (fromDormant)
+                {
+                    await loadMoreComment();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Load review
+        /// </summary>
+        /// <returns></returns>
+        private async Task loadReview()
+        {
+            bool fromDormant = false;
+            ReviewProgressBar.IsIndeterminate = true;
+            ReviewProgressBar.Visibility = System.Windows.Visibility.Visible;
+            try
+            {
+                await reviewParser.getReview();
+                border.Visibility = Visibility.Visible;
+                movieText.Visibility = Visibility.Visible;
+                reviewStackPanel.DataContext = reviewParser.review;
+                commentSelector.ItemsSource = reviewParser.commentCollection;
+                ReviewProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+            }
+            catch (TaskCanceledException)
+            {
+                if (App.isFromDormant)
+                {
+                    fromDormant = true;
+                }
+                else
+                {
+                    ReviewProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                    if (!reviewParser.isCanceled())
+                    {
+                        MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                ReviewProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+            }
+
+            if (fromDormant)
+            {
+                App.isFromDormant = false;
+                await loadReview();
+            }
+        }
+
+        /// <summary>
+        /// Open search box
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Image_Tap(object sender, System.Windows.Input.GestureEventArgs e)
         {
             PopupInput input = new PopupInput();
@@ -98,18 +198,5 @@ namespace PanoramaApp2
             searchPopup.IsOpen = true;
             input.inputBox.Focus();
         }
-
-        private void loadMoreCommentButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (reviewParser != null && review != null)
-            {
-                ReviewCommentProgressBar.IsIndeterminate = true;
-                ReviewCommentProgressBar.Visibility = System.Windows.Visibility.Visible;
-                loadMoreCommentButton.IsEnabled = false;
-                reviewParser.parseComment();
-            }
-        }
-
-
     }
 }

@@ -18,8 +18,8 @@ namespace PanoramaApp2.HtmlParser
 {
     class ShortReviewHtmlParser
     {
-        private ObservableCollection<ShortReview> shortReviewCollection;
-        private bool moreReview;
+        public ObservableCollection<ShortReview> shortReviewCollection;
+        public bool hasMoreReview { get; set; }
         private Movie movie { get; set; }
         private Downloader downloader;
 
@@ -31,7 +31,7 @@ namespace PanoramaApp2.HtmlParser
         {
             movie = m;
             shortReviewCollection = new ObservableCollection<ShortReview>();
-            moreReview = false;
+            hasMoreReview = false;
             movie.nextShortReviewLink = Movie.movieLinkHeader + movie.id + "/comments";
             downloader = new Downloader(movie.nextShortReviewLink);
         }
@@ -40,13 +40,16 @@ namespace PanoramaApp2.HtmlParser
         /// Get short review
         /// </summary>
         /// <returns>short review and if there's more</returns>
-        public async Task<Tuple<ObservableCollection<ShortReview>, bool>> getShortReview()
+        public async Task getShortReview()
         {
             String shortReviewHtml = await downloader.downloadString();
             parseShortReviewHtml(shortReviewHtml);
-            return Tuple.Create(shortReviewCollection, moreReview);
         }
 
+        /// <summary>
+        /// Parse short review from html page
+        /// </summary>
+        /// <param name="shortReviewHtml"></param>
         private void parseShortReviewHtml(String shortReviewHtml)
         {
             HtmlDocument doc = new HtmlDocument();
@@ -56,7 +59,7 @@ namespace PanoramaApp2.HtmlParser
             // Short review doesn't exist
             if (nodeCollection == null)
             {
-                moreReview = false;
+                hasMoreReview = false;
             }
             else
             {
@@ -76,18 +79,18 @@ namespace PanoramaApp2.HtmlParser
                 nodeCollection = doc.DocumentNode.SelectNodes("//div[@id='paginator']");
                 if (nodeCollection == null)
                 {
-                    moreReview = false;
+                    hasMoreReview = false;
                 }
                 else
                 {
                     HtmlNodeCollection nc = nodeCollection[0].SelectNodes("a[@class='next']");
                     if (nc == null)
                     {
-                        moreReview = false;
+                        hasMoreReview = false;
                     }
                     else
                     {
-                        moreReview = true;
+                        hasMoreReview = true;
                         string link = nc[0].Attributes["href"].Value;
                         link = link.Replace("&amp;", "&");
                         movie.nextShortReviewLink = Movie.movieLinkHeader + movie.id + "/comments" + link;
@@ -100,12 +103,11 @@ namespace PanoramaApp2.HtmlParser
         /// Load more review
         /// </summary>
         /// <returns></returns>
-        public async Task<bool> loadMore()
+        public async Task loadMore()
         {
             downloader = new Downloader(movie.nextShortReviewLink);
             String shortReviewHtml = await downloader.downloadString();
             parseShortReviewHtml(shortReviewHtml);
-            return moreReview;
         }
 
         /// <summary>

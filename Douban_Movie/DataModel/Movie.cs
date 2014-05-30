@@ -210,18 +210,7 @@ namespace PanoramaApp2
                 _nextShortReviewLink = value;
             }
         }
-        private bool _hasMoreShortReview;
-        public bool hasMoreShortReview
-        {
-            get
-            {
-                return _hasMoreShortReview;
-            }
-            set
-            {
-                _hasMoreShortReview = value;
-            }
-        }
+
         private string _nextReviewLink;
         public string nextReviewLink
         {
@@ -234,18 +223,7 @@ namespace PanoramaApp2
                 _nextReviewLink = value;
             }
         }
-        private bool _hasMoreReview;
-        public bool hasMoreReview
-        {
-            get
-            {
-                return _hasMoreReview;
-            }
-            set
-            {
-                _hasMoreReview = value;
-            }
-        }
+
         private string _nextImageLink = "";
         public string nextImageLink
         {
@@ -256,105 +234,6 @@ namespace PanoramaApp2
             set
             {
                 _nextImageLink = value;
-            }
-        }
-        private bool _hasMoreImage;
-        public bool hasMoreImage
-        {
-            get
-            {
-                return _hasMoreImage;
-            }
-            set
-            {
-                _hasMoreImage = value;
-            }
-        }
-        /*
-        private List<People> _peopleList = null;
-        public List<People> peopleList
-        {
-            get
-            {
-                return _peopleList;
-            }
-            set
-            {
-                _peopleList = value;
-            }
-        }
-        private HashSet<ShortReview> _shortReviewSet = new HashSet<ShortReview>();
-        public HashSet<ShortReview> shortReviewSet
-        {
-            get
-            {
-                return _shortReviewSet;
-            }
-            set
-            {
-                _shortReviewSet = value;
-            }
-        }
-        private bool _shortReviewLoaded = false;
-        public bool shortReviewLoaded
-        {
-            get
-            {
-                return _shortReviewLoaded;
-            }
-            set
-            {
-                _shortReviewLoaded = value;
-            }
-        }
-        */
-
-        private HashSet<Review> _reviewSet = new HashSet<Review>();
-        public HashSet<Review> reviewSet
-        {
-            get
-            {
-                return _reviewSet;
-            }
-            set
-            {
-                _reviewSet = value;
-            }
-        }
-        private bool _reviewLoaded = false;
-        public bool reviewLoaded
-        {
-            get
-            {
-                return _reviewLoaded;
-            }
-            set
-            {
-                _reviewLoaded = value;
-            }
-        }
-        private HashSet<MovieImage> _imageSet = new HashSet<MovieImage>();
-        public HashSet<MovieImage> imageSet
-        {
-            get
-            {
-                return _imageSet;
-            }
-            set
-            {
-                _imageSet = value;
-            }
-        }
-        private bool _imageLoaded = false;
-        public bool imageLoaded
-        {
-            get
-            {
-                return _imageLoaded;
-            }
-            set
-            {
-                _imageLoaded = value;
             }
         }
 
