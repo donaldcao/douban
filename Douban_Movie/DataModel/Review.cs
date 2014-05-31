@@ -126,18 +126,6 @@ namespace PanoramaApp2
             }
         }
 
-        private bool _hasMoreComment;
-        public bool hasMoreComment
-        {
-            get
-            {
-                return _hasMoreComment;
-            }
-            set
-            {
-                _hasMoreComment = value;
-            }
-        }
         private string _nextCommentLink = "";
         public string nextCommentLink
         {
@@ -148,30 +136,6 @@ namespace PanoramaApp2
             set
             {
                 _nextCommentLink = value;
-            }
-        }
-        private HashSet<Comment> _commentSet = new HashSet<Comment>();
-        public HashSet<Comment> commentSet
-        {
-            get
-            {
-                return _commentSet;
-            }
-            set
-            {
-                _commentSet = value;
-            }
-        }
-        private bool _commentLoaded = false;
-        public bool commentLoaded
-        {
-            get
-            {
-                return _commentLoaded;
-            }
-            set
-            {
-                _commentLoaded = value;
             }
         }
 

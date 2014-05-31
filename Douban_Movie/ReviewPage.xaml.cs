@@ -20,6 +20,7 @@ namespace PanoramaApp2
         private Review review;
         private ReviewHtmlParser reviewParser;
         private Popup searchPopup;
+        private bool commentNewLoad = false;
 
         public ReviewPage()
         {
@@ -34,6 +35,8 @@ namespace PanoramaApp2
             var commentPullDector = new WP8PullToRefreshDetector();
             commentPullDector.Bind(commentSelector);
             commentPullDector.Compression += commentDector_Compress;
+
+            commentSelector.ItemRealized += comment_ItemRealized;
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
@@ -80,6 +83,20 @@ namespace PanoramaApp2
             }
         }
 
+        /// <summary>
+        /// Comment item realized handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void comment_ItemRealized(object sender, ItemRealizationEventArgs e)
+        {
+            if (commentNewLoad)
+            {
+                commentSelector.ScrollTo(e.Container.Content);
+                commentNewLoad = false;
+            }
+        }
+
         ///////////////////////////////////////////////////////// Pull to refresh event handler///////////////////////////////////////////////
         /// <summary>
         /// Short review pull to refresh handler
@@ -104,6 +121,7 @@ namespace PanoramaApp2
                 bool fromDormant = false;
                 ReviewCommentProgressBar.IsIndeterminate = true;
                 ReviewCommentProgressBar.Visibility = System.Windows.Visibility.Visible;
+                commentNewLoad = true;
 
                 try
                 {

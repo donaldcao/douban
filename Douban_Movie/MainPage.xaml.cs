@@ -29,6 +29,8 @@ namespace PanoramaApp2
         private bool top250Loaded;
         private bool usboxLoaded;
         private bool commentLoaded;
+        private bool isTop250NewLoad;
+        private bool isCommentNewLoad;
 
         // Constructor
         public MainPage()
@@ -36,17 +38,52 @@ namespace PanoramaApp2
             InitializeComponent();
             App.mainPage = this;
 
+            // Pull to refresh
             var top250PullDector = new WP8PullToRefreshDetector();
             top250PullDector.Bind(top250LongListSelector);
             top250PullDector.Compression += top250Dector_Compress;
             var hotReviewPullDector = new WP8PullToRefreshDetector();
             hotReviewPullDector.Bind(hotReviewLongListSelector);
             hotReviewPullDector.Compression += hotReviewDector_Compress;
+
+            // Scroll to new item
+            isTop250NewLoad = false;
+            top250LongListSelector.ItemRealized += top250_ItemRealized;
+            isCommentNewLoad = false;
+            hotReviewLongListSelector.ItemRealized += comment_ItemRealized;
+
             // Get hot movie
             popup = new Popup();
             searchPopup = new Popup();
         }
 
+        /// <summary>
+        /// Top 250 item realized handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void top250_ItemRealized(object sender, ItemRealizationEventArgs e)
+        {
+            if (isTop250NewLoad)
+            {
+                top250LongListSelector.ScrollTo(e.Container.Content);
+                isTop250NewLoad = false;
+            }
+        }
+
+        /// <summary>
+        /// Hot review item realized handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void comment_ItemRealized(object sender, ItemRealizationEventArgs e)
+        {
+            if (isCommentNewLoad)
+            {
+                hotReviewLongListSelector.ScrollTo(e.Container.Content);
+                isCommentNewLoad = false;
+            }
+        }
         /// <summary>
         /// Top 250 pull to refresh handler
         /// </summary>
@@ -269,6 +306,7 @@ namespace PanoramaApp2
             bool fromDormant = false;
             TopProgressBar.IsIndeterminate = true;
             TopProgressBar.Visibility = System.Windows.Visibility.Visible;
+            isTop250NewLoad = true;
 
             try
             {
@@ -360,6 +398,7 @@ namespace PanoramaApp2
             bool fromDormant = false;
             HotReviewProgressBar.IsIndeterminate = true;
             HotReviewProgressBar.Visibility = System.Windows.Visibility.Visible;
+            isCommentNewLoad = true;
 
             try
             {

@@ -29,6 +29,9 @@ namespace PanoramaApp2
         private ShortReviewHtmlParser shortReviewParser = null;
         private ReviewParser reviewParser = null;
         private ImageHtmlParser imageParser = null;
+        private bool shortReviewNewLoad;
+        private bool reviewNewLoad;
+        private bool imageNewLoad;
 
         public MoviePage()
         {
@@ -38,6 +41,9 @@ namespace PanoramaApp2
             reviewLoaded = false;
             imageLoaded = false;
             movieLoaded = false;
+            shortReviewNewLoad = false;
+            reviewNewLoad = false;
+            imageNewLoad = false;
 
             // Pull to refresh handle
             var shortReviewPullDector = new WP8PullToRefreshDetector();
@@ -49,6 +55,11 @@ namespace PanoramaApp2
             var imagePullDector = new WP8PullToRefreshDetector();
             imagePullDector.Bind(imageSelector);
             imagePullDector.Compression += imageDector_Compress;
+
+            // Item realize handler
+            shortReviewSelector.ItemRealized += shortReview_ItemRealized;
+            reviewLongListSelector.ItemRealized += review_ItemRealized;
+            imageSelector.ItemRealized += image_ItemRealized;
 
             movie = App.moviePassed;
             if (movie != null)
@@ -108,6 +119,49 @@ namespace PanoramaApp2
                 }
             }
             base.OnNavigatedFrom(e);
+        }
+
+        //////////////////////////////////////////////////////// Item realized event handler ////////////////////////////////////////////////
+        /// <summary>
+        /// Top 250 item realized handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void shortReview_ItemRealized(object sender, ItemRealizationEventArgs e)
+        {
+            if (shortReviewNewLoad)
+            {
+                shortReviewSelector.ScrollTo(e.Container.Content);
+                shortReviewNewLoad = false;
+            }
+        }
+
+        /// <summary>
+        /// Review item realized handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void review_ItemRealized(object sender, ItemRealizationEventArgs e)
+        {
+            if (reviewNewLoad)
+            {
+                reviewLongListSelector.ScrollTo(e.Container.Content);
+                reviewNewLoad = false;
+            }
+        }
+
+        /// <summary>
+        /// Image item realized handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void image_ItemRealized(object sender, ItemRealizationEventArgs e)
+        {
+            if (imageNewLoad)
+            {
+                imageSelector.ScrollTo(e.Container.Content);
+                imageNewLoad = false;
+            }
         }
 
         ///////////////////////////////////////////////////////// Pull to refresh event handler///////////////////////////////////////////////
@@ -234,6 +288,8 @@ namespace PanoramaApp2
                 shortReviewParser = new ShortReviewHtmlParser(movie);
                 ShortReviewProgressBar.IsIndeterminate = true;
                 ShortReviewProgressBar.Visibility = System.Windows.Visibility.Visible;
+                shortReviewNewLoad = true;
+
                 try
                 {
                     await shortReviewParser.getShortReview();
@@ -290,6 +346,8 @@ namespace PanoramaApp2
                 reviewParser = new ReviewParser(movie);
                 ReviewProgressBar.IsIndeterminate = true;
                 ReviewProgressBar.Visibility = System.Windows.Visibility.Visible;
+                reviewNewLoad = true;
+
                 try
                 {
                     await reviewParser.getReview();
@@ -345,6 +403,8 @@ namespace PanoramaApp2
                 ImageProgressBar.IsIndeterminate = true;
                 ImageProgressBar.Visibility = System.Windows.Visibility.Visible;
                 bool fromDormant = false;
+                imageNewLoad = true;
+
                 try
                 {
                     await imageParser.getImage();
@@ -396,6 +456,8 @@ namespace PanoramaApp2
                 bool fromDormant = false;
                 ImageProgressBar.IsIndeterminate = true;
                 ImageProgressBar.Visibility = System.Windows.Visibility.Visible;
+                imageNewLoad = true;
+
                 try
                 {
                     await imageParser.loadMore();
@@ -448,6 +510,8 @@ namespace PanoramaApp2
                 bool fromDormant = false;
                 ReviewProgressBar.IsIndeterminate = true;
                 ReviewProgressBar.Visibility = System.Windows.Visibility.Visible;
+                reviewNewLoad = true;
+
                 try
                 {
                     await reviewParser.loadMore();
@@ -500,6 +564,8 @@ namespace PanoramaApp2
                 bool fromDormant = false;
                 ShortReviewProgressBar.IsIndeterminate = true;
                 ShortReviewProgressBar.Visibility = System.Windows.Visibility.Visible;
+                shortReviewNewLoad = true;
+
                 try
                 {
                     await shortReviewParser.loadMore();

@@ -98,7 +98,17 @@ namespace PanoramaApp2.HtmlParser
                 author = Util.replaceSpecialChar(aNode.InnerText.Trim());
                 aNode.Remove();
                 time = authorNode.InnerText.Trim().Substring(0, 19);
-                content = Util.formatReview(commentNode.SelectNodes("p")[0].InnerText);
+                HtmlNode pNode = commentNode.SelectNodes("p")[0];
+                HtmlNodeCollection aNodeCollection = pNode.SelectNodes("a");
+                if (aNodeCollection != null)
+                {
+                    foreach (HtmlNode n in aNodeCollection)
+                    {
+                        HtmlNode newNode = HtmlNode.CreateNode(n.InnerText);
+                        pNode.ReplaceChild(newNode, node);
+                    }
+                }
+                content = Util.formatReview(pNode.InnerHtml);
             }
             catch (Exception)
             {

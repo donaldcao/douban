@@ -152,18 +152,7 @@ namespace PanoramaApp2
                 NotifyPropertyChanged("summary");
             }
         }
-        private bool _hasMoreMovie;
-        public bool hasMoreMovie
-        {
-            get
-            {
-                return _hasMoreMovie;
-            }
-            set
-            {
-                _hasMoreMovie = value;
-            }
-        }
+
         private string _nextMovieLink = "";
         public string nextMovieLink
         {
@@ -176,18 +165,7 @@ namespace PanoramaApp2
                 _nextMovieLink = value;
             }
         }
-        private bool _hasNextImage;
-        public bool hasNextImage
-        {
-            get
-            {
-                return _hasNextImage;
-            }
-            set
-            {
-                _hasNextImage = value;
-            }
-        }
+
         private string _nextImageLink = "";
         public string nextImageLink
         {
@@ -198,54 +176,6 @@ namespace PanoramaApp2
             set
             {
                 _nextImageLink = value;
-            }
-        }
-        private HashSet<Movie> _movieSet = new HashSet<Movie>();
-        public HashSet<Movie> movieSet
-        {
-            get
-            {
-                return _movieSet;
-            }
-            set
-            {
-                _movieSet = value;
-            }
-        }
-        private bool _movieLoaded = false;
-        public bool movieLoaded
-        {
-            get
-            {
-                return _movieLoaded;
-            }
-            set
-            {
-                _movieLoaded = value;
-            }
-        }
-        private HashSet<MovieImage> _imageSet = new HashSet<MovieImage>();
-        public HashSet<MovieImage> imageSet
-        {
-            get
-            {
-                return _imageSet;
-            }
-            set
-            {
-                _imageSet = value;
-            }
-        }
-        private bool _imageLoaded = false;
-        public bool imageLoaded
-        {
-            get
-            {
-                return _imageLoaded;
-            }
-            set
-            {
-                _imageLoaded = value;
             }
         }
 

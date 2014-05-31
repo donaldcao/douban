@@ -25,6 +25,8 @@ namespace PanoramaApp2
         private PeopleHtmlParser peopleParser = null;
         private PeopleMovieHtmlParser peopleMovieParser = null;
         private PeopleImageHtmlParser peopleImageParser = null;
+        private bool imageNewLoad = false;
+        private bool movieNewLoad = false;
 
         public PeoplePage()
         {
@@ -94,6 +96,34 @@ namespace PanoramaApp2
             else
             {
                 base.OnBackKeyPress(e);
+            }
+        }
+
+        /// <summary>
+        /// Image item realized handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void image_ItemRealized(object sender, ItemRealizationEventArgs e)
+        {
+            if (imageNewLoad)
+            {
+                imageSelector.ScrollTo(e.Container.Content);
+                imageNewLoad = false;
+            }
+        }
+
+        /// <summary>
+        /// Image item realized handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void movie_ItemRealized(object sender, ItemRealizationEventArgs e)
+        {
+            if (movieNewLoad)
+            {
+                movieSelector.ScrollTo(e.Container.Content);
+                movieNewLoad = false;
             }
         }
 
@@ -240,6 +270,8 @@ namespace PanoramaApp2
                 peopleMovieParser = new PeopleMovieHtmlParser(people);
                 movieProgressBar.IsIndeterminate = true;
                 movieProgressBar.Visibility = System.Windows.Visibility.Visible;
+                movieNewLoad = true;
+
                 try
                 {
                     await peopleMovieParser.getMovie();
@@ -288,6 +320,8 @@ namespace PanoramaApp2
                 bool fromDormant = false;
                 movieProgressBar.IsIndeterminate = true;
                 movieProgressBar.Visibility = System.Windows.Visibility.Visible;
+                movieNewLoad = true;
+
                 try
                 {
                     await peopleMovieParser.loadMore();
@@ -332,6 +366,8 @@ namespace PanoramaApp2
                 peopleImageParser = new PeopleImageHtmlParser(people);
                 ImageProgressBar.IsIndeterminate = true;
                 ImageProgressBar.Visibility = System.Windows.Visibility.Visible;
+                imageNewLoad = true;
+
                 try
                 {
                     await peopleImageParser.getImage();
@@ -380,6 +416,8 @@ namespace PanoramaApp2
                 bool fromDormant = false;
                 ImageProgressBar.IsIndeterminate = true;
                 ImageProgressBar.Visibility = System.Windows.Visibility.Visible;
+                imageNewLoad = true;
+
                 try
                 {
                     await peopleImageParser.loadMore();
