@@ -19,185 +19,96 @@ namespace PanoramaApp2.HtmlParser
     class PeopleMovieHtmlParser
     {
         private People people;
-        public ProgressBar progressBar { get; set; }
-        public Button button;
-        public TextBlock text;
-        public ObservableCollection<Movie> movieCollection = new ObservableCollection<Movie>();
-        private WebClient client;
-        private bool isFromLoadMore = false;
+        public ObservableCollection<Movie> movieCollection { get; set; }
+        private Downloader downloader;
+        public bool hasMore { get; set; }
 
         public PeopleMovieHtmlParser(People p)
         {
             people = p;
+            people.nextMovieLink = People.peopleLinkHeader + people.id + "/movies";
+            hasMore = false;
+            movieCollection = new ObservableCollection<Movie>();
+            downloader = new Downloader(people.nextMovieLink);
         }
 
-        public void parseMovie()
+        public async Task getMovie()
         {
-            if (people.movieLoaded == false)
+            String movieHtml = await downloader.downloadString();
+            HtmlDocument doc = new HtmlDocument();
+            doc.LoadHtml(movieHtml);
+            HtmlNodeCollection nameNodes = doc.DocumentNode.SelectNodes("//ul");
+            if (nameNodes == null || nameNodes.Count < 4)
             {
-                people.nextMovieLink = People.peopleLinkHeader + people.id + "/movies";
-                client = new WebClient();
-                client.DownloadStringCompleted += client_DownloadMovieCompleted;
-                client.DownloadStringAsync(new Uri(people.nextMovieLink));
+                hasMore = false;
             }
             else
             {
-                foreach (Movie m in people.movieSet)
+                foreach (HtmlNode node in nameNodes[3].SelectNodes("li"))
                 {
+                    Movie m;
+                    try
+                    {
+                        m = getMovie(node);
+                    }
+                    catch (Exception)
+                    {
+                        continue;
+                    }
                     movieCollection.Add(m);
                 }
-                if (progressBar != null)
+                HtmlNodeCollection nodeCollection = doc.DocumentNode.SelectNodes("//div[@class='paginator']");
+                if (nodeCollection == null)
                 {
-                    progressBar.Visibility = Visibility.Collapsed;
-                }
-                if (people.hasMoreMovie)
-                {
-                    button.IsEnabled = true;
+                    hasMore = false;
                 }
                 else
                 {
-                    button.IsEnabled = false;
-                    text.Text = AppResources.Finish;
-                }
-            }
-        }
-
-        public void loadMore()
-        {
-            isFromLoadMore = true;
-            client = new WebClient();
-            client.DownloadStringCompleted += client_DownloadMovieCompleted;
-            client.DownloadStringAsync(new Uri(people.nextMovieLink));
-        }
-
-        private void client_DownloadMovieCompleted(object sender, DownloadStringCompletedEventArgs e)
-        {
-            try
-            {
-                if (e.Error == null && !e.Cancelled)
-                {
-                    string page = e.Result;
-                    HtmlDocument doc = new HtmlDocument();
-                    doc.LoadHtml(page);
-                    HtmlNodeCollection nameNodes = doc.DocumentNode.SelectNodes("//ul");
-                    if (nameNodes == null || nameNodes.Count < 4)
+                    HtmlNodeCollection nc = nodeCollection[0].SelectNodes("span[@class='next']");
+                    if (nc == null)
                     {
-                        people.hasMoreMovie = false;
-                        button.IsEnabled = false;
-                        text.Text = AppResources.Finish;
+                        hasMore = false;
                     }
                     else
                     {
-                        foreach (HtmlNode node in nameNodes[3].SelectNodes("li"))
+                        HtmlNodeCollection aCollection = nc[0].SelectNodes("a");
+                        if (aCollection == null)
                         {
-                            Movie m;
-                            try
-                            {
-                                m = getMovie(node);
-                            }
-                            catch (Exception)
-                            {
-                                continue;
-                            }
-                            movieCollection.Add(m);
-                            people.movieSet.Add(m);
-                        }
-                        HtmlNodeCollection nodeCollection = doc.DocumentNode.SelectNodes("//div[@class='paginator']");
-                        if (nodeCollection == null)
-                        {
-                            people.hasMoreMovie = false;
-                            button.IsEnabled = false;
-                            text.Text = AppResources.Finish;
+                            hasMore = false;
                         }
                         else
                         {
-                            HtmlNodeCollection nc = nodeCollection[0].SelectNodes("span[@class='next']");
-                            if (nc == null)
-                            {
-                                people.hasMoreMovie = false;
-                                button.IsEnabled = false;
-                                text.Text = AppResources.Finish;
-                            }
-                            else
-                            {
-                                HtmlNodeCollection aCollection = nc[0].SelectNodes("a");
-                                if (aCollection == null)
-                                {
-                                    people.hasMoreMovie = false;
-                                    button.IsEnabled = false;
-                                    text.Text = AppResources.Finish;
-                                }
-                                else
-                                {
-                                    people.hasMoreMovie = true;
-                                    string link = aCollection[0].Attributes["href"].Value;
-                                    link = link.Replace("&amp;", "&");
-                                    people.nextMovieLink = People.peopleLinkHeader + people.id + "/movies" + link;
-                                    button.IsEnabled = true;
-                                }
-                            }
-                        }
-                    }
-                    people.movieLoaded = true;
-                    if (progressBar != null)
-                    {
-                        progressBar.Visibility = Visibility.Collapsed;
-                    }
-                }
-                else
-                {
-                    var wEx = e.Error as WebException;
-                    if (wEx.Status == WebExceptionStatus.RequestCanceled)
-                    {
-                        if (App.isFromDormant)
-                        {
-                            App.isFromDormant = false;
-                            if (isFromLoadMore)
-                            {
-                                isFromLoadMore = false;
-                                loadMore();
-                            }
-                            else
-                            {
-                                parseMovie();
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (progressBar != null)
-                        {
-                            progressBar.Visibility = Visibility.Collapsed;
+                            hasMore = true;
+                            string link = aCollection[0].Attributes["href"].Value;
+                            link = link.Replace("&amp;", "&");
+                            people.nextMovieLink = People.peopleLinkHeader + people.id + "/movies" + link;
                         }
                     }
                 }
+            }
+        }
 
-            }
-            catch (WebException)
-            {
-                button.IsEnabled = true;
-                if (progressBar != null)
-                {
-                    progressBar.Visibility = Visibility.Collapsed;
-                }
-                MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
-            }
-            catch (Exception)
-            {
-                button.IsEnabled = true;
-                if (progressBar != null)
-                {
-                    progressBar.Visibility = Visibility.Collapsed;
-                }
-            }
+        public async Task loadMore()
+        {
+            downloader = new Downloader(people.nextMovieLink);
+            await getMovie();
         }
 
         public void cancelDownload()
         {
-            if (client != null)
+            if (downloader != null)
             {
-                client.CancelAsync();
+                downloader.cancelDownload();
             }
+        }
+
+        public bool isCanceled()
+        {
+            if (downloader != null)
+            {
+                return downloader.isCanceled();
+            }
+            return false;
         }
 
         private Movie getMovie(HtmlNode node)

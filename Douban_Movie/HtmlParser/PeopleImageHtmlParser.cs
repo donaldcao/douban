@@ -12,200 +12,136 @@ using System.Collections.ObjectModel;
 using Microsoft.Phone.Shell;
 using System.Windows;
 using PanoramaApp2.Resources;
+using PanoramaApp2.Utility;
 
 namespace PanoramaApp2.HtmlParser
 {
     class PeopleImageHtmlParser
     {
         private People people;
-        public ProgressBar progressBar { get; set; }
-        public Button button;
-        public TextBlock text;
-        public ObservableCollection<MovieImage> imageCollection = new ObservableCollection<MovieImage>();
-        private WebClient client;
-        private bool isFromLoadMore = false;
+        public ObservableCollection<MovieImage> imageCollection { get; set; }
+        private Downloader downloader;
+        public bool hasMore;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="p">People</param>
         public PeopleImageHtmlParser(People p)
         {
+            imageCollection = new ObservableCollection<MovieImage>();
             people = p;
+            people.nextImageLink = People.peopleLinkHeader + people.id + "/photos";
+            downloader = new Downloader(people.nextImageLink);
+            hasMore = false;
         }
 
-        public void parseImage()
+        /// <summary>
+        /// Get image
+        /// </summary>
+        /// <returns></returns>
+        public async Task getImage()
         {
-            if (people.imageLoaded == false)
+            String imageHtml = await downloader.downloadString();
+            HtmlDocument doc = new HtmlDocument();
+            doc.LoadHtml(imageHtml);
+            HtmlNodeCollection uCollection = doc.DocumentNode.SelectNodes("//ul[@class='poster-col4 clearfix']");
+            if (uCollection == null)
             {
-                people.nextImageLink = People.peopleLinkHeader + people.id + "/photos";
-                client = new WebClient();
-                client.DownloadStringCompleted += downloadImageCompleted;
-                client.DownloadStringAsync(new Uri(people.nextImageLink));
+                hasMore = false;
             }
             else
             {
-                foreach (MovieImage m in people.imageSet)
+                HtmlNodeCollection liCollection = uCollection[0].SelectNodes("li");
+                if (liCollection == null)
                 {
-                    imageCollection.Add(m);
-                }
-                if (progressBar != null)
-                {
-                    progressBar.Visibility = Visibility.Collapsed;
-                }
-                if (people.hasNextImage)
-                {
-                    button.IsEnabled = true;
+                    hasMore = false;
                 }
                 else
                 {
-                    button.IsEnabled = false;
-                    text.Text = AppResources.Finish;
-                }
-            }
-        }
-
-        public void loadMore()
-        {
-            isFromLoadMore = true;
-            client = new WebClient();
-            client.DownloadStringCompleted += downloadImageCompleted;
-            client.DownloadStringAsync(new Uri(people.nextImageLink));
-        }
-
-        public void downloadImageCompleted(object sender, DownloadStringCompletedEventArgs e)
-        {
-            try
-            {
-                if (e.Error == null && !e.Cancelled)
-                {
-                    string page = e.Result;
-                    HtmlDocument doc = new HtmlDocument();
-                    doc.LoadHtml(page);
-                    HtmlNodeCollection uCollection = doc.DocumentNode.SelectNodes("//ul[@class='poster-col4 clearfix']");
-                    if (uCollection == null)
+                    foreach (HtmlNode node in liCollection)
                     {
-                        people.hasNextImage = false;
-                        button.IsEnabled = false;
-                        text.Text = AppResources.Finish;
+                        MovieImage image;
+                        try
+                        {
+                            image = getImage(node);
+                        }
+                        catch (Exception)
+                        {
+                            continue;
+                        }
+                        imageCollection.Add(image);
+                    }
+                    HtmlNodeCollection nodeCollection = doc.DocumentNode.SelectNodes("//div[@class='paginator']");
+                    if (nodeCollection == null)
+                    {
+                        hasMore = false;
                     }
                     else
                     {
-                        HtmlNodeCollection liCollection = uCollection[0].SelectNodes("li");
-                        if (liCollection == null)
+                        HtmlNodeCollection nc = nodeCollection[0].SelectNodes("span[@class='next']");
+                        if (nc == null)
                         {
-                            people.hasNextImage = false;
-                            button.IsEnabled = false;
-                            text.Text = AppResources.Finish;
+                            hasMore = false;
                         }
                         else
                         {
-                            foreach (HtmlNode node in liCollection)
+                            HtmlNodeCollection aCollection = nc[0].SelectNodes("a");
+                            if (aCollection == null)
                             {
-                                MovieImage image;
-                                try
-                                {
-                                    image = getImage(node);
-                                }
-                                catch (Exception)
-                                {
-                                    continue;
-                                }
-                                imageCollection.Add(image);
-                                people.imageSet.Add(image);
-                            }
-                            HtmlNodeCollection nodeCollection = doc.DocumentNode.SelectNodes("//div[@class='paginator']");
-                            if (nodeCollection == null)
-                            {
-                                people.hasNextImage = false;
-                                button.IsEnabled = false;
-                                text.Text = AppResources.Finish;
+                                hasMore = false;
                             }
                             else
                             {
-                                HtmlNodeCollection nc = nodeCollection[0].SelectNodes("span[@class='next']");
-                                if (nc == null)
-                                {
-                                    people.hasNextImage = false;
-                                    button.IsEnabled = false;
-                                    text.Text = AppResources.Finish;
-                                }
-                                else
-                                {
-                                    HtmlNodeCollection aCollection = nc[0].SelectNodes("a");
-                                    if (aCollection == null)
-                                    {
-                                        people.hasNextImage = false;
-                                        button.IsEnabled = false;
-                                        text.Text = AppResources.Finish;
-                                    }
-                                    else
-                                    {
-                                        people.hasNextImage = true;
-                                        string link = aCollection[0].Attributes["href"].Value.Trim();
-                                        people.nextImageLink = link;
-                                        button.IsEnabled = true;
-                                    }
-                                }
+                                hasMore = true;
+                                string link = aCollection[0].Attributes["href"].Value.Trim();
+                                people.nextImageLink = link;
                             }
                         }
                     }
-                    people.imageLoaded = true;
-                    if (progressBar != null)
-                    {
-                        progressBar.Visibility = Visibility.Collapsed;
-                    }
-                }
-                else
-                {
-                    var wEx = e.Error as WebException;
-                    if (wEx.Status == WebExceptionStatus.RequestCanceled)
-                    {
-                        System.Diagnostics.Debug.WriteLine("canceled");
-                        if (App.isFromDormant)
-                        {
-                            App.isFromDormant = false;
-                            if (isFromLoadMore)
-                            {
-                                isFromLoadMore = false;
-                                loadMore();
-                            }
-                            else
-                            {
-                                parseImage();
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (progressBar != null)
-                        {
-                            progressBar.Visibility = Visibility.Collapsed;
-                        }
-                    }
-                }
-            }
-            catch (WebException)
-            {
-                if (progressBar != null)
-                {
-                    progressBar.Visibility = Visibility.Collapsed;
-                }
-                MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
-            }
-            catch (Exception)
-            {
-                if (progressBar != null)
-                {
-                    progressBar.Visibility = Visibility.Collapsed;
                 }
             }
         }
 
+        /// <summary>
+        /// Load more image
+        /// </summary>
+        /// <returns></returns>
+        public async Task loadMore()
+        {
+            downloader = new Downloader(people.nextImageLink);
+            await getImage();
+        }
+
+        /// <summary>
+        /// Cancel download
+        /// </summary>
         public void cancelDownload()
         {
-            if (client != null)
+            if (downloader != null)
             {
-                client.CancelAsync();
+                downloader.cancelDownload();
             }
         }
 
+        /// <summary>
+        /// If download is canceled
+        /// </summary>
+        /// <returns>If download is canceled</returns>
+        public bool isCanceled()
+        {
+            if (downloader != null)
+            {
+                return downloader.isCanceled();
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Parse image from html node
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns>Image</returns>
         private MovieImage getImage(HtmlNode node)
         {
             string smallUrl = "";

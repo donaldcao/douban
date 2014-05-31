@@ -73,13 +73,11 @@
             </phone:PivotItem>
 
             <!--Panorama item two-->
-            <phone:PivotItem Header="{Binding Path=LocalizedResources.Work, Source={StaticResource LocalizedStrings}}"  Margin="24,24, 24, 0" toolkit:TiltEffect.IsTiltEnabled="True">
+            <phone:PivotItem Header="{Binding Path=LocalizedResources.Work, Source={StaticResource LocalizedStrings}}"  Margin="24,24, 24, 24" toolkit:TiltEffect.IsTiltEnabled="True">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
-                        <RowDefinition Height="auto"/>
                     </Grid.RowDefinitions>
-                    <ProgressBar x:Name="movieProgressBar" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Width="383" Visibility="Collapsed" Grid.Row="0"/>
                     <phone:LongListSelector x:Name="movieSelector" Grid.Row="0" SelectionChanged="movieSelector_SelectionChanged" toolkit:TiltEffect.IsTiltEnabled="True">
                         <phone:LongListSelector.ItemTemplate>
                             <DataTemplate>
@@ -96,39 +94,23 @@
                             </DataTemplate>
                         </phone:LongListSelector.ItemTemplate>
                     </phone:LongListSelector>
-                    <Button x:Name="loadMoreMovieButton" Grid.Row="1" HorizontalAlignment="Center" Click="loadMoreMovieButton_Click">
-                        <TextBlock x:Name="loadMovieText" Text="{Binding Path=LocalizedResources.LoadMore, Source={StaticResource LocalizedStrings}}" Style="{StaticResource PhoneTextSmallStyle}" Foreground="White" HorizontalAlignment="Center"/>
-                    </Button>
+                    <ProgressBar x:Name="movieProgressBar" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Width="383" Visibility="Collapsed" Grid.Row="0"/>
                 </Grid>
             </phone:PivotItem>
 
-            <phone:PivotItem Header="{Binding Path=LocalizedResources.Image, Source={StaticResource LocalizedStrings}}" Margin="24, 24, 24, 0">
+            <phone:PivotItem Header="{Binding Path=LocalizedResources.Image, Source={StaticResource LocalizedStrings}}" Margin="24, 24, 24, 24">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
-                        <RowDefinition Height="auto"/>
                     </Grid.RowDefinitions>
-                    <ProgressBar x:Name="ImageProgressBar" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Width="383" Visibility="Collapsed" Grid.Row="0"/>
-                    <!--Single line list with text wrapping-->
-                    <ListBox x:Name="imageListBox" SelectionChanged="imageListBox_SelectionChanged" Grid.Row="0" toolkit:TiltEffect.IsTiltEnabled="True">
-                        <ListBox.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <toolkit:WrapPanel HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" />
-                            </ItemsPanelTemplate>
-                        </ListBox.ItemsPanel>
-                        <ListBox.ItemTemplate>
+                    <phone:LongListSelector x:Name="imageSelector" SelectionChanged="imageListBox_SelectionChanged" Grid.Row="0" LayoutMode="Grid" GridCellSize="102, 102">
+                        <phone:LongListSelector.ItemTemplate>
                             <DataTemplate>
-                                <StackPanel Margin="2">
-                                    <StackPanel Orientation="Vertical">
-                                        <Image Width="100" Height="100" Source="{Binding smallUrl}" Stretch="UniformToFill"/>
-                                    </StackPanel>
-                                </StackPanel>
+                                <Image Width="100" Height="100" Source="{Binding smallUrl, Mode=OneTime}" Stretch="UniformToFill"/>
                             </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-                    <Button x:Name="loadMoreImageButton" Grid.Row="1" HorizontalAlignment="Center" Click="loadMoreImageButton_Click">
-                        <TextBlock x:Name="loadImageText" Text="{Binding Path=LocalizedResources.LoadMore, Source={StaticResource LocalizedStrings}}" Style="{StaticResource PhoneTextSmallStyle}" Foreground="White" HorizontalAlignment="Center"/>
-                    </Button>
+                        </phone:LongListSelector.ItemTemplate>
+                    </phone:LongListSelector>
+                    <ProgressBar x:Name="ImageProgressBar" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Width="383" Grid.Row="0"/>
                 </Grid>
             </phone:PivotItem>
         </phone:Pivot>

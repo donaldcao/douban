@@ -427,7 +427,7 @@ namespace PanoramaApp2
                     MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 if (App.isFromDormant)
                 {

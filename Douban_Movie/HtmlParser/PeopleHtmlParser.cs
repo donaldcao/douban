@@ -19,132 +19,42 @@ namespace PanoramaApp2.HtmlParser
     class PeopleHtmlParser
     {
         private People people;
-        public ProgressBar peopleProgressBar { get; set; }
-        public Grid peopleGrid { get; set; }
-        public StackPanel genderPanel { get; set; }
-        public StackPanel constPanel { get; set; }
-        public StackPanel birthPanel { get; set; }
-        public StackPanel birthplacePanel { get; set; }
-        public StackPanel occupationPanel { get; set; }
-        private WebClient client = null;
+        private Downloader downloader;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="p"></param>
         public PeopleHtmlParser(People p)
         {
             people = p;
+            downloader = new Downloader(People.peopleLinkHeader + people.id);
         }
 
-        public void parsePeople()
+        /// <summary>
+        /// Get people
+        /// </summary>
+        /// <returns>People from html</returns>
+        public async Task<People> getPeople()
         {
-            People p = Cache.getPeople(people.id);
-            if (p == null)
-            {
-                client = new WebClient();
-                client.DownloadStringCompleted += downloadPeopleCompleted;
-                client.DownloadStringAsync(new Uri(People.peopleLinkHeader + people.id));
-            }
-            else
-            {
-                peopleGrid.DataContext = people;
-                if (people.gender != "")
-                {
-                    genderPanel.Visibility = Visibility.Visible;
-                }
-                if (people.birthday != "")
-                {
-                    birthPanel.Visibility = Visibility.Visible;
-                }
-                if (people.birthplace != "")
-                {
-                    birthplacePanel.Visibility = Visibility.Visible;
-                }
-                if (people.constl != "")
-                {
-                    constPanel.Visibility = Visibility.Visible;
-                }
-                if (people.occupation != "")
-                {
-                    occupationPanel.Visibility = Visibility.Visible;
-                }
-                if (peopleProgressBar != null)
-                {
-                    peopleProgressBar.Visibility = Visibility.Collapsed;
-                }
-            }
-        }
-
-        private void downloadPeopleCompleted(object sender, DownloadStringCompletedEventArgs e)
-        {
+            String peopleHtml = await downloader.downloadString();
+            HtmlDocument doc = new HtmlDocument();
+            doc.LoadHtml(peopleHtml);
             try
             {
-                if (e.Error == null && !e.Cancelled)
-                {
-                    string page = e.Result;
-                    HtmlDocument doc = new HtmlDocument();
-                    doc.LoadHtml(page);
-                    try
-                    {
-                        getPeople(doc);
-                        peopleGrid.DataContext = people;
-                        if (people.gender != "")
-                        {
-                            genderPanel.Visibility = Visibility.Visible;
-                        }
-                        if (people.birthday != "")
-                        {
-                            birthPanel.Visibility = Visibility.Visible;
-                        }
-                        if (people.birthplace != "")
-                        {
-                            birthplacePanel.Visibility = Visibility.Visible;
-                        }
-                        if (people.constl != "")
-                        {
-                            constPanel.Visibility = Visibility.Visible;
-                        }
-                        if (people.occupation != "")
-                        {
-                            occupationPanel.Visibility = Visibility.Visible;
-                        }
-                        Cache.insertPeople(people);
-                    }
-                    catch (Exception)
-                    {
-                    }
-                    if (peopleProgressBar != null)
-                    {
-                        peopleProgressBar.Visibility = Visibility.Collapsed;
-                    }
-                }
-                else
-                {
-                    var wEx = e.Error as WebException;
-                    if (wEx.Status == WebExceptionStatus.RequestCanceled)
-                    {
-                        if (App.isFromDormant)
-                        {
-                            App.isFromDormant = false;
-                            parsePeople();
-                        }
-                    }
-                    else
-                    {
-                        if (peopleProgressBar != null)
-                        {
-                            peopleProgressBar.Visibility = Visibility.Collapsed;
-                        }
-                    }
-                }
+                getPeople(doc);
             }
-            catch (WebException)
+            catch (Exception)
             {
-                if (peopleProgressBar != null)
-                {
-                    peopleProgressBar.Visibility = Visibility.Collapsed;
-                }
-                MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+
             }
+            return people;
         }
 
+        /// <summary>
+        /// Ge people from html node
+        /// </summary>
+        /// <param name="doc"></param>
         private void getPeople(HtmlDocument doc)
         {
             string gender = "";
@@ -214,12 +124,28 @@ namespace PanoramaApp2.HtmlParser
             people.summary = summary;
         }
 
+        /// <summary>
+        /// Cancel download
+        /// </summary>
         public void cancelDownload()
         {
-            if (client != null)
+            if (downloader != null)
             {
-                client.CancelAsync();
+                downloader.cancelDownload();
             }
+        }
+
+        /// <summary>
+        /// If download is canceled
+        /// </summary>
+        /// <returns>If download is canceled</returns>
+        public bool isCanceled()
+        {
+            if (downloader != null)
+            {
+                return downloader.isCanceled();
+            }
+            return false;
         }
     }
 }

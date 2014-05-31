@@ -98,9 +98,7 @@
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
-                        <RowDefinition Height="auto"/>
                     </Grid.RowDefinitions>
-                    <ProgressBar x:Name="ShortReviewProgressBar" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Width="383" Grid.Row="0"/>
                     <phone:LongListSelector x:Name="shortReviewSelector" Margin="0, 0, 0, 0">
                         <phone:LongListSelector.ItemTemplate>
                             <DataTemplate>
@@ -117,6 +115,7 @@
                             </DataTemplate>
                         </phone:LongListSelector.ItemTemplate>
                     </phone:LongListSelector>
+                    <ProgressBar x:Name="ShortReviewProgressBar" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Width="383" Grid.Row="0"/>
                 </Grid>
             </phone:PivotItem>
 
@@ -124,10 +123,8 @@
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
-                        <RowDefinition Height="auto"/>
                     </Grid.RowDefinitions>
                     <!--Single line list with text wrapping-->
-                    <ProgressBar x:Name="ReviewProgressBar" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Width="383" Grid.Row="0"/>
                     <phone:LongListSelector Margin="0,0,0,12" Name="reviewLongListSelector" SelectionChanged="reviewLongListSelector_SelectionChanged" Grid.Row="0">
                         <phone:LongListSelector.ItemTemplate>
                             <DataTemplate>
@@ -145,6 +142,7 @@
                             </DataTemplate>
                         </phone:LongListSelector.ItemTemplate>
                     </phone:LongListSelector>
+                    <ProgressBar x:Name="ReviewProgressBar" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Width="383" Grid.Row="0"/>
                 </Grid>
             </phone:PivotItem>
 
@@ -153,9 +151,7 @@
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
-                        <RowDefinition Height="auto"/>
                     </Grid.RowDefinitions>
-                    <ProgressBar x:Name="ImageProgressBar" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Width="383" Grid.Row="0"/>
                     <phone:LongListSelector x:Name="imageSelector" SelectionChanged="imageListBox_SelectionChanged" Grid.Row="0" LayoutMode="Grid" GridCellSize="102, 102">
                         <phone:LongListSelector.ItemTemplate>
                             <DataTemplate>
@@ -163,6 +159,7 @@
                             </DataTemplate>
                         </phone:LongListSelector.ItemTemplate>
                     </phone:LongListSelector>
+                    <ProgressBar x:Name="ImageProgressBar" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Width="383" Grid.Row="0"/>
                 </Grid>
             </phone:PivotItem>
         </phone:Pivot>

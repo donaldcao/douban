@@ -85,9 +85,7 @@
                 <Grid Margin="0, 0, 0, 0" Background="#2B4F81">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
-                        <RowDefinition Height="auto"/>
                     </Grid.RowDefinitions>
-                    <ProgressBar x:Name="TopProgressBar" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Width="383" Grid.Row="0"/>
                     <!--Double line list with image placeholder and text wrapping using a floating header that scrolls with the content-->
                     <phone:LongListSelector Margin="0,0,0,0" Name="top250LongListSelector" SelectionChanged="top250LongListSelector_SelectionChanged" Grid.Row="0">
                         <phone:LongListSelector.ItemTemplate>
@@ -106,6 +104,7 @@
                             </DataTemplate>
                         </phone:LongListSelector.ItemTemplate>
                     </phone:LongListSelector>
+                    <ProgressBar x:Name="TopProgressBar" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Width="383" Grid.Row="0"/>
                 </Grid>
             </phone:PivotItem>
             
@@ -142,9 +141,7 @@
                 <Grid Margin="0, 0, 0, 0" Background="#2B4F81">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
-                        <RowDefinition Height="auto"/>
                     </Grid.RowDefinitions>
-                    <ProgressBar x:Name="HotReviewProgressBar" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Width="383" Grid.Row="0"/>
                     <!--Single line list with text wrapping-->
                     <phone:LongListSelector Margin="0,0,0,0" Name="hotReviewLongListSelector" SelectionChanged="hotReviewLongListSelector_SelectionChanged" Grid.Row="0">
                         <phone:LongListSelector.ItemTemplate>
@@ -166,6 +163,7 @@
                             </DataTemplate>
                         </phone:LongListSelector.ItemTemplate>
                     </phone:LongListSelector>
+                    <ProgressBar x:Name="HotReviewProgressBar" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Width="383" Grid.Row="0"/>
                 </Grid>
             </phone:PivotItem>
         </phone:Pivot>

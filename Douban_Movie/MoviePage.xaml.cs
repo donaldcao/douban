@@ -24,6 +24,7 @@ namespace PanoramaApp2
         private bool shortReviewLoaded;
         private bool reviewLoaded;
         private bool imageLoaded;
+        private bool movieLoaded;
         private Movie movie = null;
         private ShortReviewHtmlParser shortReviewParser = null;
         private ReviewParser reviewParser = null;
@@ -36,6 +37,7 @@ namespace PanoramaApp2
             shortReviewLoaded = false;
             reviewLoaded = false;
             imageLoaded = false;
+            movieLoaded = false;
 
             // Pull to refresh handle
             var shortReviewPullDector = new WP8PullToRefreshDetector();
@@ -55,7 +57,7 @@ namespace PanoramaApp2
             }
         }
 
-        protected async override void OnNavigatedTo(NavigationEventArgs e)
+        protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
             if (App.fromTombStone)
@@ -66,7 +68,7 @@ namespace PanoramaApp2
             {
                 if (e.NavigationMode == NavigationMode.New)
                 {
-                    await loadMovie();
+                    //await loadMovie();
                 }
             }
         }
@@ -193,6 +195,7 @@ namespace PanoramaApp2
                     // Not canceled by user, must be a network issue
                     if (!movieParser.isCanceled())
                     {
+                        movieLoaded = false;
                         MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
                     }
                 }
@@ -206,6 +209,7 @@ namespace PanoramaApp2
                 else
                 {
                     MovieProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                    movieLoaded = false;
                     MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
                 }
             }
@@ -338,7 +342,6 @@ namespace PanoramaApp2
             if (movie != null)
             {
                 imageParser = new ImageHtmlParser(movie);
-                imageParser.progressBar = ImageProgressBar;
                 ImageProgressBar.IsIndeterminate = true;
                 ImageProgressBar.Visibility = System.Windows.Visibility.Visible;
                 bool fromDormant = false;
@@ -546,6 +549,15 @@ namespace PanoramaApp2
         private async void Pivot_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             int index = ((Pivot)sender).SelectedIndex;
+
+            if (index == 0 || index == 1)
+            {
+                if (movieLoaded == false)
+                {
+                    movieLoaded = true;
+                    await loadMovie();
+                }
+            }
             if (index == 2)
             {
                 if (shortReviewLoaded == false)

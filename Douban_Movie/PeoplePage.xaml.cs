@@ -8,7 +8,10 @@ using System.Windows.Navigation;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
 using PanoramaApp2.HtmlParser;
+using System.Threading.Tasks;
 using System.Windows.Controls.Primitives;
+using PanoramaApp2.Resources;
+using PanoramaApp2.Utility;
 
 namespace PanoramaApp2
 {
@@ -17,6 +20,7 @@ namespace PanoramaApp2
         private People people = null;
         private bool movieLoaded = false;
         private bool imageLoaded = false;
+        private bool peopleLoaded = false;
         private Popup searchPopup;
         private PeopleHtmlParser peopleParser = null;
         private PeopleMovieHtmlParser peopleMovieParser = null;
@@ -35,14 +39,14 @@ namespace PanoramaApp2
                     people = p;
                 }
                 peopleParser = new PeopleHtmlParser(people);
-                peopleParser.peopleGrid = PeopleGrid;
-                peopleParser.peopleProgressBar = PeopleProgressBar;
-                peopleParser.genderPanel = genderStackPanel;
-                peopleParser.birthPanel = birthdayStackPanel;
-                peopleParser.birthplacePanel = birthplaceStackPanel;
-                peopleParser.constPanel = constStackPanel;
-                peopleParser.occupationPanel = occupationStackPanel;
             }
+
+            var moviePullDector = new WP8PullToRefreshDetector();
+            moviePullDector.Bind(movieSelector);
+            moviePullDector.Compression += movieDector_Compress;
+            var imagePullDector = new WP8PullToRefreshDetector();
+            imagePullDector.Bind(imageSelector);
+            imagePullDector.Compression += imageDector_Compress;
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -58,9 +62,7 @@ namespace PanoramaApp2
                 {
                     if (peopleParser != null)
                     {
-                        PeopleProgressBar.IsIndeterminate = true;
-                        PeopleProgressBar.Visibility = System.Windows.Visibility.Visible;
-                        peopleParser.parsePeople();
+                        //loadPeople();
                     }
                 }
             }
@@ -95,15 +97,56 @@ namespace PanoramaApp2
             }
         }
 
-        private void Pivot_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        /// <summary>
+        /// Movie pull to refresh handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private async void movieDector_Compress(object sender, CompressionEventArgs e)
+        {
+            if (e.Type == CompressionType.Bottom)
+            {
+                if (peopleMovieParser != null)
+                {
+                    await loadMoreMovie();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Movie pull to refresh handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private async void imageDector_Compress(object sender, CompressionEventArgs e)
+        {
+            if (e.Type == CompressionType.Bottom)
+            {
+                if (peopleImageParser != null)
+                {
+                    await loadMoreImage();
+                }
+            }
+        }
+
+        private async void Pivot_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             int index = ((Pivot)sender).SelectedIndex;
+
+            if (index == 0)
+            {
+                if (peopleLoaded == false)
+                {
+                    peopleLoaded = true;
+                    await loadPeople();
+                }
+            }
             if (index == 1)
             {
                 if (movieLoaded == false)
                 {
                     movieLoaded = true;
-                    loadMovie();
+                    await loadMovie();
                 }
             }
             if (index == 2)
@@ -111,43 +154,265 @@ namespace PanoramaApp2
                 if (imageLoaded == false)
                 {
                     imageLoaded = true;
-                    loadImage();
+                    await loadImage();
                 }
             }
         }
 
-        private void loadMovie()
+        /// <summary>
+        /// Load people 
+        /// </summary>
+        private async Task loadPeople()
+        {
+            PeopleProgressBar.IsIndeterminate = true;
+            PeopleProgressBar.Visibility = System.Windows.Visibility.Visible;
+            bool fromDormant = false;
+            try
+            {
+                PeopleGrid.DataContext = await peopleParser.getPeople();
+                if (people.gender != "")
+                {
+                    genderStackPanel.Visibility = Visibility.Visible;
+                }
+                if (people.birthday != "")
+                {
+                    birthdayStackPanel.Visibility = Visibility.Visible;
+                }
+                if (people.birthplace != "")
+                {
+                    birthplaceStackPanel.Visibility = Visibility.Visible;
+                }
+                if (people.constl != "")
+                {
+                    constStackPanel.Visibility = Visibility.Visible;
+                }
+                if (people.occupation != "")
+                {
+                    occupationStackPanel.Visibility = Visibility.Visible;
+                }
+                PeopleProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+            }
+            catch (TaskCanceledException)
+            {
+                if (App.isFromDormant)
+                {
+                    fromDormant = true;
+                }
+                else
+                {
+                    PeopleProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                    if (!peopleParser.isCanceled())
+                    {
+                        peopleLoaded = false;
+                        MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                if (App.isFromDormant)
+                {
+                    fromDormant = true;
+                }
+                else
+                {
+                    PeopleProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                    peopleLoaded = false;
+                    MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                }
+            }
+
+            if (fromDormant)
+            {
+                App.isFromDormant = false;
+                await loadPeople();
+            }
+        }
+
+        /// <summary>
+        /// Load movie
+        /// </summary>
+        private async Task loadMovie()
         {
             if (people != null)
             {
+                bool fromDormant = false;
                 peopleMovieParser = new PeopleMovieHtmlParser(people);
-                peopleMovieParser.progressBar = movieProgressBar;
-                movieSelector.ItemsSource = peopleMovieParser.movieCollection;
-                loadMoreMovieButton.IsEnabled = false;
-                peopleMovieParser.button = loadMoreMovieButton;
-                peopleMovieParser.text = loadMovieText;
                 movieProgressBar.IsIndeterminate = true;
                 movieProgressBar.Visibility = System.Windows.Visibility.Visible;
-                peopleMovieParser.parseMovie();
+                try
+                {
+                    await peopleMovieParser.getMovie();
+                    movieSelector.ItemsSource = peopleMovieParser.movieCollection;
+                    movieProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                }
+                catch (TaskCanceledException)
+                {
+                    if (App.isFromDormant)
+                    {
+                        fromDormant = true;
+                    }
+                    else
+                    {
+                        movieProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                        if (!peopleMovieParser.isCanceled())
+                        {
+                            movieLoaded = false;
+                            MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    movieProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                    movieLoaded = false;
+                    MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                }
+
+                if (fromDormant)
+                {
+                    App.isFromDormant = false;
+                    await loadMovie();
+                }
             }
         }
 
-        private void loadImage()
+        /// <summary>
+        /// Load more movie
+        /// </summary>
+        /// <returns></returns>
+        private async Task loadMoreMovie()
+        {
+            if (peopleMovieParser.hasMore)
+            {
+                bool fromDormant = false;
+                movieProgressBar.IsIndeterminate = true;
+                movieProgressBar.Visibility = System.Windows.Visibility.Visible;
+                try
+                {
+                    await peopleMovieParser.loadMore();
+                    movieProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                }
+                catch (TaskCanceledException)
+                {
+                    if (App.isFromDormant)
+                    {
+                        fromDormant = true;
+                    }
+                    else
+                    {
+                        movieProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                        if (!peopleMovieParser.isCanceled())
+                        {
+                            MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    movieProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                    MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                }
+
+                if (fromDormant)
+                {
+                    App.isFromDormant = false;
+                    await loadMoreMovie();
+                }
+            }
+        }
+        /// <summary>
+        /// Load image
+        /// </summary>
+        private async Task loadImage()
         {
             if (people != null)
             {
-                loadMoreImageButton.IsEnabled = false;
+                bool fromDormant = false;
                 peopleImageParser = new PeopleImageHtmlParser(people);
-                peopleImageParser.progressBar = ImageProgressBar;
                 ImageProgressBar.IsIndeterminate = true;
                 ImageProgressBar.Visibility = System.Windows.Visibility.Visible;
-                peopleImageParser.button = loadMoreImageButton;
-                peopleImageParser.text = loadImageText;
-                imageListBox.ItemsSource = peopleImageParser.imageCollection;
-                peopleImageParser.parseImage();
+                try
+                {
+                    await peopleImageParser.getImage();
+                    imageSelector.ItemsSource = peopleImageParser.imageCollection;
+                    ImageProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                }
+                catch (TaskCanceledException)
+                {
+                    if (App.isFromDormant)
+                    {
+                        fromDormant = true;
+                    }
+                    else
+                    {
+                        ImageProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                        if (!peopleImageParser.isCanceled())
+                        {
+                            imageLoaded = false;
+                            MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    movieProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                    imageLoaded = false;
+                    MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                }
+
+                if (fromDormant)
+                {
+                    App.isFromDormant = false;
+                    await loadImage();
+                }
             }
         }
 
+        /// <summary>
+        /// Load more image
+        /// </summary>
+        /// <returns></returns>
+        private async Task loadMoreImage()
+        {
+            if (peopleImageParser.hasMore)
+            {
+                bool fromDormant = false;
+                ImageProgressBar.IsIndeterminate = true;
+                ImageProgressBar.Visibility = System.Windows.Visibility.Visible;
+                try
+                {
+                    await peopleImageParser.loadMore();
+                    ImageProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                }
+                catch (TaskCanceledException)
+                {
+                    if (App.isFromDormant)
+                    {
+                        fromDormant = true;
+                    }
+                    else
+                    {
+                        ImageProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                        if (!peopleImageParser.isCanceled())
+                        {
+                            MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    ImageProgressBar.Visibility = System.Windows.Visibility.Collapsed;
+                    MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                }
+
+                if (fromDormant)
+                {
+                    App.isFromDormant = false;
+                    await loadMoreImage();
+                }
+            }
+        }
         private void Image_Tap(object sender, System.Windows.Input.GestureEventArgs e)
         {
             PopupInput input = new PopupInput();
@@ -158,40 +423,18 @@ namespace PanoramaApp2
             input.inputBox.Focus();
         }
 
-        private void loadMoreImageButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (people != null && peopleImageParser != null)
-            {
-                loadMoreImageButton.IsEnabled = false;
-                ImageProgressBar.Visibility = System.Windows.Visibility.Visible;
-                ImageProgressBar.IsIndeterminate = true;
-                peopleImageParser.loadMore();
-            }
-        }
-
         private void imageListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (imageListBox != null && imageListBox.SelectedItem != null)
+            if (imageSelector != null && imageSelector.SelectedItem != null)
             {
-                MovieImage image = (MovieImage)imageListBox.SelectedItem;
+                MovieImage image = (MovieImage)imageSelector.SelectedItem;
                 if (image != null)
                 {
                     App.imagePassed = image;
                     App.imageCollectionPassed = peopleImageParser.imageCollection;
                     NavigationService.Navigate(new Uri("/ImagePage.xaml", UriKind.Relative));
                 }
-                imageListBox.SelectedItem = null;
-            }
-        }
-
-        private void loadMoreMovieButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (people != null && peopleMovieParser != null)
-            {
-                loadMoreMovieButton.IsEnabled = false;
-                movieProgressBar.IsIndeterminate = true;
-                movieProgressBar.Visibility = System.Windows.Visibility.Visible;
-                peopleMovieParser.loadMore();
+                imageSelector.SelectedItem = null;
             }
         }
 

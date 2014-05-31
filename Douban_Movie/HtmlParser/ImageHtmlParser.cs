@@ -19,7 +19,6 @@ namespace PanoramaApp2.HtmlParser
     class ImageHtmlParser
     {
         private Movie movie;
-        public ProgressBar progressBar { get; set; }
         public ObservableCollection<MovieImage> imageCollection { get; set; }
         public bool hasMore { get; set; }
         private Downloader downloader;
@@ -106,38 +105,6 @@ namespace PanoramaApp2.HtmlParser
             }
         }
 
-        /*
-        public void parseImage()
-        {
-            if (movie.imageLoaded == false)
-            {
-                movie.nextImageLink = Movie.movieLinkHeader + movie.id + "/photos?type=S";
-                client = new WebClient();
-                client.DownloadStringCompleted += downloadImageCompleted;
-                client.DownloadStringAsync(new Uri(movie.nextImageLink));
-            }
-            else
-            {
-                foreach (MovieImage i in movie.imageSet) {
-                    imageCollection.Add(i);
-                }
-                if (progressBar != null)
-                {
-                    progressBar.Visibility = Visibility.Collapsed;
-                }
-                if (movie.hasMoreImage == false)
-                {
-                    button.IsEnabled = false;
-                    text.Text = AppResources.Finish;
-                }
-                else
-                {
-                    button.IsEnabled = true;
-                }
-            }
-        }
-        */
-
         /// <summary>
         /// Load more image
         /// </summary>
@@ -148,132 +115,6 @@ namespace PanoramaApp2.HtmlParser
             String imageHtml = await downloader.downloadString();
             parseImageHtml(imageHtml);
         }
-
-        /*
-        public void downloadImageCompleted(object sender, DownloadStringCompletedEventArgs e)
-        {
-            try
-            {
-                if (e.Error == null && !e.Cancelled)
-                {
-                    string page = e.Result;
-                    HtmlDocument doc = new HtmlDocument();
-                    doc.LoadHtml(page);
-                    HtmlNodeCollection nodeCollection = doc.DocumentNode.SelectNodes("//div[@class='cover']");
-                    if (nodeCollection == null)
-                    {
-                        if (progressBar != null)
-                        {
-                            progressBar.Visibility = Visibility.Collapsed;
-                        }
-                        movie.hasMoreImage = false;
-                        button.IsEnabled = false;
-                        text.Text = AppResources.Finish;
-                    }
-                    else
-                    {
-                        foreach (HtmlNode node in nodeCollection)
-                        {
-                            MovieImage image;
-                            try
-                            {
-                                image = getImage(node);
-                            }
-                            catch (Exception)
-                            {
-                                continue;
-                            }
-                            imageCollection.Add(image);
-                            movie.imageSet.Add(image);
-                        }
-                        if (progressBar != null)
-                        {
-                            progressBar.Visibility = Visibility.Collapsed;
-                        }
-                        nodeCollection = doc.DocumentNode.SelectNodes("//div[@class='paginator']");
-                        if (nodeCollection == null)
-                        {
-                            movie.hasMoreImage = false;
-                            button.IsEnabled = false;
-                            text.Text = AppResources.Finish;
-                        }
-                        else
-                        {
-                            HtmlNodeCollection nc = nodeCollection[0].SelectNodes("span[@class='next']");
-                            if (nc == null)
-                            {
-                                movie.hasMoreImage = false;
-                                button.IsEnabled = false;
-                                text.Text = AppResources.Finish;
-                            }
-                            else
-                            {
-                                HtmlNodeCollection aCollection = nc[0].SelectNodes("a");
-                                if (aCollection == null)
-                                {
-                                    movie.hasMoreImage = false;
-                                    button.IsEnabled = false;
-                                    text.Text = AppResources.Finish;
-                                }
-                                else
-                                {
-                                    movie.hasMoreImage = true;
-                                    string link = aCollection[0].Attributes["href"].Value;
-                                    link = link.Replace("&amp;", "&");
-                                    movie.nextImageLink = link;
-                                    button.IsEnabled = true;
-                                }
-                            }
-                        }
-                    }
-                    movie.imageLoaded = true;
-                }
-                else
-                {
-                    var wEx = e.Error as WebException;
-                    if (wEx.Status == WebExceptionStatus.RequestCanceled)
-                    {
-                        if (App.isFromDormant)
-                        {
-                            App.isFromDormant = false;
-                            if (isFromLoadMore)
-                            {
-                                loadMore();
-                            }
-                            else
-                            {
-                                parseImage();
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (progressBar != null)
-                        {
-                            progressBar.Visibility = Visibility.Collapsed;
-                        }
-                    }
-                }
-            }
-            catch (WebException)
-            {
-                button.IsEnabled = true;
-                if (progressBar != null)
-                {
-                    progressBar.Visibility = Visibility.Collapsed;
-                }
-                MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
-            }
-            catch (Exception)
-            {
-                button.IsEnabled = true;
-                if (progressBar != null)
-                {
-                    progressBar.Visibility = Visibility.Collapsed;
-                }
-            }
-        }
-        */
 
         /// <summary>
         /// Get image from html node
