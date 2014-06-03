@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net.Http;
 using System.Threading;
+using System.IO;
 
 namespace PanoramaApp2.Utility
 {
@@ -36,6 +37,26 @@ namespace PanoramaApp2.Utility
             var response = await httpClient.GetAsync(url, cancellationToken);
             String downloadContent = await response.Content.ReadAsStringAsync();
             return downloadContent;
+        }
+
+        /// <summary>
+        /// Download stream
+        /// </summary>
+        /// <returns>Stream downloaded</returns>
+        public async Task<Stream> downloadStream()
+        {
+            var response = await httpClient.GetAsync(url, cancellationToken);
+            Stream downloadContent = await response.Content.ReadAsStreamAsync();
+            return downloadContent;
+        }
+
+        /// <summary>
+        /// Download byte array
+        /// </summary>
+        /// <returns>Byte array downloaded</returns>
+        public async Task<byte[]> downloadByteArray()
+        {
+            return await httpClient.GetByteArrayAsync(url);
         }
 
         /// <summary>

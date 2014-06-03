@@ -221,4 +221,25 @@
   <data name="ContactTitle" xml:space="preserve">
     <value>联系方式</value>
   </data>
+  <data name="CommentMenu" xml:space="preserve">
+    <value>查看评论</value>
+  </data>
+  <data name="SaveMenu" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="SetLockScreenMenu" xml:space="preserve">
+    <value>设为Lock Screen</value>
+  </data>
+  <data name="SetFail" xml:space="preserve">
+    <value>设置失败!</value>
+  </data>
+  <data name="SetMessage" xml:space="preserve">
+    <value>设为Lock Screen?</value>
+  </data>
+  <data name="SetSuccess" xml:space="preserve">
+    <value>设置成功!</value>
+  </data>
+  <data name="exit" xml:space="preserve">
+    <value>确定离开?</value>
+  </data>
 </root>

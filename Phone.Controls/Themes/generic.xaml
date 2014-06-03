@@ -23,5 +23,8 @@
         </Setter>
     </Style>
 
+    <Style TargetType="local:PanoramaFullScreen">
+        
+    </Style>
 </ResourceDictionary>
 

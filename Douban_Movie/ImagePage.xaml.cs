@@ -12,25 +12,68 @@ using System.Collections.ObjectModel;
 using System.IO;
 using Microsoft.Xna.Framework.Media;
 using PanoramaApp2.Resources;
+using PanoramaApp2.Utility;
+using System.Threading.Tasks;
+using System.IO.IsolatedStorage;
+using System.Windows.Media;
 
 namespace PanoramaApp2
 {
     public partial class ImagePage : PhoneApplicationPage
     {
-        private int index;
+        private int imageIndex, pivotIndex;
+        public ApplicationBarMenuItem saveMenu;
+        public ApplicationBarMenuItem commentMenu;
+        public ApplicationBarMenuItem setLockScreenMenu;
         private ObservableCollection<MovieImage> imageCollection;
-        private MovieImage currentImage;
-        private BitmapImage currentBitMap;
+        private int pivotNum;
+        private PanoramaItem[] panoramaItems;
+        private Image[] images;
+        private ProgressBar[] progressBars;
+        private Grid[] grids;
+        private object ob = new object();
 
         public ImagePage()
         {
             InitializeComponent();
             imageCollection = App.imageCollectionPassed;
-            index = imageCollection.IndexOf(App.imagePassed);
-            currentImage = App.imagePassed;
+            imageIndex = imageCollection.IndexOf(App.imagePassed);
+            pivotIndex = 0;
+            if (imageCollection.Count == 1)
+            {
+                pivotNum = 1;
+            }
+            else
+            {
+                pivotNum = 3;
+            }
+            panoramaItems = new PanoramaItem[pivotNum];
+            images = new Image[pivotNum];
+            progressBars = new ProgressBar[pivotNum];
+            grids = new Grid[pivotNum];
+
+            for (int i = 0; i < pivotNum; i++)
+            {
+                panoramaItems[i] = new PanoramaItem();
+                images[i] = new Image();
+                progressBars[i] = new ProgressBar();
+                progressBars[i].Foreground = new SolidColorBrush(Colors.White);
+                progressBars[i].IsIndeterminate = true;
+                progressBars[i].Visibility = System.Windows.Visibility.Collapsed;
+                grids[i] = new Grid();
+                grids[i].Children.Add(progressBars[i]);
+                grids[i].Children.Add(images[i]);
+
+                panoramaItems[i].Content = grids[i];
+                panorama.Items.Add(panoramaItems[i]);
+            }
+
+            panorama.SelectionChanged += Pivot_SelectionChanged;
+
+            createApplicationBar();
         }
 
-        protected override void OnNavigatedTo(NavigationEventArgs e)
+        protected async override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
             if (App.fromTombStone)
@@ -41,83 +84,196 @@ namespace PanoramaApp2
             {
                 if (e.NavigationMode == NavigationMode.New)
                 {
-                    loadImage();
+                    await loadImage();
                 }
             }
         }
 
-        private void image_ImageOpened(object sender, RoutedEventArgs e)
+        private async void Pivot_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            imageLoadingBar.IsIndeterminate = false;
-            if (currentImage.bitMap == null)
+            lock (ob)
             {
-                currentImage.bitMap = currentBitMap;
-            }
-        }
+                int i = ((Panorama)sender).SelectedIndex;
 
-        private void loadImage()
-        {
-            if (index < 0)
-            {
-                index = 0;
-                return;
-            }
-            if (index == imageCollection.Count) {
-                index = imageCollection.Count - 1;
-                return;
-            }
-            imageLoadingBar.IsIndeterminate = true;
-            currentImage = imageCollection[index];
-            if (currentImage.bitMap != null)
-            {
-                image.Source = currentImage.bitMap;
-            }
-            else
-            {
-                currentBitMap = new BitmapImage(new Uri(currentImage.largeUrl));
-                image.Source = currentBitMap;
-            }
-        }
+                int preImageIndex, nextImageIndex, prePivotIndex, nextPivotIndex;
 
-        private void GestureListener_Flick(object sender, FlickGestureEventArgs e)
-        {
-            if (e.Direction == System.Windows.Controls.Orientation.Horizontal)
-            {
-                if (e.HorizontalVelocity < 0)
+                // Left swipe
+                if (pivotIndex == (i + 1) % pivotNum)
                 {
-                    index++;
-                    loadImage();
+                    imageIndex = (imageIndex == 0 ? imageCollection.Count - 1 : imageIndex - 1);
                 }
-                if (e.HorizontalVelocity > 0)
+                //Right swipe
+                else if (i == (pivotIndex + 1) % pivotNum)
                 {
-                    index--;
-                    loadImage();
+                    imageIndex = (imageIndex + 1) % imageCollection.Count;
                 }
+                preImageIndex = (imageIndex == 0 ? imageCollection.Count - 1 : imageIndex - 1);
+                nextImageIndex = (imageIndex + 1) % imageCollection.Count;
+                prePivotIndex = (i == 0 ? pivotNum - 1 : i - 1);
+                nextPivotIndex = (i + 1) % pivotNum;
+                pivotIndex = i;
+                if (imageCollection[preImageIndex].bitMap != null)
+                {
+                    images[prePivotIndex].Source = imageCollection[preImageIndex].bitMap;
+                }
+                else
+                {
+                    images[prePivotIndex].Source = null;
+                }
+                if (imageCollection[nextImageIndex].bitMap != null)
+                {
+                    images[nextPivotIndex].Source = imageCollection[nextImageIndex].bitMap;
+                }
+                else
+                {
+                    images[nextPivotIndex].Source = null;
+                }
+            }
+            await loadImage();
+        }
+
+        /// <summary>
+        /// Create application bar
+        /// </summary>
+        private void createApplicationBar()
+        {
+            ApplicationBar = new ApplicationBar();
+
+            ApplicationBar.Mode = ApplicationBarMode.Minimized;
+            ApplicationBar.Opacity = 0;
+            ApplicationBar.IsVisible = true;
+            ApplicationBar.IsMenuEnabled = true;
+
+            saveMenu = new ApplicationBarMenuItem(AppResources.SaveMenu);
+            saveMenu.Click += saveMenu_Click;
+            ApplicationBar.MenuItems.Add(saveMenu);
+
+            /*
+            commentMenu = new ApplicationBarMenuItem(AppResources.CommentMenu);
+            commentMenu.Click += commentMenu_Click;
+            ApplicationBar.MenuItems.Add(commentMenu);
+             */
+
+            setLockScreenMenu = new ApplicationBarMenuItem(AppResources.SetLockScreenMenu);
+            setLockScreenMenu.Click += setLockScreenMenu_Click;
+            ApplicationBar.MenuItems.Add(setLockScreenMenu);
+        }
+
+        async void setLockScreenMenu_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var isProvider = Windows.Phone.System.UserProfile.LockScreenManager.IsProvidedByCurrentApplication;
+                if (!isProvider)
+                {
+                    System.Diagnostics.Debug.WriteLine("Not provided!");
+
+                    // If you're not the provider, this call will prompt the user for permission.
+                    // Calling RequestAccessAsync from a background agent is not allowed.
+                    var op = await Windows.Phone.System.UserProfile.LockScreenManager.RequestAccessAsync();
+
+                    // Only do further work if the access was granted.
+                    isProvider = op == Windows.Phone.System.UserProfile.LockScreenRequestResult.Granted;
+                }
+
+                if (isProvider)
+                {
+                    MessageBoxResult value = MessageBox.Show(AppResources.SetMessage, "", MessageBoxButton.OKCancel);
+                    if (value == MessageBoxResult.OK)
+                    {
+                        if (imageCollection[imageIndex].bitMap == null)
+                        {
+                            MessageBox.Show(AppResources.SetFail);
+                        }
+                        else
+                        {
+                            WriteableBitmap wb = new WriteableBitmap(imageCollection[imageIndex].bitMap);
+                            using (MemoryStream ms = new MemoryStream())
+                            {
+                                wb.SaveJpeg(ms, imageCollection[imageIndex].bitMap.PixelWidth, imageCollection[imageIndex].bitMap.PixelHeight, 0, 100);
+                                // This is important!!!
+                                ms.Seek(0, SeekOrigin.Begin);
+                                IsolatedStorageFile IsoStore = IsolatedStorageFile.GetUserStoreForApplication();
+                                using (IsolatedStorageFileStream storageStream = IsoStore.CreateFile("LockScreenImage"))
+                                {
+                                    ms.CopyTo(storageStream);
+                                }
+                                //var schema = isAppResource ? "ms-appx:///" : "ms-appdata:///Local/";
+                                var uri = new Uri("ms-appdata:///Local/" + "LockScreenImage", UriKind.Absolute);
+                                Windows.Phone.System.UserProfile.LockScreen.SetImageUri(uri);
+                                MessageBox.Show(AppResources.SetSuccess);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception)
+            {
+
             }
         }
 
-        private void image_Hold(object sender, System.Windows.Input.GestureEventArgs e)
+        /*
+        void commentMenu_Click(object sender, EventArgs e)
+        {
+
+        }
+        */
+
+        private void saveMenu_Click(object sender, EventArgs e)
         {
             MessageBoxResult value = MessageBox.Show(AppResources.SaveMessage, "", MessageBoxButton.OKCancel);
             if (value == MessageBoxResult.OK)
             {
-                if (currentImage.bitMap == null)
+                if (imageCollection[imageIndex].bitMap == null)
                 {
                     MessageBox.Show(AppResources.SaveFail);
                 }
                 else
                 {
-                    WriteableBitmap wb = new WriteableBitmap(currentImage.bitMap);
-                    using (MemoryStream ms = new MemoryStream()) {
-                        wb.SaveJpeg(ms, currentImage.bitMap.PixelWidth, currentImage.bitMap.PixelHeight, 0, 100);
-                        DateTime dt = DateTime.Now;
+                    WriteableBitmap wb = new WriteableBitmap(imageCollection[imageIndex].bitMap);
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        wb.SaveJpeg(ms, imageCollection[imageIndex].bitMap.PixelWidth, imageCollection[imageIndex].bitMap.PixelHeight, 0, 100);
                         MediaLibrary lib = new MediaLibrary();
                         // This is important!!!
                         ms.Seek(0, SeekOrigin.Begin);
-                        lib.SavePictureToCameraRoll(dt.Year + "-" + dt.Month + "-" + dt.Day + "-" + dt.Hour + "-" + dt.Minute + "-" + dt.Second, ms);
+                        lib.SavePictureToCameraRoll(Guid.NewGuid().ToString(), ms);
                         MessageBox.Show(AppResources.SaveSuccess);
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Load image
+        /// </summary>
+        /// <returns></returns>
+        private async Task loadImage()
+        {
+            //imageLoadingBar.IsIndeterminate = true;
+            if (imageCollection[imageIndex].bitMap != null)
+            {
+                images[pivotIndex].Source = imageCollection[imageIndex].bitMap;
+            }
+            else
+            {
+                progressBars[pivotIndex].Visibility = System.Windows.Visibility.Visible;
+                Downloader downloader = new Downloader(imageCollection[imageIndex].largeUrl);
+                try
+                {
+                    byte[] byteArray = await downloader.downloadByteArray();
+                    MemoryStream ms = new MemoryStream(byteArray);
+                    imageCollection[imageIndex].bitMap = new BitmapImage();
+                    imageCollection[imageIndex].bitMap.CreateOptions = BitmapCreateOptions.None;
+                    imageCollection[imageIndex].bitMap.SetSource(ms);
+                    images[pivotIndex].Source = imageCollection[imageIndex].bitMap;
+                }
+                catch (Exception)
+                {
+                    imageCollection[imageIndex].bitMap = null;
+                }
+                progressBars[pivotIndex].Visibility = System.Windows.Visibility.Collapsed;
             }
         }
     }

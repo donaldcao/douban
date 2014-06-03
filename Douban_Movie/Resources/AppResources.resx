@@ -221,4 +221,25 @@
   <data name="ContactTitle" xml:space="preserve">
     <value>Contact</value>
   </data>
+  <data name="CommentMenu" xml:space="preserve">
+    <value>See Comments</value>
+  </data>
+  <data name="SaveMenu" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="SetLockScreenMenu" xml:space="preserve">
+    <value>Set As Lock Screen</value>
+  </data>
+  <data name="SetFail" xml:space="preserve">
+    <value>Fail!</value>
+  </data>
+  <data name="SetMessage" xml:space="preserve">
+    <value>Set as Lock Screen?</value>
+  </data>
+  <data name="SetSuccess" xml:space="preserve">
+    <value>Success!</value>
+  </data>
+  <data name="exit" xml:space="preserve">
+    <value>Confirm to Exit?</value>
+  </data>
 </root>

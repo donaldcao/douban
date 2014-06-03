@@ -49,6 +49,9 @@ namespace PanoramaApp2
             var imagePullDector = new WP8PullToRefreshDetector();
             imagePullDector.Bind(imageSelector);
             imagePullDector.Compression += imageDector_Compress;
+
+            imageSelector.ItemRealized += image_ItemRealized;
+            movieSelector.ItemRealized += movie_ItemRealized;
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -62,10 +65,12 @@ namespace PanoramaApp2
             {
                 if (e.NavigationMode == NavigationMode.New)
                 {
+                    /*
                     if (peopleParser != null)
                     {
                         //loadPeople();
                     }
+                    */
                 }
             }
         }

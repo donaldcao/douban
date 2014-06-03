@@ -93,7 +93,6 @@ namespace PanoramaApp2
             }
             else
             {
-                //RootFrame.Navigate(new Uri("/MainPage.xaml", UriKind.Relative));
                 fromTombStone = true;
             }
         }

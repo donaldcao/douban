@@ -197,7 +197,15 @@ namespace PanoramaApp2
             }
             else
             {
-                base.OnBackKeyPress(e);
+                MessageBoxResult value = MessageBox.Show(AppResources.exit, "", MessageBoxButton.OKCancel);
+                if (value == MessageBoxResult.OK)
+                {
+                    base.OnBackKeyPress(e);
+                }
+                else
+                {
+                    e.Cancel = true;
+                }
             }
         }
 

@@ -102,9 +102,6 @@
     <Compile Include="HtmlParser\HotReviewHtmlParser.cs" />
     <Compile Include="HtmlParser\PeopleImageHtmlParser.cs" />
     <Compile Include="HtmlParser\PeopleMovieHtmlParser.cs" />
-    <Compile Include="ImagePage.xaml.cs">
-      <DependentUpon>ImagePage.xaml</DependentUpon>
-    </Compile>
     <Compile Include="DataModel\MovieImage.cs" />
     <Compile Include="HtmlParser\ImageHtmlParser.cs" />
     <Compile Include="JsonParser\JsonParsers.cs" />
@@ -124,6 +121,9 @@
     </Compile>
     <Compile Include="DataModel\People.cs" />
     <Compile Include="HtmlParser\PeopleHtmlParser.cs" />
+    <Compile Include="ImagePage.xaml.cs">
+      <DependentUpon>ImagePage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="PeoplePage.xaml.cs">
       <DependentUpon>PeoplePage.xaml</DependentUpon>
     </Compile>
@@ -165,10 +165,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="ImagePage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="MainPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -178,6 +174,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="MoviePage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ImagePage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -204,7 +204,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="Properties\AppManifest.xml" />
+    <None Include="Properties\AppManifest.xml">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Properties\WMAppManifest.xml">
       <SubType>Designer</SubType>
     </None>
