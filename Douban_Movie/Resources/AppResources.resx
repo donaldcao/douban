@@ -242,4 +242,22 @@
   <data name="exit" xml:space="preserve">
     <value>Confirm to Exit?</value>
   </data>
+  <data name="NoReview" xml:space="preserve">
+    <value>No Reviews Yet!</value>
+  </data>
+  <data name="NoShortReview" xml:space="preserve">
+    <value>No Short Reviews Yet!</value>
+  </data>
+  <data name="NoImage" xml:space="preserve">
+    <value>No Images Yet!</value>
+  </data>
+  <data name="NoMovie" xml:space="preserve">
+    <value>No Movies Yet!</value>
+  </data>
+  <data name="NoComment" xml:space="preserve">
+    <value>No Comments Yet!</value>
+  </data>
+  <data name="NoMore" xml:space="preserve">
+    <value>No More</value>
+  </data>
 </root>

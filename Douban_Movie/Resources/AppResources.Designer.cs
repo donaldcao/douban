@@ -259,6 +259,60 @@ namespace PanoramaApp2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to No Comments Yet!.
+        /// </summary>
+        public static string NoComment {
+            get {
+                return ResourceManager.GetString("NoComment", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No Images Yet!.
+        /// </summary>
+        public static string NoImage {
+            get {
+                return ResourceManager.GetString("NoImage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No More.
+        /// </summary>
+        public static string NoMore {
+            get {
+                return ResourceManager.GetString("NoMore", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No Movies Yet!.
+        /// </summary>
+        public static string NoMovie {
+            get {
+                return ResourceManager.GetString("NoMovie", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No Reviews Yet!.
+        /// </summary>
+        public static string NoReview {
+            get {
+                return ResourceManager.GetString("NoReview", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No Short Reviews Yet!.
+        /// </summary>
+        public static string NoShortReview {
+            get {
+                return ResourceManager.GetString("NoShortReview", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Rate Me.
         /// </summary>
         public static string RateMenu {

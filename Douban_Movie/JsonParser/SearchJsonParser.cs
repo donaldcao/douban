@@ -16,84 +16,74 @@ using System.Windows;
 using PanoramaApp2.JsonParser;
 using PanoramaApp2.Resources;
 using PanoramaApp2.Utility;
+using System.Threading.Tasks;
 
 namespace PanoramaApp2.JsonParser
 {
     class SearchJsonParser
     {
-        public LongListSelector selector { get; set; }
-        public ProgressBar progressBar { get; set; }
-        public TextBlock resultNumber { get; set; }
+        public ObservableCollection<Movie> movieCollection { get; set; }
+        public int resultNumber { get; set; }
         private string searchText;
         private WebClient client;
+        private Downloader downloader;
 
-        public void search(string text)
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="text"></param>
+        public SearchJsonParser(String text)
         {
             searchText = text;
-            client = new WebClient();
-            client.DownloadStringCompleted += downloadSearchCompleted;
-            client.DownloadStringAsync(new Uri(Movie.apiSearchHeader + "?apikey=" + App.apikey + "&q=" + text));
+            downloader = new Downloader(Movie.apiSearchHeader + "?apikey=" + App.apikey + "&q=" + text);
+            movieCollection = new ObservableCollection<Movie>();
+            resultNumber = 0;
         }
 
-        public void downloadSearchCompleted(object sender, DownloadStringCompletedEventArgs e)
+        /// <summary>
+        /// Search
+        /// </summary>
+        /// <returns></returns>
+        public async Task search()
         {
-            try
+            String searchJson = await downloader.downloadString();
+            JObject obj = JObject.Parse(searchJson);
+            JArray array = (JArray)obj["subjects"];
+            for (int i = 0; i < array.Count; i++)
             {
-                if (e.Error == null && !e.Cancelled)
-                {
-                    string data = e.Result;
-                    JObject obj = JObject.Parse(data);
-                    JArray array = (JArray)obj["subjects"];
-                    List<Movie> movieList = new List<Movie>();
-                    for (int i = 0; i < array.Count; i++)
-                    {
-                        Movie movie = new Movie();
-                        movie.id = JsonParsers.getValue(array[i], "id");
-                        movie.posterUrl = JsonParsers.getDouble(array[i], "images", "small");
-                        movie.rating = JsonParsers.getDouble(array[i], "rating", "average");
-                        movie.title = JsonParsers.getValue(array[i], "title");
-                        movie.star = Util.getStarPath(movie.rating);
-                        movieList.Add(movie);
-                    }
-                    resultNumber.Text = array.Count + "";
-                    selector.ItemsSource = movieList;
-                    if (progressBar != null)
-                    {
-                        progressBar.Visibility = Visibility.Collapsed;
-                    }
-                }
-                else
-                {
-                    var wEx = e.Error as WebException;
-                    if (wEx.Status == WebExceptionStatus.RequestCanceled)
-                    {
-                        if (App.isFromDormant)
-                        {
-                            App.isFromDormant = false;
-                            search(searchText);
-                        }
-                    }
-                    if (progressBar != null)
-                    {
-                        progressBar.Visibility = Visibility.Collapsed;
-                    }
-                }
+                Movie movie = new Movie();
+                movie.id = JsonParsers.getValue(array[i], "id");
+                movie.posterUrl = JsonParsers.getDouble(array[i], "images", "small");
+                movie.rating = JsonParsers.getDouble(array[i], "rating", "average");
+                movie.title = JsonParsers.getValue(array[i], "title");
+                movie.star = Util.getStarPath(movie.rating);
+                movieCollection.Add(movie);
             }
-            catch (WebException)
-            {
-                if (progressBar != null)
-                {
-                    progressBar.Visibility = Visibility.Collapsed;
-                }
-            }
+            resultNumber = array.Count;
         }
 
+        /// <summary>
+        /// Cancel download
+        /// </summary>
         public void cancelDownload()
         {
-            if (client != null)
+            if (downloader != null)
             {
-                client.CancelAsync();
+                downloader.cancelDownload();
             }
+        }
+
+        /// <summary>
+        /// If download is canceled
+        /// </summary>
+        /// <returns></returns>
+        public bool isCanceled()
+        {
+            if (downloader != null)
+            {
+                return downloader.isCanceled();
+            }
+            return false;
         }
     }
 

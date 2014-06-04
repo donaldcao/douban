@@ -81,10 +81,11 @@
             </phone:PivotItem>
             
             <!--pivot item three-->
-            <phone:PivotItem x:Name="topPivotItem" Header="{Binding Path=LocalizedResources.TopPivot, Source={StaticResource LocalizedStrings}}" Foreground="White" Margin="24, 24, 24, 24">
+            <phone:PivotItem x:Name="topPivotItem" Header="{Binding Path=LocalizedResources.TopPivot, Source={StaticResource LocalizedStrings}}" Foreground="White" Margin="24, 24, 24, 0">
                 <Grid Margin="0, 0, 0, 0" Background="#2B4F81">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
+                        <RowDefinition Height="24"/>
                     </Grid.RowDefinitions>
                     <!--Double line list with image placeholder and text wrapping using a floating header that scrolls with the content-->
                     <phone:LongListSelector Margin="0,0,0,0" Name="top250LongListSelector" SelectionChanged="top250LongListSelector_SelectionChanged" Grid.Row="0">
@@ -105,6 +106,7 @@
                         </phone:LongListSelector.ItemTemplate>
                     </phone:LongListSelector>
                     <ProgressBar x:Name="TopProgressBar" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Width="383" Grid.Row="0"/>
+                    <TextBlock x:Name="noTopTextBlock" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource PhoneTextNormalStyle}" Text="{Binding Path=LocalizedResources.NoMore, Source={StaticResource LocalizedStrings}}" Grid.Row="1" Visibility="Collapsed"/>
                 </Grid>
             </phone:PivotItem>
             
@@ -137,10 +139,11 @@
             </phone:PivotItem>
 
             <!--pivot item five-->
-            <phone:PivotItem x:Name="reviewPivotItem" Header="{Binding Path=LocalizedResources.HotReviewPivot, Source={StaticResource LocalizedStrings}}" Foreground="White" Margin="24, 24, 24, 24">
+            <phone:PivotItem x:Name="reviewPivotItem" Header="{Binding Path=LocalizedResources.HotReviewPivot, Source={StaticResource LocalizedStrings}}" Foreground="White" Margin="24, 24, 24, 0">
                 <Grid Margin="0, 0, 0, 0" Background="#2B4F81">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
+                        <RowDefinition Height="24"/>
                     </Grid.RowDefinitions>
                     <!--Single line list with text wrapping-->
                     <phone:LongListSelector Margin="0,0,0,0" Name="hotReviewLongListSelector" SelectionChanged="hotReviewLongListSelector_SelectionChanged" Grid.Row="0">
@@ -164,6 +167,7 @@
                         </phone:LongListSelector.ItemTemplate>
                     </phone:LongListSelector>
                     <ProgressBar x:Name="HotReviewProgressBar" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Width="383" Grid.Row="0"/>
+                    <TextBlock x:Name="noReviewTextBlock" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource PhoneTextNormalStyle}" Text="{Binding Path=LocalizedResources.NoMore, Source={StaticResource LocalizedStrings}}" Grid.Row="1" Visibility="Collapsed"/>
                 </Grid>
             </phone:PivotItem>
         </phone:Pivot>

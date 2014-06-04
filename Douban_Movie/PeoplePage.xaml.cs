@@ -281,6 +281,10 @@ namespace PanoramaApp2
                 {
                     await peopleMovieParser.getMovie();
                     movieSelector.ItemsSource = peopleMovieParser.movieCollection;
+                    if (movieSelector.ItemsSource.Count == 0)
+                    {
+                        movieTextBlock.Visibility = System.Windows.Visibility.Visible;
+                    }
                     movieProgressBar.Visibility = System.Windows.Visibility.Collapsed;
                 }
                 catch (TaskCanceledException)
@@ -320,8 +324,13 @@ namespace PanoramaApp2
         /// <returns></returns>
         private async Task loadMoreMovie()
         {
-            if (peopleMovieParser.hasMore)
+            if (!peopleMovieParser.hasMore)
             {
+                noMovieTextBlock.Visibility = System.Windows.Visibility.Visible;
+                await Task.Delay(2000);
+                noMovieTextBlock.Visibility = System.Windows.Visibility.Collapsed;
+            }
+            else {
                 bool fromDormant = false;
                 movieProgressBar.IsIndeterminate = true;
                 movieProgressBar.Visibility = System.Windows.Visibility.Visible;
@@ -377,6 +386,10 @@ namespace PanoramaApp2
                 {
                     await peopleImageParser.getImage();
                     imageSelector.ItemsSource = peopleImageParser.imageCollection;
+                    if (imageSelector.ItemsSource.Count == 0)
+                    {
+                        imageTextBlock.Visibility = System.Windows.Visibility.Visible;
+                    }
                     ImageProgressBar.Visibility = System.Windows.Visibility.Collapsed;
                 }
                 catch (TaskCanceledException)
@@ -416,8 +429,13 @@ namespace PanoramaApp2
         /// <returns></returns>
         private async Task loadMoreImage()
         {
-            if (peopleImageParser.hasMore)
+            if (!peopleImageParser.hasMore)
             {
+                noImageTextBlock.Visibility = System.Windows.Visibility.Visible;
+                await Task.Delay(2000);
+                noImageTextBlock.Visibility = System.Windows.Visibility.Collapsed;
+            }
+            else {
                 bool fromDormant = false;
                 ImageProgressBar.IsIndeterminate = true;
                 ImageProgressBar.Visibility = System.Windows.Visibility.Visible;

@@ -9,6 +9,8 @@ using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
 using PanoramaApp2.JsonParser;
 using System.Windows.Controls.Primitives;
+using System.Threading.Tasks;
+using PanoramaApp2.Resources;
 
 namespace PanoramaApp2
 {
@@ -21,10 +23,6 @@ namespace PanoramaApp2
         {
             InitializeComponent();
             searchPopup = new Popup();
-            parser = new SearchJsonParser();
-            parser.resultNumber = resultNumber;
-            parser.selector = hotLongListSelector;
-            parser.progressBar = progressBar;
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
@@ -39,7 +37,7 @@ namespace PanoramaApp2
             }
         }
 
-        protected override void OnNavigatedTo(NavigationEventArgs e)
+        protected async override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
             if (App.fromTombStone)
@@ -53,15 +51,60 @@ namespace PanoramaApp2
                     string msg = "";
                     if (NavigationContext.QueryString.TryGetValue("msg", out msg))
                     {
-                        searchText.Text = msg;
-                        progressBar.IsIndeterminate = true;
-                        progressBar.Visibility = System.Windows.Visibility.Visible;
-                        parser.search(msg);
+                        parser = new SearchJsonParser(msg);
+                        await search();
                     }
                 }
             }
         }
 
+        public async Task search()
+        {
+            bool fromDormant = false;
+            progressBar.IsIndeterminate = true;
+            progressBar.Visibility = System.Windows.Visibility.Visible;
+            try
+            {
+                await parser.search();
+                searchLongListSelector.ItemsSource = parser.movieCollection;
+                resultNumber.Text = parser.resultNumber + " ";
+                progressBar.Visibility = System.Windows.Visibility.Collapsed;
+
+            }
+            catch (TaskCanceledException)
+            {
+                if (App.isFromDormant)
+                {
+                    fromDormant = true;
+                }
+                else
+                {
+                    progressBar.Visibility = System.Windows.Visibility.Collapsed;
+                    if (!parser.isCanceled())
+                    {
+                        MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                if (App.isFromDormant)
+                {
+                    fromDormant = true;
+                }
+                else
+                {
+                    progressBar.Visibility = System.Windows.Visibility.Collapsed;
+                    MessageBoxResult result = MessageBox.Show(AppResources.ConnectionError, "", MessageBoxButton.OK);
+                }
+            }
+
+            if (fromDormant)
+            {
+                App.isFromDormant = false;
+                await search();
+            }
+        }
         protected override void OnBackKeyPress(System.ComponentModel.CancelEventArgs e)
         {
             if (searchPopup.IsOpen)
@@ -85,17 +128,17 @@ namespace PanoramaApp2
             input.inputBox.Focus();
         }
 
-        private void hotLongListSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void searchLongListSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (hotLongListSelector != null && hotLongListSelector.SelectedItem != null)
+            if (searchLongListSelector != null && searchLongListSelector.SelectedItem != null)
             {
-                Movie m = (Movie)hotLongListSelector.SelectedItem;
+                Movie m = (Movie)searchLongListSelector.SelectedItem;
                 if (m != null && m.id != string.Empty)
                 {
                     App.moviePassed = m;
                     NavigationService.Navigate(new Uri("/MoviePage.xaml", UriKind.Relative));
                 }
-                hotLongListSelector.SelectedItem = null;
+                searchLongListSelector.SelectedItem = null;
             }
         }
     }

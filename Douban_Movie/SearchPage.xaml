@@ -46,7 +46,7 @@
                 <TextBlock Text="{Binding Path=LocalizedResources.Result, Source={StaticResource LocalizedStrings}}" Foreground="White" FontSize="{StaticResource PhoneFontSizeMedium}"/>
             </StackPanel>
             <ProgressBar x:Name="progressBar" HorizontalAlignment="Center" VerticalAlignment="Center" Width="383" Grid.Row="2" Foreground="White"/>
-            <phone:LongListSelector Margin="0,12,0,0" Name="hotLongListSelector" SelectionChanged="hotLongListSelector_SelectionChanged" Grid.Row="2" toolkit:TiltEffect.IsTiltEnabled="True">
+            <phone:LongListSelector Margin="0,12,0,0" Name="searchLongListSelector" SelectionChanged="searchLongListSelector_SelectionChanged" Grid.Row="2" toolkit:TiltEffect.IsTiltEnabled="True">
                 <phone:LongListSelector.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Margin="0,10,0,10" Orientation="Horizontal" Height="auto" Width="auto">

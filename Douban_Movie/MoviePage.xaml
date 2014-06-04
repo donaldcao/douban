@@ -94,12 +94,13 @@
                 </Grid>
             </phone:PivotItem>
 
-            <phone:PivotItem Header="{Binding Path=LocalizedResources.Comment, Source={StaticResource LocalizedStrings}}"  Margin="24, 24, 24, 24">
+            <phone:PivotItem Header="{Binding Path=LocalizedResources.Comment, Source={StaticResource LocalizedStrings}}"  Margin="24, 24, 24, 0">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
+                        <RowDefinition Height="24"/>
                     </Grid.RowDefinitions>
-                    <phone:LongListSelector x:Name="shortReviewSelector" Margin="0, 0, 0, 0">
+                    <phone:LongListSelector x:Name="shortReviewSelector" Margin="0, 0, 0, 0" Grid.Row="0">
                         <phone:LongListSelector.ItemTemplate>
                             <DataTemplate>
                                     <StackPanel Orientation="Vertical" Margin="0, 24, 0, 24">
@@ -116,13 +117,16 @@
                         </phone:LongListSelector.ItemTemplate>
                     </phone:LongListSelector>
                     <ProgressBar x:Name="ShortReviewProgressBar" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Width="383" Grid.Row="0"/>
+                    <TextBlock x:Name="shortReviewTextBlock" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource PhoneTextLargeStyle}" Text="{Binding Path=LocalizedResources.NoShortReview, Source={StaticResource LocalizedStrings}}" Visibility="Collapsed" Grid.Row="0"/>
+                    <TextBlock x:Name="noShortReviewTextBlock" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource PhoneTextNormalStyle}" Text="{Binding Path=LocalizedResources.NoMore, Source={StaticResource LocalizedStrings}}" Grid.Row="1" Visibility="Collapsed"/>
                 </Grid>
             </phone:PivotItem>
 
-            <phone:PivotItem Header="{Binding Path=LocalizedResources.Review, Source={StaticResource LocalizedStrings}}"  Margin="24, 24, 24, 24" toolkit:TiltEffect.IsTiltEnabled="True">
-                <Grid>
+            <phone:PivotItem Header="{Binding Path=LocalizedResources.Review, Source={StaticResource LocalizedStrings}}"  Margin="24, 24, 24, 0" toolkit:TiltEffect.IsTiltEnabled="True">
+                <Grid x:Name="reviewGrid">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
+                        <RowDefinition Height="24"/>
                     </Grid.RowDefinitions>
                     <!--Single line list with text wrapping-->
                     <phone:LongListSelector Margin="0,0,0,12" Name="reviewLongListSelector" SelectionChanged="reviewLongListSelector_SelectionChanged" Grid.Row="0">
@@ -143,14 +147,17 @@
                         </phone:LongListSelector.ItemTemplate>
                     </phone:LongListSelector>
                     <ProgressBar x:Name="ReviewProgressBar" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Width="383" Grid.Row="0"/>
+                    <TextBlock x:Name="reviewTextBlock" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource PhoneTextLargeStyle}" Text="{Binding Path=LocalizedResources.NoReview, Source={StaticResource LocalizedStrings}}" Visibility="Collapsed" Grid.Row="0"/>
+                    <TextBlock x:Name="noReviewTextBlock" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource PhoneTextNormalStyle}" Text="{Binding Path=LocalizedResources.NoMore, Source={StaticResource LocalizedStrings}}" Grid.Row="1" Visibility="Collapsed"/>
                 </Grid>
             </phone:PivotItem>
 
 
-            <phone:PivotItem Header="{Binding Path=LocalizedResources.Image, Source={StaticResource LocalizedStrings}}" Margin="24, 24, 24, 24">
+            <phone:PivotItem Header="{Binding Path=LocalizedResources.Image, Source={StaticResource LocalizedStrings}}" Margin="24, 24, 24, 0">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
+                        <RowDefinition Height="24"/>
                     </Grid.RowDefinitions>
                     <phone:LongListSelector x:Name="imageSelector" SelectionChanged="imageListBox_SelectionChanged" Grid.Row="0" LayoutMode="Grid" GridCellSize="102, 102">
                         <phone:LongListSelector.ItemTemplate>
@@ -160,6 +167,8 @@
                         </phone:LongListSelector.ItemTemplate>
                     </phone:LongListSelector>
                     <ProgressBar x:Name="ImageProgressBar" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Width="383" Grid.Row="0"/>
+                    <TextBlock x:Name="imageTextBlock" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource PhoneTextLargeStyle}" Text="{Binding Path=LocalizedResources.NoImage, Source={StaticResource LocalizedStrings}}" Visibility="Collapsed" Grid.Row="0"/>
+                    <TextBlock x:Name="noImageTextBlock" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource PhoneTextNormalStyle}" Text="{Binding Path=LocalizedResources.NoMore, Source={StaticResource LocalizedStrings}}" Grid.Row="1" Visibility="Collapsed"/>
                 </Grid>
             </phone:PivotItem>
         </phone:Pivot>

@@ -97,6 +97,12 @@ namespace PanoramaApp2
                 {
                     await loadTopPivotItem();
                 }
+                else
+                {
+                    noTopTextBlock.Visibility = System.Windows.Visibility.Visible;
+                    await Task.Delay(2000);
+                    noTopTextBlock.Visibility = System.Windows.Visibility.Collapsed;
+                }
             }
         }
 
@@ -112,6 +118,12 @@ namespace PanoramaApp2
                 if (HotReviewHtmlParser.hasMore)
                 {
                     await loadReviewPivotItem();
+                }
+                else
+                {
+                    noReviewTextBlock.Visibility = System.Windows.Visibility.Visible;
+                    await Task.Delay(2000);
+                    noReviewTextBlock.Visibility = System.Windows.Visibility.Collapsed;
                 }
             }
         }

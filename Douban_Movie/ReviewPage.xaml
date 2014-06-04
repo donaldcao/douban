@@ -62,14 +62,13 @@
                 </ScrollViewer>
             </phone:PivotItem>
 
-            <phone:PivotItem Header="{Binding Path=LocalizedResources.Comments, Source={StaticResource LocalizedStrings}}"  Margin="24, 24, 24, 24">
+            <phone:PivotItem Header="{Binding Path=LocalizedResources.Comments, Source={StaticResource LocalizedStrings}}"  Margin="24, 24, 24, 0">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
-                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="24"/>
                     </Grid.RowDefinitions>
-                    <ProgressBar x:Name="ReviewCommentProgressBar" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Width="383" Visibility="Collapsed" Grid.Row="0"/>
-                    <phone:LongListSelector x:Name="commentSelector" Margin="0, 0, 0, 0">
+                    <phone:LongListSelector x:Name="commentSelector" Margin="0, 0, 0, 0" Grid.Row="0">
                         <phone:LongListSelector.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Vertical" Margin="0, 24, 0, 24">
@@ -82,6 +81,9 @@
                             </DataTemplate>
                         </phone:LongListSelector.ItemTemplate>
                     </phone:LongListSelector>
+                    <ProgressBar x:Name="ReviewCommentProgressBar" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Width="383" Visibility="Collapsed" Grid.Row="0"/>
+                    <TextBlock x:Name="commentTextBlock" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource PhoneTextLargeStyle}" Text="{Binding Path=LocalizedResources.NoComment, Source={StaticResource LocalizedStrings}}" Visibility="Collapsed" Grid.Row="0"/>
+                    <TextBlock x:Name="noCommentTextBlock" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource PhoneTextNormalStyle}" Text="{Binding Path=LocalizedResources.NoMore, Source={StaticResource LocalizedStrings}}" Grid.Row="1" Visibility="Collapsed"/>
                 </Grid>
             </phone:PivotItem>
         </phone:Pivot>

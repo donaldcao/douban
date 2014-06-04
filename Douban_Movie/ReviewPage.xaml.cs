@@ -116,8 +116,13 @@ namespace PanoramaApp2
 
         private async Task loadMoreComment()
         {
-            if (reviewParser.hasMoreComments)
+            if (!reviewParser.hasMoreComments)
             {
+                noCommentTextBlock.Visibility = System.Windows.Visibility.Visible;
+                await Task.Delay(2000);
+                noCommentTextBlock.Visibility = System.Windows.Visibility.Collapsed;
+            }
+            else {
                 bool fromDormant = false;
                 ReviewCommentProgressBar.IsIndeterminate = true;
                 ReviewCommentProgressBar.Visibility = System.Windows.Visibility.Visible;
@@ -180,6 +185,10 @@ namespace PanoramaApp2
                 movieText.Visibility = Visibility.Visible;
                 reviewStackPanel.DataContext = reviewParser.review;
                 commentSelector.ItemsSource = reviewParser.commentCollection;
+                if (commentSelector.ItemsSource.Count == 0)
+                {
+                    commentTextBlock.Visibility = System.Windows.Visibility.Visible;
+                }
                 ReviewProgressBar.Visibility = System.Windows.Visibility.Collapsed;
             }
             catch (TaskCanceledException)

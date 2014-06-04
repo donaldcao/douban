@@ -242,4 +242,19 @@
   <data name="exit" xml:space="preserve">
     <value>確定離開?</value>
   </data>
+  <data name="NoReview" xml:space="preserve">
+    <value>暫無影評!</value>
+  </data>
+  <data name="NoShortReview" xml:space="preserve">
+    <value>暫無短評!</value>
+  </data>
+  <data name="NoImage" xml:space="preserve">
+    <value>暫無圖片!</value>
+  </data>
+  <data name="NoMovie" xml:space="preserve">
+    <value>暫無影片!</value>
+  </data>
+  <data name="NoComment" xml:space="preserve">
+    <value>暫無評論!</value>
+  </data>
 </root>

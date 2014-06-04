@@ -294,6 +294,10 @@ namespace PanoramaApp2
                 {
                     await shortReviewParser.getShortReview();
                     shortReviewSelector.ItemsSource = shortReviewParser.shortReviewCollection;
+                    if (shortReviewSelector.ItemsSource.Count == 0)
+                    {
+                        shortReviewTextBlock.Visibility = System.Windows.Visibility.Visible;
+                    }
                     ShortReviewProgressBar.Visibility = System.Windows.Visibility.Collapsed;
                 } 
                 catch (TaskCanceledException) 
@@ -352,6 +356,10 @@ namespace PanoramaApp2
                 {
                     await reviewParser.getReview();
                     reviewLongListSelector.ItemsSource = reviewParser.reviewCollection;
+                    if (reviewLongListSelector.ItemsSource.Count == 0)
+                    {
+                        reviewTextBlock.Visibility = System.Windows.Visibility.Visible;
+                    }
                     ReviewProgressBar.Visibility = System.Windows.Visibility.Collapsed;
                 }
                 catch (TaskCanceledException)
@@ -409,6 +417,10 @@ namespace PanoramaApp2
                 {
                     await imageParser.getImage();
                     imageSelector.ItemsSource = imageParser.imageCollection;
+                    if (imageSelector.ItemsSource.Count == 0)
+                    {
+                        imageTextBlock.Visibility = System.Windows.Visibility.Visible;
+                    }
                     ImageProgressBar.Visibility = System.Windows.Visibility.Collapsed;
                 }
                 catch (TaskCanceledException)
@@ -451,8 +463,13 @@ namespace PanoramaApp2
 
         private async Task loadMoreImage()
         {
-            if (imageParser.hasMore)
+            if (!imageParser.hasMore)
             {
+                noImageTextBlock.Visibility = System.Windows.Visibility.Visible;
+                await Task.Delay(2000);
+                noImageTextBlock.Visibility = System.Windows.Visibility.Collapsed;
+            }
+            else {
                 bool fromDormant = false;
                 ImageProgressBar.IsIndeterminate = true;
                 ImageProgressBar.Visibility = System.Windows.Visibility.Visible;
@@ -505,8 +522,13 @@ namespace PanoramaApp2
         /// <returns></returns>
         private async Task loadMoreReview()
         {
-            if (reviewParser.hasMoreReview)
+            if (!reviewParser.hasMoreReview)
             {
+                noReviewTextBlock.Visibility = System.Windows.Visibility.Visible;
+                await Task.Delay(2000);
+                noReviewTextBlock.Visibility = System.Windows.Visibility.Collapsed;
+            }
+            else {
                 bool fromDormant = false;
                 ReviewProgressBar.IsIndeterminate = true;
                 ReviewProgressBar.Visibility = System.Windows.Visibility.Visible;
@@ -559,8 +581,13 @@ namespace PanoramaApp2
         /// <returns></returns>
         private async Task loadMoreShortReview()
         {
-            if (shortReviewParser.hasMoreReview)
+            if (!shortReviewParser.hasMoreReview)
             {
+                noShortReviewTextBlock.Visibility = System.Windows.Visibility.Visible;
+                await Task.Delay(2000);
+                noShortReviewTextBlock.Visibility = System.Windows.Visibility.Collapsed;
+            }
+            else {
                 bool fromDormant = false;
                 ShortReviewProgressBar.IsIndeterminate = true;
                 ShortReviewProgressBar.Visibility = System.Windows.Visibility.Visible;
