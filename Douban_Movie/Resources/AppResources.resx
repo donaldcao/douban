@@ -222,7 +222,7 @@
     <value>Contact</value>
   </data>
   <data name="CommentMenu" xml:space="preserve">
-    <value>See Comments</value>
+    <value>Comments</value>
   </data>
   <data name="SaveMenu" xml:space="preserve">
     <value>Save</value>

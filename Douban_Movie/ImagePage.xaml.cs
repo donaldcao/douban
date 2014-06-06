@@ -22,9 +22,9 @@ namespace PanoramaApp2
     public partial class ImagePage : PhoneApplicationPage
     {
         private int imageIndex, pivotIndex;
-        public ApplicationBarMenuItem saveMenu;
-        public ApplicationBarMenuItem commentMenu;
-        public ApplicationBarMenuItem setLockScreenMenu;
+        private ApplicationBarIconButton saveButton;
+        private ApplicationBarIconButton viewCommentsButton;
+        private ApplicationBarMenuItem setMenue;
         private ObservableCollection<MovieImage> imageCollection;
         private int pivotNum;
         private PanoramaItem[] panoramaItems;
@@ -56,6 +56,7 @@ namespace PanoramaApp2
             {
                 panoramaItems[i] = new PanoramaItem();
                 images[i] = new Image();
+                images[i].Tap += onImageTap;
                 progressBars[i] = new ProgressBar();
                 progressBars[i].Foreground = new SolidColorBrush(Colors.White);
                 progressBars[i].IsIndeterminate = true;
@@ -89,6 +90,11 @@ namespace PanoramaApp2
             }
         }
 
+        /// <summary>
+        /// Pivot selection change event
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private async void Pivot_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             lock (ob)
@@ -139,14 +145,17 @@ namespace PanoramaApp2
         {
             ApplicationBar = new ApplicationBar();
 
-            ApplicationBar.Mode = ApplicationBarMode.Minimized;
-            ApplicationBar.Opacity = 0;
+            ApplicationBar.Mode = ApplicationBarMode.Default;
+            ApplicationBar.Opacity = 0.9;
             ApplicationBar.IsVisible = true;
             ApplicationBar.IsMenuEnabled = true;
 
-            saveMenu = new ApplicationBarMenuItem(AppResources.SaveMenu);
-            saveMenu.Click += saveMenu_Click;
-            ApplicationBar.MenuItems.Add(saveMenu);
+            saveButton = new ApplicationBarIconButton();
+            saveButton.IconUri = new Uri("/Assets/save.png", UriKind.Relative);
+            saveButton.Text = AppResources.SaveMenu;
+            saveButton.Click += saveMenu_Click;
+            ApplicationBar.Buttons.Add(saveButton);
+
 
             /*
             commentMenu = new ApplicationBarMenuItem(AppResources.CommentMenu);
@@ -154,12 +163,39 @@ namespace PanoramaApp2
             ApplicationBar.MenuItems.Add(commentMenu);
              */
 
-            setLockScreenMenu = new ApplicationBarMenuItem(AppResources.SetLockScreenMenu);
-            setLockScreenMenu.Click += setLockScreenMenu_Click;
-            ApplicationBar.MenuItems.Add(setLockScreenMenu);
+            viewCommentsButton = new ApplicationBarIconButton();
+            viewCommentsButton.IconUri = new Uri("/Assets/comments.png", UriKind.Relative);
+            viewCommentsButton.Text = AppResources.CommentMenu;
+            ApplicationBar.Buttons.Add(viewCommentsButton);
+        
+            setMenue = new ApplicationBarMenuItem(AppResources.SetLockScreenMenu);
+            setMenue.Click += setLockScreenMenu_Click;
+            ApplicationBar.MenuItems.Add(setMenue);
         }
 
-        async void setLockScreenMenu_Click(object sender, EventArgs e)
+        /// <summary>
+        /// Image tap event handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void onImageTap(object sender, System.Windows.Input.GestureEventArgs e)
+        {
+            if (ApplicationBar.IsVisible == true)
+            {
+                ApplicationBar.IsVisible = false;
+            }
+            else
+            {
+                ApplicationBar.IsVisible = true;
+            }
+        }
+
+        /// <summary>
+        /// Set lock screen
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private async void setLockScreenMenu_Click(object sender, EventArgs e)
         {
             try
             {
