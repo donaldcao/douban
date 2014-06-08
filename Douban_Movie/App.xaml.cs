@@ -22,6 +22,7 @@ namespace PanoramaApp2
         public static string imagePath = "/DoubanMovie;component/Assets/";
         public static Movie moviePassed = null;
         public static MovieImage imagePassed = null;
+        public static MovieImage commentImagePassed = null;
         public static Review reviewPassed = null;
         public static People peoplePassed = null;
         public static ObservableCollection<MovieImage> imageCollectionPassed = null;

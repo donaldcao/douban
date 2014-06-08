@@ -231,7 +231,7 @@
     <value>Set As Lock Screen</value>
   </data>
   <data name="SetFail" xml:space="preserve">
-    <value>Fail!</value>
+    <value>Save Failed!</value>
   </data>
   <data name="SetMessage" xml:space="preserve">
     <value>Set as Lock Screen?</value>

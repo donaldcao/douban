@@ -26,6 +26,7 @@ namespace PanoramaApp2
         private ApplicationBarIconButton viewCommentsButton;
         private ApplicationBarMenuItem setMenue;
         private ObservableCollection<MovieImage> imageCollection;
+        private MovieImage currentImage;
         private int pivotNum;
         private PanoramaItem[] panoramaItems;
         private Image[] images;
@@ -39,6 +40,7 @@ namespace PanoramaApp2
             imageCollection = App.imageCollectionPassed;
             imageIndex = imageCollection.IndexOf(App.imagePassed);
             pivotIndex = 0;
+            currentImage = null;
             if (imageCollection.Count == 1)
             {
                 pivotNum = 1;
@@ -166,6 +168,7 @@ namespace PanoramaApp2
             viewCommentsButton = new ApplicationBarIconButton();
             viewCommentsButton.IconUri = new Uri("/Assets/comments.png", UriKind.Relative);
             viewCommentsButton.Text = AppResources.CommentMenu;
+            viewCommentsButton.Click += viewCommentButton_Click;
             ApplicationBar.Buttons.Add(viewCommentsButton);
         
             setMenue = new ApplicationBarMenuItem(AppResources.SetLockScreenMenu);
@@ -249,12 +252,16 @@ namespace PanoramaApp2
             }
         }
 
-        /*
-        void commentMenu_Click(object sender, EventArgs e)
+        
+        void viewCommentButton_Click(object sender, EventArgs e)
         {
-
+            if (currentImage != null)
+            {
+                App.commentImagePassed = currentImage;
+                NavigationService.Navigate(new Uri("/ImageCommentPage.xaml", UriKind.Relative));
+            }
         }
-        */
+        
 
         private void saveMenu_Click(object sender, EventArgs e)
         {
@@ -287,7 +294,7 @@ namespace PanoramaApp2
         /// <returns></returns>
         private async Task loadImage()
         {
-            //imageLoadingBar.IsIndeterminate = true;
+            currentImage = imageCollection[imageIndex];
             if (imageCollection[imageIndex].bitMap != null)
             {
                 images[pivotIndex].Source = imageCollection[imageIndex].bitMap;

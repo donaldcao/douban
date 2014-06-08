@@ -16,6 +16,9 @@ using PanoramaApp2.Utility;
 
 namespace PanoramaApp2.HtmlParser
 {
+    /// <summary>
+    /// Parser for short reviews
+    /// </summary>
     class ShortReviewHtmlParser
     {
         public ObservableCollection<ShortReview> shortReviewCollection { get; set; }

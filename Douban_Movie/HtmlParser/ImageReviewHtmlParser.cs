@@ -16,31 +16,28 @@ using PanoramaApp2.Utility;
 
 namespace PanoramaApp2.HtmlParser
 {
-    /// <summary>
-    /// Parser for review and its comments
-    /// </summary>
-    class ReviewHtmlParser
+    class ImageCommentHtmlParser
     {
-        public Review review { get; set; }
+        private MovieImage movieImage;
         public ObservableCollection<Comment> commentCollection { get; set; }
         private Downloader downloader;
         public bool hasMoreComments { get; set; }
-        public ReviewHtmlParser(Review r)
+        public ImageCommentHtmlParser(MovieImage image)
         {
-            review = r;
+            movieImage = image;
             commentCollection = new ObservableCollection<Comment>();
             hasMoreComments = false;
         }
 
-        public async Task getReview()
+        public async Task getComments()
         {
-            downloader = new Downloader(Review.reviewLinkHeader + review.id);
-            String reviewHtml = await downloader.downloadString();
+            downloader = new Downloader(MovieImage.photoUrlHeader + movieImage.id);
+            String commentHtml = await downloader.downloadString();
             HtmlDocument doc = new HtmlDocument();
-            doc.LoadHtml(reviewHtml);
+            doc.LoadHtml(commentHtml);
             try
             {
-                getReview(doc);
+                loadComments(doc);
             }
             catch (Exception)
             {
@@ -49,7 +46,7 @@ namespace PanoramaApp2.HtmlParser
 
         public async Task loadMore()
         {
-            downloader = new Downloader(review.nextCommentLink);
+            downloader = new Downloader(movieImage.nextCommentLink);
             String commentHtml = await downloader.downloadString();
             HtmlDocument doc = new HtmlDocument();
             doc.LoadHtml(commentHtml);
@@ -171,7 +168,7 @@ namespace PanoramaApp2.HtmlParser
                             {
                                 hasMoreComments = true;
                                 string link = aCollection[0].Attributes["href"].Value;
-                                review.nextCommentLink = link;
+                                movieImage.nextCommentLink = link;
                             }
                         }
                     }
@@ -182,36 +179,5 @@ namespace PanoramaApp2.HtmlParser
                 throw;
             }
         }
-
-        private void getReview(HtmlDocument doc)
-        {
-            try
-            {
-                string date = doc.DocumentNode.SelectNodes("//span[@property='v:dtreviewed']")[0].InnerText.Trim();
-                if (review.date == null || review.date == "")
-                {
-                    review.date = date;
-                }
-
-                HtmlNode reviewNode = doc.DocumentNode.SelectNodes("//div[@property='v:description']")[0];
-                HtmlNodeCollection aNodeCollection = reviewNode.SelectNodes("a");
-                if (aNodeCollection != null)
-                {
-                    foreach (HtmlNode node in aNodeCollection)
-                    {
-                        HtmlNode newNode = HtmlNode.CreateNode(node.InnerText);
-                        reviewNode.ReplaceChild(newNode, node);
-                    }
-                }
-                string r = reviewNode.InnerHtml;
-                review.review = Util.formatReview(r);
-                loadComments(doc);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
-
     }
 }

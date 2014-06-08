@@ -16,6 +16,9 @@ using PanoramaApp2.Utility;
 
 namespace PanoramaApp2.HtmlParser
 {
+    /// <summary>
+    /// Parser for get reviews
+    /// </summary>
     class ReviewParser
     {
         private Movie movie;

@@ -16,7 +16,6 @@ using System.Windows;
 using PanoramaApp2.JsonParser;
 using PanoramaApp2.Resources;
 using PanoramaApp2.Utility;
-using System.Threading.Tasks;
 
 namespace PanoramaApp2.JsonParser
 {

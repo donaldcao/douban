@@ -412,7 +412,7 @@ namespace PanoramaApp2.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Fail!.
+        ///   Looks up a localized string similar to Save Failed!.
         /// </summary>
         public static string SetFail {
             get {

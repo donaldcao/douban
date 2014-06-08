@@ -100,10 +100,14 @@
     <Compile Include="DataModel\Comment.cs" />
     <Compile Include="HtmlParser\HotMovieHtmlParser.cs" />
     <Compile Include="HtmlParser\HotReviewHtmlParser.cs" />
+    <Compile Include="HtmlParser\ImageReviewHtmlParser.cs" />
     <Compile Include="HtmlParser\PeopleImageHtmlParser.cs" />
     <Compile Include="HtmlParser\PeopleMovieHtmlParser.cs" />
     <Compile Include="DataModel\MovieImage.cs" />
     <Compile Include="HtmlParser\ImageHtmlParser.cs" />
+    <Compile Include="ImageCommentPage.xaml.cs">
+      <DependentUpon>ImageCommentPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="JsonParser\JsonParsers.cs" />
     <Compile Include="HtmlParser\LatestHtmlParser.cs" />
     <Compile Include="JsonParser\MovieJsonParser.cs" />
@@ -162,6 +166,10 @@
       <Generator>MSBuild:Compile</Generator>
     </ApplicationDefinition>
     <Page Include="AboutPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ImageCommentPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -236,6 +244,7 @@
     <Content Include="Assets\save.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Assets\test.png" />
     <Content Include="Assets\Tiles\IconTileMediumLarge.png" />
     <Content Include="Assets\Tiles\IconTileSmall.png" />
     <Content Include="SplashScreenImage.screen-720p.jpg" />

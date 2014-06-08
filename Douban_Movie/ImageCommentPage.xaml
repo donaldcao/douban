@@ -1,0 +1,55 @@
+﻿<phone:PhoneApplicationPage
+    x:Class="PanoramaApp2.ImageCommentPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+    xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
+    FontFamily="{StaticResource PhoneFontFamilyNormal}"
+    FontSize="{StaticResource PhoneFontSizeNormal}"
+    Foreground="{StaticResource PhoneForegroundBrush}"
+    SupportedOrientations="Portrait" Orientation="Portrait"
+    mc:Ignorable="d"
+    toolkit:TiltEffect.IsTiltEnabled="True">
+
+    <!--LayoutRoot is the root grid where all page content is placed-->
+    <Grid x:Name="LayoutRoot" Background="#2B4F81">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <!--Logo and search button-->
+        <Grid HorizontalAlignment="Center" Height="auto" Margin="0, 0, 0, 0"  VerticalAlignment="Center" Width="440" Grid.Row="0" Background="#2B4F81">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="200"/>
+                <ColumnDefinition Width="200"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="{Binding Path=LocalizedResources.ApplicationTitle, Source={StaticResource LocalizedStrings}}" Height="auto" Width="auto" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="30" Grid.Column="0" Foreground="White"/>
+            <Image Source="/DoubanMovie;component/Assets/search.png" Height="60" Width="60" Grid.Column="1" Tap="Image_Tap" HorizontalAlignment="Right"/>
+        </Grid>
+        <Grid Grid.Row="1" Margin="24, 24, 24, 0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="24"/>
+            </Grid.RowDefinitions>
+            <phone:LongListSelector x:Name="commentSelector" Margin="0, 0, 0, 0" Grid.Row="0">
+                <phone:LongListSelector.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Vertical" Margin="0, 24, 0, 24">
+                            <Border Background="#3063A5">
+                                <TextBlock Text="{Binding author}" Foreground="White" Width="auto" FontSize="{StaticResource PhoneFontSizeMedium}" TextWrapping="Wrap"/>
+                            </Border>
+                            <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center" Text="{Binding time}" Margin="0, 0, 0, 0" TextWrapping="Wrap" Style="{StaticResource PhoneTextSmallStyle}" Width="auto" Foreground="White"/>
+                            <TextBlock Text="{Binding content}" TextWrapping="Wrap" Width="auto" HorizontalAlignment="Left" Foreground="White" Margin="0, 6, 0, 0"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </phone:LongListSelector.ItemTemplate>
+            </phone:LongListSelector>
+            <ProgressBar x:Name="commentProgressBar" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Width="383" Visibility="Collapsed" Grid.Row="0"/>
+            <TextBlock x:Name="commentTextBlock" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource PhoneTextLargeStyle}" Text="{Binding Path=LocalizedResources.NoComment, Source={StaticResource LocalizedStrings}}" Visibility="Collapsed" Grid.Row="0"/>
+            <TextBlock x:Name="noCommentTextBlock" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource PhoneTextNormalStyle}" Text="{Binding Path=LocalizedResources.NoMore, Source={StaticResource LocalizedStrings}}" Grid.Row="1" Visibility="Collapsed"/>
+        </Grid>
+    </Grid>
+</phone:PhoneApplicationPage>
