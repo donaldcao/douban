@@ -27,12 +27,17 @@
             <TextBlock Text="{Binding Path=LocalizedResources.SettingMenu, Source={StaticResource LocalizedStrings}}" Margin="12,-7,0,0" Style="{StaticResource PhoneTextTitle1Style}"/>
         </StackPanel>
 
-        <!--ContentPanel - place additional content here-->
         <StackPanel Grid.Row="1" Margin="24, 0, 24, 24" Orientation="Vertical">
-            <toolkit:ListPicker Header="{Binding Path=LocalizedResources.Language, Source={StaticResource LocalizedStrings}}" x:Name="languagePicker" SelectionChanged="languagePicker_SelectionChanged" Margin="0">
-               
-            </toolkit:ListPicker>
-            
+            <!--ContentPanel - place additional content here-->
+            <StackPanel Margin="24, 0, 24, 24" Orientation="Vertical">
+                <toolkit:ListPicker Header="{Binding Path=LocalizedResources.Language, Source={StaticResource LocalizedStrings}}" x:Name="languagePicker" SelectionChanged="languagePicker_SelectionChanged" Margin="0">
+                </toolkit:ListPicker>
+            </StackPanel>
+
+            <StackPanel Margin="24, 0, 24, 24" Orientation="Vertical">
+                <toolkit:ListPicker Header="{Binding Path=LocalizedResources.Background, Source={StaticResource LocalizedStrings}}" x:Name="backgroundPicker" SelectionChanged="backgroundPicker_SelectionChanged" Margin="0">
+                </toolkit:ListPicker>
+            </StackPanel>
         </StackPanel>
     </Grid>
 

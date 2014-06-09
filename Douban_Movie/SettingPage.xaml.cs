@@ -17,11 +17,13 @@ namespace PanoramaApp2
 {
     public partial class SettingPage : PhoneApplicationPage
     {
-        private int currentIndex;
+        private int currentLanguageIndex;
+        private int currentBackgroundIndex;
 
         public SettingPage()
         {
-            currentIndex = -1;
+            currentLanguageIndex = -1;
+            currentBackgroundIndex = -1;
             InitializeComponent();
         }
 
@@ -37,65 +39,79 @@ namespace PanoramaApp2
             {
                 if (e.NavigationMode == NavigationMode.New)
                 {
-                    String[] languages = { "简体中文", "English", "繁體中文" };
+                    string[] languages = Settings.languages;
                     languagePicker.ItemsSource = languages;
-                    currentIndex = 0;
+                    currentLanguageIndex = 0;
                     IsolatedStorageSettings appSettings = IsolatedStorageSettings.ApplicationSettings;
-                    try
+                    if (appSettings.Contains(Settings.languageSetting)) 
                     {
-                        string languageSetting = (string)appSettings["language"];
-                        if (languageSetting == "zh-CN")
-                        {
-                            currentIndex = 0;
-                        }
-                        if (languageSetting == "en-US")
-                        {
-                            currentIndex = 1;
-                        }
-                        if (languageSetting == "zh-TW")
-                        {
-                            currentIndex = 2;
-                        }
-                        languagePicker.SelectedIndex = currentIndex;
+                        string languageSetting = (string)appSettings[Settings.languageSetting];
+                        currentLanguageIndex = Array.IndexOf(Settings.locales, languageSetting);
+                        languagePicker.SelectedIndex = currentLanguageIndex;
                     }
-                    catch (KeyNotFoundException)
+                    languagePicker.SelectedIndex = currentLanguageIndex;
+
+                    Settings.updateLanguage();
+                    string[] backgrounds = Settings.backgrounds;
+                    System.Diagnostics.Debug.WriteLine(Settings.backgrounds[0]);
+                    System.Diagnostics.Debug.WriteLine(AppResources.Black);
+                    backgroundPicker.ItemsSource = backgrounds;
+                    currentBackgroundIndex = 0;
+                    if (appSettings.Contains(Settings.backgroundSetting))
                     {
+                        string backgroundSetting = (string)appSettings[Settings.backgroundSetting];
+                        if (backgroundSetting == Settings.blueString)
+                        {
+                            Settings.background = Settings.Backgrounds.BLUE;
+                            currentBackgroundIndex = 0;
+                        }
+                        if (backgroundSetting == Settings.blackString)
+                        {
+                            Settings.background = Settings.Backgrounds.BLACK;
+                            currentBackgroundIndex = 1;
+                        }
                     }
-                    languagePicker.SelectedIndex = currentIndex;
+                    backgroundPicker.SelectedIndex = currentBackgroundIndex;
                 }
+            }
+        }
+
+        private void backgroundPicker_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            int index = ((ListPicker)sender).SelectedIndex;
+            if (currentBackgroundIndex == -1 || index == currentBackgroundIndex)
+            {
+                return;
+            }
+            currentBackgroundIndex = index;
+            if (index == 0)
+            {
+                Settings.background = Settings.Backgrounds.BLUE;
+                IsolatedStorageSettings appSettings = IsolatedStorageSettings.ApplicationSettings;
+                appSettings[Settings.backgroundSetting] = Settings.blueString;
+                appSettings.Save();
+            }
+            if (index == 1)
+            {
+                Settings.background = Settings.Backgrounds.BLACK;
+                IsolatedStorageSettings appSettings = IsolatedStorageSettings.ApplicationSettings;
+                appSettings[Settings.backgroundSetting] = Settings.blackString;
+                appSettings.Save();
             }
         }
 
         private void languagePicker_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             int index = ((ListPicker)sender).SelectedIndex;
-            if (currentIndex == -1 || index == currentIndex)
+            if (currentLanguageIndex == -1 || index == currentLanguageIndex)
             {
                 return;
             }
-            currentIndex = index;
-            if (index == 0)
-            {
-                setUI("zh-CN");
-                IsolatedStorageSettings appSettings = IsolatedStorageSettings.ApplicationSettings;
-                appSettings["language"] = "zh-CN";
-                appSettings.Save();
-
-            }
-            if (index == 1)
-            {
-                setUI("en-US");
-                IsolatedStorageSettings appSettings = IsolatedStorageSettings.ApplicationSettings;
-                appSettings["language"] = "en-US";
-                appSettings.Save();
-            }
-            if (index == 2)
-            {
-                setUI("zh-TW");
-                IsolatedStorageSettings appSettings = IsolatedStorageSettings.ApplicationSettings;
-                appSettings["language"] = "zh-TW";
-                appSettings.Save();
-            }
+            currentLanguageIndex = index;
+            setUI(Settings.locales[index]);
+            IsolatedStorageSettings appSettings = IsolatedStorageSettings.ApplicationSettings;
+            appSettings[Settings.languageSetting] = Settings.locales[index];
+            appSettings.Save();
         }
 
 

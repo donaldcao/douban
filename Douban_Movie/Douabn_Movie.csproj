@@ -156,6 +156,7 @@
     <Compile Include="SettingPage.xaml.cs">
       <DependentUpon>SettingPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Settings.cs" />
     <Compile Include="Utility\Downloader.cs" />
     <Compile Include="Utility\Util.cs" />
     <Compile Include="Utility\WP8PullToRefreshDetector.cs" />
@@ -244,7 +245,6 @@
     <Content Include="Assets\save.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Assets\test.png" />
     <Content Include="Assets\Tiles\IconTileMediumLarge.png" />
     <Content Include="Assets\Tiles\IconTileSmall.png" />
     <Content Include="SplashScreenImage.screen-720p.jpg" />

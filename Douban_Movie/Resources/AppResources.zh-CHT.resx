@@ -257,4 +257,13 @@
   <data name="NoComment" xml:space="preserve">
     <value>暫無評論!</value>
   </data>
+  <data name="Background" xml:space="preserve">
+    <value>背景顏色</value>
+  </data>
+  <data name="Black" xml:space="preserve">
+    <value>黑色</value>
+  </data>
+  <data name="Blue" xml:space="preserve">
+    <value>藍色</value>
+  </data>
 </root>

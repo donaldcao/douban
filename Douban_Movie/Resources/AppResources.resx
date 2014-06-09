@@ -260,4 +260,13 @@
   <data name="NoMore" xml:space="preserve">
     <value>No More</value>
   </data>
+  <data name="Black" xml:space="preserve">
+    <value>Black</value>
+  </data>
+  <data name="Blue" xml:space="preserve">
+    <value>Blue</value>
+  </data>
+  <data name="Background" xml:space="preserve">
+    <value>Background Color</value>
+  </data>
 </root>

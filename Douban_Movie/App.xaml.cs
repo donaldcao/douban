@@ -238,22 +238,39 @@ namespace PanoramaApp2
             try
             {
                 IsolatedStorageSettings appSettings = IsolatedStorageSettings.ApplicationSettings;
-                try
+                if (appSettings.Contains(Settings.languageSetting)) 
                 {
-                    string languageSetting = (string)appSettings["language"];
+                    string languageSetting = (string)appSettings[Settings.languageSetting];
                     // Set this thread's current culture to the culture associated with the selected locale.
                     CultureInfo newCulture = new CultureInfo(languageSetting);
                     Thread.CurrentThread.CurrentCulture = newCulture;
                     Thread.CurrentThread.CurrentUICulture = newCulture;
                 }
-                catch (KeyNotFoundException)
+                else 
                 {
                     CultureInfo currentCulture = CultureInfo.CurrentCulture;
                     string cultureName = currentCulture.Name;
-                    appSettings.Add("language", cultureName);
+                    appSettings.Add(Settings.languageSetting, cultureName);
                     appSettings.Save();
                 }
-              
+                if (appSettings.Contains(Settings.backgroundSetting)) 
+                {
+                    string backgroundSetting = (string)appSettings[Settings.backgroundSetting];
+                    if (backgroundSetting == Settings.blueString)
+                    {
+                        Settings.background = Settings.Backgrounds.BLUE;
+                    }
+                    if (backgroundSetting == Settings.blackString)
+                    {
+                        Settings.background = Settings.Backgrounds.BLACK;
+                    }
+                }
+                else 
+                {
+                    Settings.background = Settings.defaultBackground;
+                    appSettings.Add(Settings.backgroundSetting, Settings.blueString);
+                    appSettings.Save();
+                }
                 // Set the font to match the display language defined by the
                 // ResourceLanguage resource string for each supported language.
                 //

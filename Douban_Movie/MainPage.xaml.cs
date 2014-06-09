@@ -14,6 +14,7 @@ using PanoramaApp2.Resources;
 using Microsoft.Phone.Tasks;
 using System.Threading.Tasks;
 using PanoramaApp2.Utility;
+using System.Windows.Media;
 
 namespace PanoramaApp2
 {
@@ -195,7 +196,27 @@ namespace PanoramaApp2
                 if (e.NavigationMode == NavigationMode.New)
                 {
                     showPopup();
-                    //HotMovieHtmlParser.parseHottMovie();
+                    if (Settings.background == Settings.Backgrounds.BLACK)
+                    {
+                        LayoutRoot.Background = new SolidColorBrush(Colors.Black);
+                    }
+                    if (Settings.background == Settings.Backgrounds.BLUE)
+                    {
+                        Color color = new Color { A= 255, R = 43, G = 79, B = 129 };
+                        LayoutRoot.Background = new SolidColorBrush(color);
+                    }
+                }
+                else if (e.NavigationMode == NavigationMode.Back || e.NavigationMode == NavigationMode.Refresh)
+                {
+                    if (Settings.background == Settings.Backgrounds.BLACK)
+                    {
+                        LayoutRoot.Background = new SolidColorBrush(Colors.Black);
+                    }
+                    if (Settings.background == Settings.Backgrounds.BLUE)
+                    {
+                        Color color = new Color { A = 255, R = 43, G = 79, B = 129 };
+                        LayoutRoot.Background = new SolidColorBrush(color);
+                    }
                 }
             }
         }

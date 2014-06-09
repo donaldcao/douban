@@ -24,7 +24,6 @@ namespace PanoramaApp2.JsonParser
         public ObservableCollection<Movie> movieCollection { get; set; }
         public int resultNumber { get; set; }
         private string searchText;
-        private WebClient client;
         private Downloader downloader;
 
         /// <summary>

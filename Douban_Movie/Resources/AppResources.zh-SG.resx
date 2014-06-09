@@ -260,4 +260,13 @@
   <data name="NoMore" xml:space="preserve">
     <value>没有更多了</value>
   </data>
+  <data name="Background" xml:space="preserve">
+    <value>背景颜色</value>
+  </data>
+  <data name="Black" xml:space="preserve">
+    <value>黑色</value>
+  </data>
+  <data name="Blue" xml:space="preserve">
+    <value>蓝色</value>
+  </data>
 </root>
