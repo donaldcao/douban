@@ -142,6 +142,7 @@
     </Compile>
     <Compile Include="DataModel\Review.cs" />
     <Compile Include="HtmlParser\ReviewHtmlParser.cs" />
+    <Compile Include="ReviewColorConverter.cs" />
     <Compile Include="ReviewPage.xaml.cs">
       <DependentUpon>ReviewPage.xaml</DependentUpon>
     </Compile>

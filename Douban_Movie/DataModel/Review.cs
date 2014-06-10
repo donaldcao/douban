@@ -126,6 +126,20 @@ namespace PanoramaApp2
             }
         }
 
+        private Settings.Backgrounds _background;
+        public Settings.Backgrounds background
+        {
+            get
+            {
+                return _background;
+            }
+            set
+            {
+                _background = value;
+                NotifyPropertyChanged("background");
+            }
+        }
+
         private string _nextCommentLink = "";
         public string nextCommentLink
         {

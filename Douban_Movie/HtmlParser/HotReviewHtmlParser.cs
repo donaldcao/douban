@@ -117,6 +117,7 @@ namespace PanoramaApp2.HtmlParser
             r.movieId = movieId;
             r.movieName = Util.replaceSpecialChar(movieName);
             r.star = App.imagePath + startPath;
+            r.background = Settings.background;
             return r;
         }
     }

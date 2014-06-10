@@ -18,6 +18,8 @@
         </Style>
         
         <local:LocalizedStrings xmlns:local="clr-namespace:PanoramaApp2" x:Key="LocalizedStrings"/>
+        <converter:ReviewColorConverter xmlns:converter="clr-namespace:PanoramaApp2" x:Key="ReviewColorConverter"/>
+        
         <DataTemplate x:Key="MyPivotItemHeaderTemplate">
             <Grid>
                 <ContentPresenter>

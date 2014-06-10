@@ -53,8 +53,6 @@ namespace PanoramaApp2
 
                     Settings.updateLanguage();
                     string[] backgrounds = Settings.backgrounds;
-                    System.Diagnostics.Debug.WriteLine(Settings.backgrounds[0]);
-                    System.Diagnostics.Debug.WriteLine(AppResources.Black);
                     backgroundPicker.ItemsSource = backgrounds;
                     currentBackgroundIndex = 0;
                     if (appSettings.Contains(Settings.backgroundSetting))

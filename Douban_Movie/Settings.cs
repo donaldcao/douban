@@ -7,7 +7,7 @@ using PanoramaApp2.Resources;
 
 namespace PanoramaApp2
 {
-    class Settings
+    public class Settings
     {
         public enum Languages {SCHINESE, TCHINESE, ENGLISH};
         public static string[] locales = { "zh-CN", "en-US", "zh-TW" };
