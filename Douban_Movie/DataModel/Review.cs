@@ -18,6 +18,10 @@ namespace PanoramaApp2
             }
             set
             {
+                if (_id == value)
+                {
+                    return;
+                }
                 _id = value;
                 NotifyPropertyChanged("id");
             }
@@ -31,6 +35,10 @@ namespace PanoramaApp2
             }
             set
             {
+                if (_title == value)
+                {
+                    return;
+                }
                 _title = value;
                 NotifyPropertyChanged("title");
             }
@@ -44,6 +52,10 @@ namespace PanoramaApp2
             }
             set
             {
+                if (_review == value)
+                {
+                    return;
+                }
                 _review = value;
                 NotifyPropertyChanged("review");
             }
@@ -57,6 +69,10 @@ namespace PanoramaApp2
             }
             set
             {
+                if (_reviewShort == value)
+                {
+                    return;
+                }
                 _reviewShort = value;
                 NotifyPropertyChanged("reviewShort");
             }
@@ -70,6 +86,10 @@ namespace PanoramaApp2
             }
             set
             {
+                if (_reviewer == value)
+                {
+                    return;
+                }
                 _reviewer = value;
                 NotifyPropertyChanged("revewer");
             }
@@ -83,6 +103,10 @@ namespace PanoramaApp2
             }
             set
             {
+                if (_date == value)
+                {
+                    return;
+                }
                 _date = value;
                 NotifyPropertyChanged("date");
             }
@@ -96,6 +120,10 @@ namespace PanoramaApp2
             }
             set
             {
+                if (_movieId == value)
+                {
+                    return;
+                }
                 _movieId = value;
                 NotifyPropertyChanged("movieId");
             }
@@ -109,6 +137,10 @@ namespace PanoramaApp2
             }
             set
             {
+                if (_movieName == value)
+                {
+                    return;
+                }
                 _movieName = value;
                 NotifyPropertyChanged("movieName");
             }
@@ -121,22 +153,12 @@ namespace PanoramaApp2
             }
             set
             {
+                if (_star == value)
+                {
+                    return;
+                }
                 _star = value;
                 NotifyPropertyChanged("star");
-            }
-        }
-
-        private Settings.Backgrounds _background;
-        public Settings.Backgrounds background
-        {
-            get
-            {
-                return _background;
-            }
-            set
-            {
-                _background = value;
-                NotifyPropertyChanged("background");
             }
         }
 

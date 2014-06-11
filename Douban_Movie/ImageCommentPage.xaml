@@ -10,18 +10,19 @@
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
+    xmlns:setting="clr-namespace:PanoramaApp2;assembly=DoubanMovie"
     SupportedOrientations="Portrait" Orientation="Portrait"
     mc:Ignorable="d"
     toolkit:TiltEffect.IsTiltEnabled="True">
 
     <!--LayoutRoot is the root grid where all page content is placed-->
-    <Grid x:Name="LayoutRoot" Background="#2B4F81">
+    <Grid x:Name="LayoutRoot" Background="{Binding backgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <!--Logo and search button-->
-        <Grid HorizontalAlignment="Center" Height="auto" Margin="0, 0, 0, 0"  VerticalAlignment="Center" Width="440" Grid.Row="0" Background="#2B4F81">
+        <Grid HorizontalAlignment="Center" Height="auto" Margin="0, 0, 0, 0"  VerticalAlignment="Center" Width="440" Grid.Row="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="200"/>
                 <ColumnDefinition Width="200"/>
@@ -38,9 +39,7 @@
                 <phone:LongListSelector.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Orientation="Vertical" Margin="0, 24, 0, 24">
-                            <Border Background="#3063A5">
-                                <TextBlock Text="{Binding author}" Foreground="White" Width="auto" FontSize="{StaticResource PhoneFontSizeMedium}" TextWrapping="Wrap"/>
-                            </Border>
+                            <setting:MySettingsComment/>
                             <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center" Text="{Binding time}" Margin="0, 0, 0, 0" TextWrapping="Wrap" Style="{StaticResource PhoneTextSmallStyle}" Width="auto" Foreground="White"/>
                             <TextBlock Text="{Binding content}" TextWrapping="Wrap" Width="auto" HorizontalAlignment="Left" Foreground="White" Margin="0, 6, 0, 0"/>
                         </StackPanel>

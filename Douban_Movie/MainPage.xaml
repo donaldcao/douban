@@ -7,7 +7,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
-    mc:Ignorable="d"
+    xmlns:my="clr-namespace:PanoramaApp2;assembly=DoubanMovie"
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
@@ -16,7 +16,7 @@
     >
     
     <!--LayoutRoot is the root grid where all page content is placed-->
-    <Grid x:Name="LayoutRoot">
+    <Grid x:Name="LayoutRoot" Background="{Binding backgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
@@ -150,10 +150,11 @@
                         <phone:LongListSelector.ItemTemplate>
                             <DataTemplate>
                                     <StackPanel Margin="0,24,0,24" Orientation="Vertical" Height="auto" Width="auto">
-                                        <Border x:Name="border" Background="{Binding Converter={StaticResource ReviewColorConverter}}">
-                                            <TextBlock Text="{Binding title, Mode=OneTime}" Margin="0, 0, 0, 0" TextWrapping="Wrap" Foreground="White" FontSize="{StaticResource PhoneFontSizeMedium}" VerticalAlignment="Top" Width="auto" HorizontalAlignment="Left"/>
-                                        </Border>
-                                        <StackPanel Orientation="Horizontal" Margin="0, 0, 0, 0">
+                                    <!--<Border x:Name="border" Background="{Binding ElementName=}">
+                                        <TextBlock Text="{Binding title, Mode=OneTime}" Margin="0, 0, 0, 0" TextWrapping="Wrap" Foreground="White" FontSize="{StaticResource PhoneFontSizeMedium}" VerticalAlignment="Top" Width="auto" HorizontalAlignment="Left"/>
+                                    </Border>-->
+                                    <my:MySettingsProvider/>
+                                    <StackPanel Orientation="Horizontal" Margin="0, 0, 0, 0">
                                             <TextBlock Text="{Binding reviewer, Mode=OneTime}" Foreground="White" Style="{StaticResource PhoneTextSmallStyle}" Margin="0, 0, 0, 5" VerticalAlignment="Center" HorizontalAlignment="Left"/>
                                             <Image Source="{Binding star, Mode=OneTime}" Width="130" Height="auto" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0, 0, 0, 0"/>
                                         </StackPanel>

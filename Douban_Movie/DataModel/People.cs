@@ -18,6 +18,10 @@ namespace PanoramaApp2
             }
             set
             {
+                if (_id == value)
+                {
+                    return;
+                }
                 _id = value;
                 NotifyPropertyChanged("id");
             }
@@ -31,20 +35,28 @@ namespace PanoramaApp2
             }
             set
             {
+                if (_name == value)
+                {
+                    return;
+                }
                 _name = value;
                 NotifyPropertyChanged("name");
             }
         }
-        private string _postion = "";
+        private string _position = "";
         public string position
         {
             get
             {
-                return _postion;
+                return _position;
             }
             set
             {
-                _postion = value;
+                if (_position == value)
+                {
+                    return;
+                }
+                _position = value;
                 NotifyPropertyChanged("position");
             }
         }
@@ -57,6 +69,10 @@ namespace PanoramaApp2
             }
             set
             {
+                if (_posterUrl == value)
+                {
+                    return;
+                }
                 _posterUrl = value;
                 NotifyPropertyChanged("posterUrl");
             }
@@ -70,6 +86,10 @@ namespace PanoramaApp2
             }
             set
             {
+                if (_positionName == value)
+                {
+                    return;
+                }
                 _positionName = value;
                 NotifyPropertyChanged("positionName");
             }
@@ -83,6 +103,10 @@ namespace PanoramaApp2
             }
             set
             {
+                if (_gender == value)
+                {
+                    return;
+                }
                 _gender = value;
                 NotifyPropertyChanged("gender");
             }
@@ -96,6 +120,10 @@ namespace PanoramaApp2
             }
             set
             {
+                if (_constl == value)
+                {
+                    return;
+                }
                 _constl = value;
                 NotifyPropertyChanged("constl");
             }
@@ -109,6 +137,10 @@ namespace PanoramaApp2
             }
             set
             {
+                if (_birthday == value)
+                {
+                    return;
+                }
                 _birthday = value;
                 NotifyPropertyChanged("birthday");
             }
@@ -122,6 +154,10 @@ namespace PanoramaApp2
             }
             set
             {
+                if (_birthplace == value)
+                {
+                    return;
+                }
                 _birthplace = value;
                 NotifyPropertyChanged("birthplace");
             }
@@ -135,6 +171,10 @@ namespace PanoramaApp2
             }
             set
             {
+                if (_occupation == value)
+                {
+                    return;
+                }
                 _occupation = value;
                 NotifyPropertyChanged("birthplace");
             }
@@ -148,6 +188,10 @@ namespace PanoramaApp2
             }
             set
             {
+                if (_summary == value)
+                {
+                    return;
+                }
                 _summary = value;
                 NotifyPropertyChanged("summary");
             }

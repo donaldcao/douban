@@ -13,18 +13,19 @@
     Foreground="{StaticResource PhoneForegroundBrush}"
     SupportedOrientations="Portrait"  Orientation="Portrait"
     xmlns:my="clr-namespace:Phone.Controls;assembly=Phone.Controls"
+    xmlns:setting="clr-namespace:PanoramaApp2;assembly=DoubanMovie"
     shell:SystemTray.IsVisible="False"
     >
 
     <!--LayoutRoot contains the root grid where all other page content is placed-->
-    <Grid x:Name="LayoutRoot" Background="#2B4F81">
+    <Grid x:Name="LayoutRoot" Background="{Binding backgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <!--Logo and search button-->
-        <Grid HorizontalAlignment="Center" Height="auto" Margin="0, 0, 0, 0"  VerticalAlignment="Center" Width="440" Grid.Row="0" Background="#2B4F81">
+        <Grid HorizontalAlignment="Center" Height="auto" Margin="0, 0, 0, 0"  VerticalAlignment="Center" Width="440" Grid.Row="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="200"/>
                 <ColumnDefinition Width="200"/>
@@ -33,7 +34,7 @@
             <Image Source="/DoubanMovie;component/Assets/search.png" Height="60" Width="60" Grid.Column="1" Tap="Image_Tap" HorizontalAlignment="Right"/>
         </Grid>
 
-        <phone:Pivot Margin="0,0,0,0" Grid.RowSpan="1" Background="#2B4F81" Grid.Row="1" HeaderTemplate="{StaticResource MyPivotItemHeaderTemplate}" SelectionChanged="Pivot_SelectionChanged">
+        <phone:Pivot Margin="0,0,0,0" Grid.RowSpan="1" Grid.Row="1" HeaderTemplate="{StaticResource MyPivotItemHeaderTemplate}" SelectionChanged="Pivot_SelectionChanged">
 
             <!--Panorama item one-->
             <phone:PivotItem Header="{Binding Path=LocalizedResources.MovieInfo, Source={StaticResource LocalizedStrings}}" Margin="24, 24, 24, 24">
@@ -104,9 +105,7 @@
                         <phone:LongListSelector.ItemTemplate>
                             <DataTemplate>
                                     <StackPanel Orientation="Vertical" Margin="0, 24, 0, 24">
-                                    <Border Background="#3063A5">
-                                            <TextBlock Text="{Binding author, Mode=OneTime}" Foreground="White" Width="auto" FontSize="{StaticResource PhoneFontSizeMedium}" TextWrapping="Wrap"/>
-                                        </Border>
+                                        <setting:MySettingsComment/>
                                         <StackPanel Orientation="Horizontal" Margin="-10, 0, 0, 0">
                                             <Image Source="{Binding star, Mode=OneTime}"  Width="130" Height="auto" VerticalAlignment="Center" HorizontalAlignment="Left"/>
                                             <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center" Text="{Binding time, Mode=OneTime}" Margin="0, 0, 0, 0" TextWrapping="Wrap" Style="{StaticResource PhoneTextSmallStyle}" Width="auto" Foreground="White"/>
@@ -133,9 +132,7 @@
                         <phone:LongListSelector.ItemTemplate>
                             <DataTemplate>
                                     <StackPanel Margin="0,24,0,24" Orientation="Vertical" Height="auto" Width="auto">
-                                    <Border Background="#3063A5">
-                                            <TextBlock Text="{Binding title, Mode=OneTime}" Margin="0, 0, 0, 0" TextWrapping="Wrap" Foreground="White" FontSize="{StaticResource PhoneFontSizeMedium}" VerticalAlignment="Top" Width="auto" HorizontalAlignment="Left"/>
-                                        </Border>
+                                        <setting:MySettingsProvider/>
                                         <StackPanel Orientation="Horizontal" Margin="0, 0, 0, 0">
                                             <TextBlock Text="{Binding reviewer, Mode=OneTime}" Foreground="White" Style="{StaticResource PhoneTextSmallStyle}" Margin="0, 0, 0, 5" VerticalAlignment="Center" HorizontalAlignment="Left"/>
                                             <Image Source="{Binding star, Mode=OneTime}" Width="130" Height="auto" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0, 0, 0, 0"/>

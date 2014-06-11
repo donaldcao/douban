@@ -12,6 +12,7 @@ using System.Threading;
 using PanoramaApp2.Resources;
 using System.Windows.Markup;
 using System.IO.IsolatedStorage;
+using System.Windows.Media;
 
 namespace PanoramaApp2
 {
@@ -39,33 +40,33 @@ namespace PanoramaApp2
             {
                 if (e.NavigationMode == NavigationMode.New)
                 {
-                    string[] languages = Settings.languages;
+                    string[] languages = Settings.instance.languages;
                     languagePicker.ItemsSource = languages;
                     currentLanguageIndex = 0;
                     IsolatedStorageSettings appSettings = IsolatedStorageSettings.ApplicationSettings;
-                    if (appSettings.Contains(Settings.languageSetting)) 
+                    if (appSettings.Contains(Settings.instance.languageSetting)) 
                     {
-                        string languageSetting = (string)appSettings[Settings.languageSetting];
-                        currentLanguageIndex = Array.IndexOf(Settings.locales, languageSetting);
+                        string languageSetting = (string)appSettings[Settings.instance.languageSetting];
+                        currentLanguageIndex = Array.IndexOf(Settings.instance.locales, languageSetting);
                         languagePicker.SelectedIndex = currentLanguageIndex;
                     }
                     languagePicker.SelectedIndex = currentLanguageIndex;
 
-                    Settings.updateLanguage();
-                    string[] backgrounds = Settings.backgrounds;
+                    Settings.instance.updateLanguage();
+                    string[] backgrounds = Settings.instance.backgrounds;
                     backgroundPicker.ItemsSource = backgrounds;
                     currentBackgroundIndex = 0;
-                    if (appSettings.Contains(Settings.backgroundSetting))
+                    if (appSettings.Contains(Settings.instance.backgroundSetting))
                     {
-                        string backgroundSetting = (string)appSettings[Settings.backgroundSetting];
-                        if (backgroundSetting == Settings.blueString)
+                        string backgroundSetting = (string)appSettings[Settings.instance.backgroundSetting];
+                        if (backgroundSetting == Settings.instance.blueString)
                         {
-                            Settings.background = Settings.Backgrounds.BLUE;
+                            Settings.instance.background = Settings.Backgrounds.BLUE;
                             currentBackgroundIndex = 0;
                         }
-                        if (backgroundSetting == Settings.blackString)
+                        if (backgroundSetting == Settings.instance.blackString)
                         {
-                            Settings.background = Settings.Backgrounds.BLACK;
+                            Settings.instance.background = Settings.Backgrounds.BLACK;
                             currentBackgroundIndex = 1;
                         }
                     }
@@ -84,16 +85,23 @@ namespace PanoramaApp2
             currentBackgroundIndex = index;
             if (index == 0)
             {
-                Settings.background = Settings.Backgrounds.BLUE;
+                Settings.instance.background = Settings.Backgrounds.BLUE;
+                Color color = new Color { A = 255, R = 48, G = 99, B = 165 };
+                Settings.instance.bannerBrush = new SolidColorBrush(color);
+                Color backgroundColor = new Color { A = 255, R = 43, G = 79, B = 129 };
+                Settings.instance.backgroundBrush = new SolidColorBrush(backgroundColor);
                 IsolatedStorageSettings appSettings = IsolatedStorageSettings.ApplicationSettings;
-                appSettings[Settings.backgroundSetting] = Settings.blueString;
+                appSettings[Settings.instance.backgroundSetting] = Settings.instance.blueString;
                 appSettings.Save();
             }
             if (index == 1)
             {
-                Settings.background = Settings.Backgrounds.BLACK;
+                Settings.instance.background = Settings.Backgrounds.BLACK;
+                Color color = new Color { A = 255, R = 77, G = 57, B = 21 };
+                Settings.instance.bannerBrush = new SolidColorBrush(color);
+                Settings.instance.backgroundBrush = new SolidColorBrush(Colors.Black);
                 IsolatedStorageSettings appSettings = IsolatedStorageSettings.ApplicationSettings;
-                appSettings[Settings.backgroundSetting] = Settings.blackString;
+                appSettings[Settings.instance.backgroundSetting] = Settings.instance.blackString;
                 appSettings.Save();
             }
         }
@@ -106,9 +114,9 @@ namespace PanoramaApp2
                 return;
             }
             currentLanguageIndex = index;
-            setUI(Settings.locales[index]);
+            setUI(Settings.instance.locales[index]);
             IsolatedStorageSettings appSettings = IsolatedStorageSettings.ApplicationSettings;
-            appSettings[Settings.languageSetting] = Settings.locales[index];
+            appSettings[Settings.instance.languageSetting] = Settings.instance.locales[index];
             appSettings.Save();
         }
 

@@ -52,6 +52,7 @@ namespace PanoramaApp2
 
             imageSelector.ItemRealized += image_ItemRealized;
             movieSelector.ItemRealized += movie_ItemRealized;
+            LayoutRoot.DataContext = Settings.instance;
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)

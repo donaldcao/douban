@@ -18,6 +18,10 @@ namespace PanoramaApp2
             }
             set
             {
+                if (_author == value)
+                {
+                    return;
+                }
                 _author = value;
                 NotifyPropertyChanged("author");
             }
@@ -31,6 +35,10 @@ namespace PanoramaApp2
             }
             set
             {
+                if (_time == value)
+                {
+                    return;
+                }
                 _time = value;
                 NotifyPropertyChanged("time");
             }
@@ -44,6 +52,10 @@ namespace PanoramaApp2
             }
             set
             {
+                if (_content == value)
+                {
+                    return;
+                }
                 _content = value;
                 NotifyPropertyChanged("content");
             }

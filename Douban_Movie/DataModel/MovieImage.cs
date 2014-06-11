@@ -31,6 +31,10 @@ namespace PanoramaApp2
             }
             set
             {
+                if (_id == value)
+                {
+                    return;
+                }
                 _id = value;
                 NotifyPropertyChanged("id");
             }
@@ -45,6 +49,10 @@ namespace PanoramaApp2
             }
             set
             {
+                if (_smallUrl == value)
+                {
+                    return;
+                }
                 _smallUrl = value;
                 NotifyPropertyChanged("smallUrl");
             }
@@ -59,6 +67,10 @@ namespace PanoramaApp2
             }
             set
             {
+                if (_largeUrl == value)
+                {
+                    return;
+                }
                 _largeUrl = value;
                 NotifyPropertyChanged("largeUrl");
             }

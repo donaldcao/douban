@@ -53,6 +53,7 @@ namespace PanoramaApp2
             isCommentNewLoad = false;
             hotReviewLongListSelector.ItemRealized += comment_ItemRealized;
 
+            LayoutRoot.DataContext = Settings.instance;
             // Get hot movie
             popup = new Popup();
             searchPopup = new Popup();
@@ -196,40 +197,7 @@ namespace PanoramaApp2
                 if (e.NavigationMode == NavigationMode.New)
                 {
                     showPopup();
-                    if (Settings.background == Settings.Backgrounds.BLACK)
-                    {
-                        LayoutRoot.Background = new SolidColorBrush(Colors.Black);
-                        Color color = new Color { A = 255, R = 105, G = 85, B = 35 };
-                    }
-                    if (Settings.background == Settings.Backgrounds.BLUE)
-                    {
-                        Color color = new Color { A= 255, R = 43, G = 79, B = 129 };
-                        LayoutRoot.Background = new SolidColorBrush(color);
-                    }
                 }
-                else if (e.NavigationMode == NavigationMode.Back || e.NavigationMode == NavigationMode.Refresh)
-                {
-                    if (Settings.background == Settings.Backgrounds.BLACK)
-                    {
-                        LayoutRoot.Background = new SolidColorBrush(Colors.Black);
-                    }
-                    if (Settings.background == Settings.Backgrounds.BLUE)
-                    {
-                        Color color = new Color { A = 255, R = 43, G = 79, B = 129 };
-                        LayoutRoot.Background = new SolidColorBrush(color);
-                    }
-                    if (commentLoaded)
-                    {
-                        updateReviewBackground();
-                    }
-                }
-            }
-        }
-
-        private void updateReviewBackground()
-        {
-            foreach (Review r in HotReviewHtmlParser.reviewCollection) {
-                r.background = Settings.background;
             }
         }
 
@@ -582,7 +550,6 @@ namespace PanoramaApp2
                 {
                     commentLoaded = true;
                     await loadReviewPivotItem();
-                    updateReviewBackground();
                 }
             }
         }

@@ -19,6 +19,8 @@
         
         <local:LocalizedStrings xmlns:local="clr-namespace:PanoramaApp2" x:Key="LocalizedStrings"/>
         <converter:ReviewColorConverter xmlns:converter="clr-namespace:PanoramaApp2" x:Key="ReviewColorConverter"/>
+        <local:MySettingsProvider xmlns:local="clr-namespace:PanoramaApp2" x:Key="MySettingsProvider"/>
+        
         
         <DataTemplate x:Key="MyPivotItemHeaderTemplate">
             <Grid>

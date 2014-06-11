@@ -15,6 +15,10 @@ namespace PanoramaApp2
             get { return _id; }
             set
             {
+                if (_id == value)
+                {
+                    return;
+                }
                 _id = value;
                 NotifyPropertyChanged("id");
             }
@@ -28,6 +32,10 @@ namespace PanoramaApp2
             }
             set
             {
+                if (_title == value)
+                {
+                    return;
+                }
                 _title = value;
                 NotifyPropertyChanged("title");
             }
@@ -41,6 +49,10 @@ namespace PanoramaApp2
             }
             set
             {
+                if (_posterUrl == value)
+                {
+                    return;
+                }
                 _posterUrl = value;
                 NotifyPropertyChanged("posterUrl");
             }
@@ -53,6 +65,10 @@ namespace PanoramaApp2
             }
             set
             {
+                if (_rating == value)
+                {
+                    return;
+                }
                 _rating = value;
                 NotifyPropertyChanged("rating");
             }
@@ -66,6 +82,10 @@ namespace PanoramaApp2
             }
             set
             {
+                if (_star == value)
+                {
+                    return;
+                }
                 _star = value;
                 NotifyPropertyChanged("star");
             }
@@ -78,6 +98,10 @@ namespace PanoramaApp2
             }
             set
             {
+                if (_actors_list == value)
+                {
+                    return;
+                }
                 _actors_list = value;
                 NotifyPropertyChanged("actors_list");
             }
@@ -91,6 +115,10 @@ namespace PanoramaApp2
             }
             set
             {
+                if (_length == value)
+                {
+                    return;
+                }
                 _length = value;
                 NotifyPropertyChanged("length");
             }
@@ -104,6 +132,10 @@ namespace PanoramaApp2
             }
             set
             {
+                if (_year == value)
+                {
+                    return;
+                }
                 _year = value;
                 NotifyPropertyChanged("year");
             }
@@ -117,6 +149,10 @@ namespace PanoramaApp2
             }
             set
             {
+                if (_region == value)
+                {
+                    return;
+                }
                 _region = value;
                 NotifyPropertyChanged("region");
             }
@@ -130,6 +166,10 @@ namespace PanoramaApp2
             }
             set
             {
+                if (_rateNumber == value)
+                {
+                    return;
+                }
                 _rateNumber = value;
                 NotifyPropertyChanged("rateNumber");
             }
@@ -142,6 +182,10 @@ namespace PanoramaApp2
             }
             set
             {
+                if (_summary == value)
+                {
+                    return;
+                }
                 _summary = value;
                 NotifyPropertyChanged("summary");
             }
@@ -155,6 +199,10 @@ namespace PanoramaApp2
             }
             set
             {
+                if (_genre == value)
+                {
+                    return;
+                }
                 _genre = value;
                 NotifyPropertyChanged("genre");
             }
@@ -168,6 +216,10 @@ namespace PanoramaApp2
             }
             set
             {
+                if (_money == value)
+                {
+                    return;
+                }
                 _money = value;
                 NotifyPropertyChanged("money");
             }
@@ -181,6 +233,10 @@ namespace PanoramaApp2
             }
             set
             {
+                if (_quote == value)
+                {
+                    return;
+                }
                 _quote = value;
                 NotifyPropertyChanged("quote");
             }
@@ -194,6 +250,10 @@ namespace PanoramaApp2
             }
             set
             {
+                if (_releaseDate == value)
+                {
+                    return;
+                }
                 _releaseDate = value;
                 NotifyPropertyChanged("releaseDate");
             }

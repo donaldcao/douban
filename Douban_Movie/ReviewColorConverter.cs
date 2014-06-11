@@ -12,18 +12,6 @@ namespace PanoramaApp2
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value != null)
-            {
-                Review review = (Review)value;
-                if (review.background == Settings.Backgrounds.BLUE)
-                {
-                    return "#3063A5";
-                }
-                if (review.background == Settings.Backgrounds.BLACK)
-                {
-                    return "#4D3E1B";
-                }
-            }
             return "#3063A5";
         }
 

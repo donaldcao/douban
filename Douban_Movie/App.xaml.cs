@@ -14,6 +14,7 @@ using System.IO.IsolatedStorage;
 using System.Globalization;
 using System.Threading;
 using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace PanoramaApp2
 {
@@ -238,9 +239,9 @@ namespace PanoramaApp2
             try
             {
                 IsolatedStorageSettings appSettings = IsolatedStorageSettings.ApplicationSettings;
-                if (appSettings.Contains(Settings.languageSetting)) 
+                if (appSettings.Contains(Settings.instance.languageSetting)) 
                 {
-                    string languageSetting = (string)appSettings[Settings.languageSetting];
+                    string languageSetting = (string)appSettings[Settings.instance.languageSetting];
                     // Set this thread's current culture to the culture associated with the selected locale.
                     CultureInfo newCulture = new CultureInfo(languageSetting);
                     Thread.CurrentThread.CurrentCulture = newCulture;
@@ -250,25 +251,32 @@ namespace PanoramaApp2
                 {
                     CultureInfo currentCulture = CultureInfo.CurrentCulture;
                     string cultureName = currentCulture.Name;
-                    appSettings.Add(Settings.languageSetting, cultureName);
+                    appSettings.Add(Settings.instance.languageSetting, cultureName);
                     appSettings.Save();
                 }
-                if (appSettings.Contains(Settings.backgroundSetting)) 
+                if (appSettings.Contains(Settings.instance.backgroundSetting)) 
                 {
-                    string backgroundSetting = (string)appSettings[Settings.backgroundSetting];
-                    if (backgroundSetting == Settings.blueString)
+                    string backgroundSetting = (string)appSettings[Settings.instance.backgroundSetting];
+                    if (backgroundSetting == Settings.instance.blueString)
                     {
-                        Settings.background = Settings.Backgrounds.BLUE;
+                        Settings.instance.background = Settings.Backgrounds.BLUE;
+                        Color color = new Color { A = 255, R = 48, G = 99, B = 165 };
+                        Settings.instance.bannerBrush = new SolidColorBrush(color);
+                        Color backgroundColor = new Color { A = 255, R = 43, G = 79, B = 129 };
+                        Settings.instance.backgroundBrush = new SolidColorBrush(backgroundColor);
                     }
-                    if (backgroundSetting == Settings.blackString)
+                    if (backgroundSetting == Settings.instance.blackString)
                     {
-                        Settings.background = Settings.Backgrounds.BLACK;
+                        Settings.instance.background = Settings.Backgrounds.BLACK;
+                        Color color = new Color { A = 255, R = 77, G = 57, B = 21 };
+                        Settings.instance.bannerBrush = new SolidColorBrush(color);
+                        Settings.instance.backgroundBrush = new SolidColorBrush(Colors.Black);
                     }
                 }
                 else 
                 {
-                    Settings.background = Settings.defaultBackground;
-                    appSettings.Add(Settings.backgroundSetting, Settings.blueString);
+                    Settings.instance.background = Settings.instance.defaultBackground;
+                    appSettings.Add(Settings.instance.backgroundSetting, Settings.instance.blueString);
                     appSettings.Save();
                 }
                 // Set the font to match the display language defined by the

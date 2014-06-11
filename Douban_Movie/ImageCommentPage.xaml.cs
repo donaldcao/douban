@@ -37,6 +37,7 @@ namespace PanoramaApp2
             commentPullDector.Compression += commentDector_Compress;
 
             commentSelector.ItemRealized += comment_ItemRealized;
+            LayoutRoot.DataContext = Settings.instance;
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)

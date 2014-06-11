@@ -66,6 +66,9 @@ namespace PanoramaApp2
             { 
                 movieParser = new MovieJsonParser(movie);
             }
+
+            LayoutRoot.DataContext = Settings.instance;
+            movieGrid.DataContext = null;
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
