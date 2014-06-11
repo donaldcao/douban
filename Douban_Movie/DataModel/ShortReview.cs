@@ -60,6 +60,7 @@ namespace PanoramaApp2
                 NotifyPropertyChanged("time");
             }
         }
+
         private string _content = "";
         public string content
         {
