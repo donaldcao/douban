@@ -276,6 +276,20 @@ namespace PanoramaApp2
                 else 
                 {
                     Settings.instance.background = Settings.instance.defaultBackground;
+                    if (Settings.instance.background == Settings.Backgrounds.BLACK)
+                    {
+                        Color color = new Color { A = 255, R = 77, G = 57, B = 21 };
+                        Settings.instance.bannerBrush = new SolidColorBrush(color);
+                        Settings.instance.backgroundBrush = new SolidColorBrush(Colors.Black);
+                    }
+                    if (Settings.instance.background == Settings.Backgrounds.BLUE)
+                    {
+                        Settings.instance.background = Settings.Backgrounds.BLUE;
+                        Color color = new Color { A = 255, R = 48, G = 99, B = 165 };
+                        Settings.instance.bannerBrush = new SolidColorBrush(color);
+                        Color backgroundColor = new Color { A = 255, R = 43, G = 79, B = 129 };
+                        Settings.instance.backgroundBrush = new SolidColorBrush(backgroundColor);
+                    }
                     appSettings.Add(Settings.instance.backgroundSetting, Settings.instance.blueString);
                     appSettings.Save();
                 }
