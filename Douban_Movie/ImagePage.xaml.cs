@@ -205,7 +205,6 @@ namespace PanoramaApp2
                 var isProvider = Windows.Phone.System.UserProfile.LockScreenManager.IsProvidedByCurrentApplication;
                 if (!isProvider)
                 {
-                    System.Diagnostics.Debug.WriteLine("Not provided!");
 
                     // If you're not the provider, this call will prompt the user for permission.
                     // Calling RequestAccessAsync from a background agent is not allowed.

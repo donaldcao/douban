@@ -57,6 +57,7 @@ namespace PanoramaApp2
             // Get hot movie
             popup = new Popup();
             searchPopup = new Popup();
+            TesterTrailer.testHttpClient();
         }
 
         /// <summary>

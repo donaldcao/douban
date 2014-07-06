@@ -22,6 +22,7 @@ namespace PanoramaApp2
         public SearchPage()
         {
             InitializeComponent();
+            LayoutRoot.DataContext = Settings.instance;
             searchPopup = new Popup();
         }
 

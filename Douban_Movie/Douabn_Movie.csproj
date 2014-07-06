@@ -164,6 +164,7 @@
       <DependentUpon>SettingPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Settings.cs" />
+    <Compile Include="TesterTrailer.cs" />
     <Compile Include="Utility\Downloader.cs" />
     <Compile Include="Utility\Util.cs" />
     <Compile Include="Utility\WP8PullToRefreshDetector.cs" />
